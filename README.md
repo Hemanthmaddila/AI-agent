@@ -87,6 +87,13 @@ pytest
 - **Data Models**: Pydantic models for data validation and structure
 - **Configuration**: Centralized configuration management
 
+#### Data Models (`app/models/`)
+
+- `user_profile_models.py`: Defines Pydantic models for user profiles, including skills, experience, education, and job search preferences. ✅ **Completed**
+- `job_posting_models.py`: Defines Pydantic models for job postings scraped from various sources (LinkedIn, Indeed, SerpApi), including job details, descriptions, extracted skills, and AI relevance scoring. ✅ **Completed**
+- `application_log_models.py`: ⏳ **Upcoming** - Will define models for tracking job application statuses and history
+- `gemini_interaction_models.py`: ⏳ **Upcoming** - Will define models for structuring requests to and responses from the Gemini API
+
 ## Contributing
 
 1. Follow the existing code structure
