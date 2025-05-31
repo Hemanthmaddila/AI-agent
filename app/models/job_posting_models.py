@@ -1,0 +1,1 @@
+# Job Posting Models - Data structures for job postings 

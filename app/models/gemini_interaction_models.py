@@ -1,0 +1,1 @@
+# Gemini Interaction Models - Data structures for AI interactions 

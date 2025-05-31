@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.so
+*.out
+*.log # General log files, specific app logs might be in data/logs/
+*.tmp
+*.swp
+*.bak
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# Secrets - CRITICAL
+.env
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal* # SQLite journal files
+service_account_key.json # Or any direct credential files
+
+# IDE - Cursor / VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+.cursor/*
+!.cursor/ai_context.json # If this context is meant to be shared/versioned carefully
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Data files (if large or locally generated and not meant for repo)
+# data/*.db # Covered by *.db above if not wanting to commit the DB
+data/agent_database.db # Explicitly ignore the SQLite DB file
+data/scraped_data_*.json
+data/user_profiles/ # If profiles contain sensitive PII and are stored as files
+data/output_resumes/ # Generated resumes might be large or numerous
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Test artifacts
+.pytest_cache/
+htmlcov/
+.coverage*
+
+# Build artifacts
+dist/
+build/
+*.egg
+
+# Playwright browser binaries (usually installed globally or in user cache, but good to be safe)
+# playwright-browsers/
+# ms-playwright/ 
