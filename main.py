@@ -15,7 +15,7 @@ from config import settings # This will load .env and make settings available
 # Import the Playwright scraper service (replaces SerpAPI for MVP)
 from app.services.playwright_scraper_service import search_jobs_sync
 # Import the DatabaseService functions including new application logging
-from app.services.database_service import save_job_posting, save_search_query, get_pending_jobs, update_job_processing_status, save_application_log, find_job_by_url, get_application_logs
+from app.services.database_service import save_job_posting, save_search_query, get_pending_jobs, update_job_processing_status, save_application_log, find_job_by_url, get_application_logs, get_all_jobs
 # Import the GeminiService
 from app.services.gemini_service import GeminiService
 # We will also need our JobPosting model for type hinting and potentially for displaying
@@ -482,54 +482,68 @@ def view_applications(
                 console.print(f"[yellow]No applications found with status '{status_filter}'.[/yellow]")
                 return
         
+        console.print(f"Found {len(application_logs)} applications to display...")
+        
         # Display applications table
-        table = Table(title=f"Job Applications Log ({len(application_logs)} applications)")
-        table.add_column("ID", style="dim", width=4)
-        table.add_column("Date", style="cyan", width=12)
-        table.add_column("Job Title", style="magenta", min_width=25)
-        table.add_column("Company", style="yellow", min_width=20)
+        table = Table(title=f"Job Applications Log ({len(application_logs)} applications)", show_lines=True)
+        table.add_column("ID", style="dim", width=3, justify="right")
+        table.add_column("Date", style="cyan", width=10)
+        table.add_column("Job Title", style="magenta", min_width=20, max_width=25, overflow="ellipsis")
+        table.add_column("Company", style="yellow", min_width=15, max_width=20, overflow="ellipsis")
         table.add_column("Status", style="green", width=12)
-        table.add_column("Resume", style="blue", width=15)
-        table.add_column("Notes", style="white", overflow="fold", max_width=30)
+        table.add_column("Resume", style="blue", width=12, overflow="ellipsis")
+        table.add_column("Notes", style="white", max_width=25, overflow="ellipsis")
 
         for app in application_logs:
             # Format date
-            date_str = app.application_date.strftime("%Y-%m-%d") if app.application_date else "N/A"
+            date_str = "N/A"
+            if app.application_date:
+                try:
+                    date_str = app.application_date.strftime("%m-%d") if app.application_date else "N/A"
+                except (ValueError, AttributeError) as e:
+                    logger.warning(f"Date formatting error: {e}")
+                    date_str = str(app.application_date) if app.application_date else "N/A"
             
             # Format status with emoji
-            status_display = app.status.title()
-            if app.status.lower() in ['applied', 'submitted']:
+            status_display = str(app.status).title() if app.status else "Unknown"
+            if app.status and app.status.lower() in ['applied', 'submitted']:
                 status_display = f"📤 {status_display}"
-            elif app.status.lower() in ['interview', 'screening']:
+            elif app.status and app.status.lower() in ['interview', 'screening']:
                 status_display = f"📞 {status_display}"
-            elif app.status.lower() in ['offer', 'accepted']:
+            elif app.status and app.status.lower() in ['offer', 'accepted']:
                 status_display = f"🎉 {status_display}"
-            elif app.status.lower() in ['rejected', 'declined']:
+            elif app.status and app.status.lower() in ['rejected', 'declined']:
                 status_display = f"❌ {status_display}"
             else:
                 status_display = f"📝 {status_display}"
             
-            # Truncate long fields
-            job_title = app.job_title[:22] + "..." if len(app.job_title) > 25 else app.job_title
-            company = app.company_name[:17] + "..." if len(app.company_name) > 20 else app.company_name
-            notes = app.notes[:27] + "..." if app.notes and len(app.notes) > 30 else (app.notes or "")
+            # Truncate long fields and ensure all are strings
+            job_title = str(app.job_title)[:22] + "..." if app.job_title and len(str(app.job_title)) > 25 else str(app.job_title or "N/A")
+            company = str(app.company_name)[:17] + "..." if app.company_name and len(str(app.company_name)) > 20 else str(app.company_name or "N/A")
+            notes = str(app.notes)[:27] + "..." if app.notes and len(str(app.notes)) > 30 else str(app.notes or "")
+            resume_name = os.path.basename(str(app.resume_version_used_path)) if app.resume_version_used_path else "N/A"
             
             table.add_row(
                 str(app.internal_db_id) if app.internal_db_id else "N/A",
-                date_str,
-                job_title,
-                company,
-                status_display,
-                os.path.basename(app.resume_version_used_path) if app.resume_version_used_path else "N/A",
-                notes
+                str(date_str),
+                str(job_title),
+                str(company),
+                str(status_display),
+                str(resume_name),
+                str(notes)
             )
         
-        console.print(table)
+        # Check if rows were actually added
+        if not table.rows:
+            console.print("[yellow]Data retrieved but no rows added to table. Check data processing.[/yellow]")
+            logger.warning("Table has no rows despite having application data")
+        else:
+            console.print(table)
         
         # Display summary statistics
         status_counts = {}
         for app in application_logs:
-            status = app.status.lower()
+            status = app.status.lower() if app.status else "unknown"
             status_counts[status] = status_counts.get(status, 0) + 1
         
         console.print(f"\n[bold blue]📊 Application Summary:[/bold blue]")
@@ -550,6 +564,149 @@ def view_applications(
         console.print("💡 This might be due to:")
         console.print("  • Database connection issues")
         console.print("  • Corrupted application data")
+        raise typer.Exit(code=1)
+
+@app.command()
+def optimize_resume(
+    resume_path: Annotated[str, typer.Option(help="Path to your resume file (.txt or .md format).")],
+    job_id: Annotated[int, typer.Option(help="Database ID of the job to optimize resume for.")] = None,
+    job_url: Annotated[str, typer.Option(help="URL of job to optimize for (alternative to job-id).")] = None,
+    output_path: Annotated[str, typer.Option(help="Path to save optimization suggestions.")] = None
+):
+    """
+    Optimizes your resume for a specific job using AI analysis.
+    Provides detailed suggestions for improving ATS compatibility and relevance.
+    """
+    console.print(f"\n[bold blue]🔧 AI Resume Optimization[/bold blue]")
+    logger.info(f"optimize_resume command: resume_path='{resume_path}', job_id={job_id}, job_url='{job_url}'")
+
+    # Validate inputs
+    if not job_id and not job_url:
+        console.print("[bold red]❌ Either --job-id or --job-url must be provided.[/bold red]")
+        console.print("💡 Use 'view-applications' to find job IDs or provide a job URL.")
+        raise typer.Exit(code=1)
+
+    # Check if Gemini API key is configured
+    if not settings.GEMINI_API_KEY:
+        console.print("[bold red]❌ GEMINI_API_KEY is not configured![/bold red]")
+        console.print("Please add your Gemini API key to the .env file")
+        logger.error("optimize_resume command failed: GEMINI_API_KEY not configured")
+        raise typer.Exit(code=1)
+
+    # Load resume file
+    try:
+        console.print(f"📄 Loading resume from: {resume_path}")
+        if not os.path.exists(resume_path):
+            console.print(f"[bold red]❌ Resume file not found: {resume_path}[/bold red]")
+            raise typer.Exit(code=1)
+        
+        with open(resume_path, 'r', encoding='utf-8') as f:
+            resume_text = f.read()
+        
+        if not resume_text.strip():
+            console.print("[bold red]❌ Resume file is empty.[/bold red]")
+            raise typer.Exit(code=1)
+            
+        console.print(f"✅ Resume loaded ({len(resume_text)} characters)")
+        
+    except Exception as e:
+        console.print(f"[bold red]❌ Error loading resume: {e}[/bold red]")
+        logger.error(f"Error loading resume file {resume_path}: {e}")
+        raise typer.Exit(code=1)
+
+    # Find job information
+    job_info = None
+    try:
+        if job_id:
+            console.print(f"🔍 Looking up job by ID: {job_id}")
+            # Get job from database by ID
+            all_jobs = get_all_jobs(limit=100)  # Get more jobs to search through
+            job_info = next((job for job in all_jobs if job.internal_db_id == job_id), None)
+            if not job_info:
+                console.print(f"[bold red]❌ Job with ID {job_id} not found in database.[/bold red]")
+                raise typer.Exit(code=1)
+        elif job_url:
+            console.print(f"🔍 Looking up job by URL: {job_url}")
+            job_info = find_job_by_url(job_url)
+            if not job_info:
+                console.print(f"[bold red]❌ Job with URL {job_url} not found in database.[/bold red]")
+                console.print("💡 Add the job to your database first using 'find-jobs' or 'log-application'")
+                raise typer.Exit(code=1)
+        
+        console.print(f"✅ Found job: '{job_info.title}' at '{job_info.company_name}'")
+        
+    except typer.Exit:
+        raise
+    except Exception as e:
+        console.print(f"[bold red]❌ Error finding job information: {e}[/bold red]")
+        logger.error(f"Error finding job: {e}")
+        raise typer.Exit(code=1)
+
+    # Generate optimization suggestions
+    try:
+        console.print("🤖 Generating AI-powered optimization suggestions...")
+        gemini_service = GeminiService()
+        
+        suggestions = gemini_service.get_resume_optimization_suggestions(
+            resume_text=resume_text,
+            job_description=job_info.full_description_text or job_info.full_description_raw or "No description available",
+            job_title=job_info.title
+        )
+        
+        if not suggestions:
+            console.print("[bold red]❌ Failed to generate optimization suggestions.[/bold red]")
+            console.print("💡 This might be due to API issues or content filtering.")
+            raise typer.Exit(code=1)
+        
+        # Display suggestions
+        console.print(f"\n[bold green]✅ Resume Optimization Complete![/bold green]")
+        console.print(f"[bold]Target Job:[/bold] {job_info.title} at {job_info.company_name}")
+        console.print(f"[bold]Resume Analysis:[/bold] {os.path.basename(resume_path)}")
+        
+        # Create a panel for the suggestions
+        from rich.panel import Panel
+        from rich.markdown import Markdown
+        
+        suggestions_panel = Panel(
+            Markdown(suggestions),
+            title="🎯 AI Resume Optimization Suggestions",
+            border_style="green"
+        )
+        console.print(suggestions_panel)
+        
+        # Save suggestions if output path provided
+        if output_path:
+            try:
+                with open(output_path, 'w', encoding='utf-8') as f:
+                    f.write(f"# Resume Optimization Suggestions\n\n")
+                    f.write(f"**Target Job:** {job_info.title} at {job_info.company_name}\n")
+                    f.write(f"**Resume File:** {resume_path}\n")
+                    f.write(f"**Generated:** {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                    f.write(suggestions)
+                console.print(f"\n💾 Suggestions saved to: {output_path}")
+            except Exception as e:
+                console.print(f"[yellow]⚠️ Could not save to {output_path}: {e}[/yellow]")
+        
+        # Show next steps
+        console.print(f"\n💡 Next steps:")
+        console.print(f"  • Review and implement the suggested changes")
+        console.print(f"  • Update your resume based on the recommendations")
+        console.print(f"  • Test ATS compatibility with the optimized resume")
+        console.print(f"  • Use 'log-application' to track when you apply with the optimized resume")
+        
+        logger.info(f"Successfully generated resume optimization suggestions for job {job_info.internal_db_id}")
+        
+    except ValueError as ve:
+        console.print(f"[bold red]Configuration Error: {ve}[/bold red]")
+        logger.error(f"GeminiService initialization failed: {ve}")
+        raise typer.Exit(code=1)
+    except Exception as e:
+        logger.error(f"An unexpected error occurred during resume optimization: {e}", exc_info=True)
+        console.print(f"[bold red]Optimization Error: {e}[/bold red]")
+        console.print("💡 This might be due to:")
+        console.print("  • Network connectivity issues")
+        console.print("  • Gemini API service problems")
+        console.print("  • Invalid resume or job content")
         raise typer.Exit(code=1)
 
 if __name__ == "__main__":

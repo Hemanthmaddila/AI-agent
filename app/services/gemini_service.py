@@ -160,6 +160,72 @@ class GeminiService:
             logger.error(f"Could not parse score '{response.text_content.strip()}' as integer.", exc_info=True)
             return None
 
+    def get_resume_optimization_suggestions(self, resume_text: str, job_description: str, job_title: str = "Target Role") -> Optional[str]:
+        """
+        Analyzes a resume against a specific job description and provides optimization suggestions.
+        
+        Args:
+            resume_text: The current resume content as text
+            job_description: The job description to optimize against
+            job_title: The job title for context
+            
+        Returns:
+            String with optimization suggestions or None if analysis fails
+        """
+        prompt_text = f"""
+        As an expert career coach and ATS specialist, analyze this resume against the job description and provide specific optimization suggestions.
+
+        JOB TITLE: {job_title}
+
+        JOB DESCRIPTION:
+        {job_description[:2000]}  # Limit to 2000 chars to stay within token limits
+
+        CURRENT RESUME:
+        {resume_text[:3000]}  # Limit resume text
+
+        Please provide specific, actionable suggestions in the following format:
+
+        **MISSING KEYWORDS:**
+        - List 5-7 important keywords/skills from the job description that are missing from the resume
+
+        **EXPERIENCE OPTIMIZATION:**
+        - Suggest 2-3 specific ways to reframe existing experience to better match the job requirements
+
+        **SKILLS SECTION:**
+        - Recommend additions or reorganization of the skills section
+
+        **ATS OPTIMIZATION:**
+        - Suggest formatting or keyword placement improvements for ATS systems
+
+        **OVERALL MATCH SCORE:** X/10 (current fit level)
+
+        Keep suggestions specific, actionable, and focused on improving relevance for this specific role.
+        """
+
+        try:
+            request = GeminiRequest(
+                model_name=self.default_text_model_name,
+                prompt_parts=[GeminiPromptPart(text=prompt_text)],
+                generation_config={
+                    "temperature": 0.3,  # Lower temperature for more consistent advice
+                    "max_output_tokens": 1000  # Allow more detailed suggestions
+                }
+            )
+
+            logger.info(f"Generating resume optimization suggestions for job: {job_title}")
+            response = self.generate_content(request)
+            
+            if response and response.text_content and not response.error_message:
+                logger.info(f"Successfully generated resume optimization suggestions")
+                return response.text_content
+            else:
+                logger.warning(f"Resume optimization request returned empty response. Error: {response.error_message if response else 'No response'}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error generating resume optimization suggestions: {e}", exc_info=True)
+            return None
+
 if __name__ == "__main__":
     import sys
     import os

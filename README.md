@@ -35,6 +35,7 @@ An intelligent automation system that helps streamline the job application proce
 2. **`analyze-jobs`** - AI-powered relevance analysis using Gemini
 3. **`log-application`** - Track job applications with automatic job detection
 4. **`view-applications`** - Display all logged applications with status tracking
+5. **`optimize-resume`** - AI-powered resume optimization for specific jobs
 
 ## Project Structure
 
