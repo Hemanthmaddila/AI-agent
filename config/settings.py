@@ -48,6 +48,11 @@ if not os.path.exists(LOG_DIR):
     except OSError as e:
         print(f"Error creating log directory {LOG_DIR}: {e}")
 
+# --- Scraper Specific Settings ---
+# LinkedIn session persistence configuration
+LINKEDIN_SESSION_COOKIE_PATH = os.path.join(PROJECT_ROOT, 'data', 'linkedin_session_cookies.json')
+SESSION_EXPIRY_DAYS = 7  # LinkedIn session expiration period
+
 # --- Other API Keys (for later phases) ---
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY")
 ADZUNA_APP_ID = os.getenv("ADZUNA_APP_ID")

@@ -17,6 +17,7 @@ from .scraper_manager import ScraperManager, MultiSiteSearchResult
 from .remote_co_scraper import RemoteCoScraper
 from .linkedin_scraper import LinkedInScraper, LinkedInScraperConfig
 from .indeed_scraper import IndeedScraper
+from .stackoverflow_scraper import StackOverflowJobsScraper
 
 __all__ = [
     'JobScraper', 
@@ -28,74 +29,72 @@ __all__ = [
     'LinkedInScraper',
     'LinkedInScraperConfig',
     'IndeedScraper',
-    'create_scraper_manager'
+    'StackOverflowJobsScraper',
+    'create_scraper_manager',
+    'get_available_scrapers'
 ]
 
-def create_scraper_manager(enabled_sources: list = None) -> ScraperManager:
-    """
-    Factory function to create a ScraperManager with all available scrapers registered.
-    
-    Args:
-        enabled_sources: List of source names to enable. If None, enables all.
-                        Options: ['remote.co', 'linkedin', 'indeed']
-    
-    Returns:
-        Configured ScraperManager instance
-    """
-    manager = ScraperManager()
-    
-    # Register all available scrapers
-    scrapers = {
-        'remote.co': RemoteCoScraper(),
-        'linkedin': LinkedInScraper(),
-        'indeed': IndeedScraper()
-    }
-    
-    # Determine which scrapers to enable
+def create_scraper_manager(enabled_sources=None, configs=None):
+    """Factory function to create a configured ScraperManager"""
     if enabled_sources is None:
-        # Enable Remote.co by default, others require user decision
-        enabled_sources = ['remote.co']
+        enabled_sources = ['remote.co', 'indeed', 'stackoverflow']  # Default safe sources
     
-    # Convert to lowercase for consistent comparison
-    enabled_sources = [source.lower() for source in enabled_sources]
+    if configs is None:
+        configs = {
+            'remote.co': ScraperConfig(),
+            'linkedin': ScraperConfig(min_delay=3, max_delay=7),
+            'indeed': ScraperConfig(min_delay=2, max_delay=5),
+            'stackoverflow': ScraperConfig(min_delay=1, max_delay=3)
+        }
     
-    # Register scrapers with appropriate enabled status
-    for source_name, scraper in scrapers.items():
-        is_enabled = source_name in enabled_sources
-        manager.register_scraper(scraper, enabled=is_enabled)
+    # Create scraper instances
+    scrapers = {}
     
-    return manager
+    for source in enabled_sources:
+        try:
+            config = configs.get(source, ScraperConfig())
+            
+            if source == 'remote.co':
+                scrapers[source] = RemoteCoScraper(config)
+            elif source == 'linkedin':
+                scrapers[source] = LinkedInScraper(config)
+            elif source == 'indeed':
+                scrapers[source] = IndeedScraper(config)
+            elif source == 'stackoverflow':
+                scrapers[source] = StackOverflowJobsScraper(config)
+            else:
+                print(f"Warning: Unknown scraper source '{source}' skipped")
+                
+        except Exception as e:
+            print(f"Error creating scraper for {source}: {e}")
+    
+    return ScraperManager(scrapers)
 
-def get_available_scrapers() -> dict:
-    """
-    Get information about all available scrapers.
-    
-    Returns:
-        Dictionary with scraper information including capabilities and requirements
-    """
+def get_available_scrapers():
+    """Get information about all available job scrapers"""
     return {
         'remote.co': {
             'name': 'Remote.co',
-            'class': 'RemoteCoScraper',
+            'description': 'Premium remote job board with curated positions',
             'authentication_required': False,
-            'challenges': ['Rate limiting', 'Dynamic selectors'],
-            'reliability': 'High',
-            'description': 'Specialized remote work job board with good scraping reliability'
+            'reliability': 'High'
         },
         'linkedin': {
-            'name': 'LinkedIn',
-            'class': 'LinkedInScraper', 
+            'name': 'LinkedIn Jobs',
+            'description': 'Professional network with comprehensive job listings',
             'authentication_required': True,
-            'challenges': ['Login required', 'Strong anti-bot', 'CAPTCHAs'],
-            'reliability': 'Medium',
-            'description': 'Professional network with extensive job listings but requires authentication'
+            'reliability': 'High'
         },
         'indeed': {
             'name': 'Indeed',
-            'class': 'IndeedScraper',
+            'description': 'World\'s largest job site with millions of listings',
             'authentication_required': False,
-            'challenges': ['Dynamic content', 'Anti-scraping', 'Aggregated sources'],
-            'reliability': 'Medium',
-            'description': 'Large job aggregator with dynamic content and bot detection'
+            'reliability': 'Medium'
+        },
+        'stackoverflow': {
+            'name': 'Stack Overflow Jobs',
+            'description': 'Developer-focused job board with high-quality tech positions',
+            'authentication_required': False,
+            'reliability': 'High'
         }
     } 
