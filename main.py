@@ -788,6 +788,190 @@ def smart_workflow(
             console.print("💡 Try running individual commands (find-jobs, analyze-jobs) to isolate the issue")
             raise typer.Exit(code=1)
 
+@app.command()
+def find_jobs_multi(
+    keywords: str = typer.Argument(help="Job search keywords"),
+    sources: str = typer.Option("remote.co", "--sources", "-s", help="Comma-separated list of sources: remote.co,linkedin,indeed"),
+    num_results: int = typer.Option(10, "--results", "-n", help="Number of results per source"),
+    location: str = typer.Option(None, "--location", "-l", help="Job location filter")
+):
+    """
+    🚀 PHASE 4.1: Multi-Site Job Discovery
+    
+    Search for jobs across multiple job boards simultaneously with intelligent deduplication.
+    
+    Examples:
+    • find-jobs-multi "Python developer" --sources remote.co,indeed
+    • find-jobs-multi "Data scientist" --sources remote.co,linkedin,indeed --results 5
+    • find-jobs-multi "Frontend developer" --location "San Francisco"
+    """
+    import asyncio
+    from app.services.scrapers import create_scraper_manager, get_available_scrapers
+    from rich.table import Table
+    from rich.panel import Panel
+    from rich.columns import Columns
+    from app.services.database_service import save_job_posting
+    
+    try:
+        # Parse and validate sources
+        requested_sources = [s.strip().lower() for s in sources.split(',')]
+        available_scrapers = get_available_scrapers()
+        
+        # Validate sources
+        invalid_sources = [s for s in requested_sources if s not in available_scrapers]
+        if invalid_sources:
+            console.print(f"[red]❌ Invalid sources: {', '.join(invalid_sources)}[/red]")
+            console.print(f"Available sources: {', '.join(available_scrapers.keys())}")
+            raise typer.Exit(1)
+        
+        # Display search configuration
+        config_panel = Panel(
+            f"🎯 **Keywords:** {keywords}\n"
+            f"📍 **Location:** {location or 'Remote/Any'}\n"
+            f"🌐 **Sources:** {', '.join(requested_sources)}\n"
+            f"📊 **Results per source:** {num_results}",
+            title="🚀 Multi-Site Job Search Configuration",
+            title_align="left"
+        )
+        console.print(config_panel)
+        
+        # Show scraper information
+        info_panels = []
+        for source in requested_sources:
+            scraper_info = available_scrapers[source]
+            auth_status = "🔒 Auth Required" if scraper_info['authentication_required'] else "🔓 No Auth"
+            reliability = f"📈 {scraper_info['reliability']} Reliability"
+            
+            panel = Panel(
+                f"{scraper_info['description']}\n\n"
+                f"{auth_status}\n"
+                f"{reliability}",
+                title=f"🌐 {scraper_info['name']}",
+                title_align="left"
+            )
+            info_panels.append(panel)
+        
+        console.print(Columns(info_panels))
+        
+        # Create and configure scraper manager
+        console.print("\n[yellow]⚙️ Initializing multi-site scraper...[/yellow]")
+        scraper_manager = create_scraper_manager(enabled_sources=requested_sources)
+        
+        # Display enabled scrapers
+        enabled = scraper_manager.get_enabled_sources()
+        console.print(f"[green]✅ Enabled scrapers: {', '.join(enabled)}[/green]")
+        
+        # Run the multi-site search
+        async def run_multi_search():
+            console.print(f"\n[cyan]🔍 Searching across {len(requested_sources)} job boards...[/cyan]")
+            
+            try:
+                result = await scraper_manager.search_all_sources(
+                    keywords=keywords,
+                    location=location,
+                    num_results_per_source=num_results,
+                    sources=requested_sources
+                )
+                
+                return result
+                
+            except Exception as e:
+                console.print(f"[red]❌ Multi-site search error: {e}[/red]")
+                return None
+            finally:
+                # Cleanup
+                await scraper_manager.cleanup_all()
+        
+        # Execute search
+        search_result = asyncio.run(run_multi_search())
+        
+        if not search_result or not search_result.all_jobs:
+            console.print("[yellow]⚠️ No jobs found across any sources[/yellow]")
+            return
+        
+        # Display results summary
+        summary_panel = Panel(
+            f"🎯 **Total Jobs Found:** {search_result.total_found}\n"
+            f"🔄 **Duplicates Removed:** {search_result.duplicates_removed}\n"
+            f"⏱️ **Execution Time:** {search_result.execution_time:.2f}s\n"
+            f"✅ **Successful Sources:** {', '.join(search_result.successful_sources)}\n"
+            f"❌ **Failed Sources:** {', '.join(search_result.failed_sources) if search_result.failed_sources else 'None'}",
+            title="📊 Multi-Site Search Results",
+            title_align="left"
+        )
+        console.print(summary_panel)
+        
+        # Display per-source breakdown
+        if search_result.results_by_source:
+            breakdown_table = Table(title="📈 Results Breakdown by Source")
+            breakdown_table.add_column("Source", style="cyan")
+            breakdown_table.add_column("Status", style="green")
+            breakdown_table.add_column("Jobs Found", style="yellow")
+            breakdown_table.add_column("Execution Time", style="blue")
+            breakdown_table.add_column("Notes", style="dim")
+            
+            for source, result in search_result.results_by_source.items():
+                status = "✅ Success" if result.success else "❌ Failed"
+                jobs_count = str(len(result.jobs))
+                exec_time = f"{result.execution_time:.2f}s"
+                notes = result.error_message if result.error_message else "—"
+                
+                breakdown_table.add_row(source, status, jobs_count, exec_time, notes)
+            
+            console.print(breakdown_table)
+        
+        # Display job results
+        if search_result.all_jobs:
+            jobs_table = Table(title=f"🎯 Found {len(search_result.all_jobs)} Unique Jobs")
+            jobs_table.add_column("Title", style="bright_blue", width=30)
+            jobs_table.add_column("Company", style="green", width=20)
+            jobs_table.add_column("Location", style="yellow", width=15)
+            jobs_table.add_column("Source", style="cyan", width=12)
+            jobs_table.add_column("URL", style="dim", width=25)
+            
+            for job in search_result.all_jobs[:20]:  # Limit display
+                # Truncate long fields
+                title = job.title[:27] + "..." if len(job.title) > 30 else job.title
+                company = job.company_name[:17] + "..." if len(job.company_name) > 20 else job.company_name
+                location = job.location_text[:12] + "..." if len(job.location_text) > 15 else job.location_text
+                url = job.job_url[:22] + "..." if len(job.job_url) > 25 else job.job_url
+                
+                jobs_table.add_row(title, company, location, job.source_platform, url)
+            
+            console.print(jobs_table)
+            
+            if len(search_result.all_jobs) > 20:
+                console.print(f"[dim]... and {len(search_result.all_jobs) - 20} more jobs[/dim]")
+        
+        # Save jobs to database
+        console.print(f"\n[cyan]💾 Saving {len(search_result.all_jobs)} jobs to database...[/cyan]")
+        saved_count = 0
+        for job in search_result.all_jobs:
+            try:
+                save_job_posting(job)
+                saved_count += 1
+            except Exception as e:
+                console.print(f"[yellow]⚠️ Failed to save job {job.title}: {e}[/yellow]")
+        
+        console.print(f"[green]✅ Successfully saved {saved_count} jobs to database![/green]")
+        
+        # Show next steps
+        next_steps_panel = Panel(
+            "🎯 **Analyze Jobs:** `python main.py analyze-jobs`\n"
+            "📝 **Log Application:** `python main.py log-application <job-url>`\n"
+            "🔍 **View Applications:** `python main.py view-applications`\n"
+            "🚀 **Smart Workflow:** `python main.py smart-workflow`",
+            title="🚀 Next Steps",
+            title_align="left"
+        )
+        console.print(next_steps_panel)
+        
+    except KeyboardInterrupt:
+        console.print("\n[yellow]🛑 Search cancelled by user[/yellow]")
+    except Exception as e:
+        console.print(f"[red]❌ Error in multi-site job search: {e}[/red]")
+        raise typer.Exit(1)
+
 if __name__ == "__main__":
     # Basic logging setup has been moved to the top of the script
     # so it's configured when the module is imported.

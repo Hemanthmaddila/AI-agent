@@ -107,3 +107,31 @@ click.exceptions.Exit
 2025-05-31 23:57:51,209 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
 2025-05-31 23:57:51,210 - app.services.gemini_service - INFO - Successfully generated resume optimization suggestions
 2025-05-31 23:57:51,229 - __main__ - INFO - Successfully generated resume optimization suggestions for job 2
+2025-06-01 00:05:17,822 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 00:05:27,344 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 00:05:27,349 - __main__ - INFO - smart_workflow command: keywords='Machine Learning Engineer', target_role='ML Engineer', location='None', num_results=3
+2025-06-01 00:05:28,660 - app.services.playwright_scraper_service - INFO - Starting job search on Remote.co for keywords: 'Machine Learning Engineer'
+2025-06-01 00:05:31,998 - app.services.playwright_scraper_service - WARNING - Attempt 1 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search_keywords=Machine+Learning+Engineer&search_location=
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search_keywords=Machine+Learning+Engineer&search_location=", waiting until "domcontentloaded"
+
+2025-06-01 00:05:32,572 - app.services.playwright_scraper_service - WARNING - Attempt 2 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/?search=Machine+Learning+Engineer
+Call log:
+  - navigating to "https://remote.co/remote-jobs/?search=Machine+Learning+Engineer", waiting until "domcontentloaded"
+
+2025-06-01 00:05:33,110 - app.services.playwright_scraper_service - WARNING - Attempt 3 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/
+Call log:
+  - navigating to "https://remote.co/remote-jobs/", waiting until "domcontentloaded"
+
+2025-06-01 00:05:33,111 - app.services.playwright_scraper_service - ERROR - All URL attempts failed
+2025-06-01 00:05:33,282 - app.services.playwright_scraper_service - INFO - No jobs found from scraping, generating mock data for MVP testing
+2025-06-01 00:05:33,283 - app.services.playwright_scraper_service - INFO - Generated 3 mock jobs for testing
+2025-06-01 00:05:33,285 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/1' already exists in job_postings with ID 1. Skipping insert.
+2025-06-01 00:05:33,286 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/2' already exists in job_postings with ID 2. Skipping insert.
+2025-06-01 00:05:33,287 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/3' already exists in job_postings with ID 3. Skipping insert.
+2025-06-01 00:05:33,294 - app.services.database_service - INFO - Logged search query: 'Machine Learning Engineer' for user 1, got 3 results.
+2025-06-01 00:05:33,299 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 00:05:33,303 - app.services.database_service - INFO - Retrieved 0 pending jobs from database.
+2025-06-01 00:05:33,308 - __main__ - INFO - Smart workflow completed: 3 discovered, 0 analyzed
+2025-06-01 00:10:15,009 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 00:20:34,727 - __main__ - INFO - AI Job Application Agent CLI Initialized.
