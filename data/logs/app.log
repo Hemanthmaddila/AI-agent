@@ -180,3 +180,107 @@ Call log:
 2025-06-01 01:21:44,887 - app.services.database_service - INFO - Saved job posting 'Senior Python Developer' from 'Google' with DB ID 6 to job_postings.
 2025-06-01 01:21:44,894 - app.services.database_service - INFO - Saved job posting 'Python Backend Engineer' from 'Microsoft' with DB ID 7 to job_postings.
 2025-06-01 01:21:44,900 - app.services.database_service - INFO - Saved job posting 'Django Developer' from 'Amazon' with DB ID 8 to job_postings.
+2025-06-01 01:23:17,970 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:23:18,049 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:23:18,053 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['stackoverflow']
+2025-06-01 01:23:18,054 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 01:23:19,282 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=Python+Developer&l=Remote&sort=p
+2025-06-01 01:24:21,693 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 01:24:21,726 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 01:24:21,728 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 01:24:21,728 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 3 jobs
+2025-06-01 01:24:21,832 - app.services.scrapers.scraper_manager - INFO - Search completed: 3 unique jobs found (0 duplicates removed) in 63.78s
+2025-06-01 01:24:21,847 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 01:24:21,859 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 01:24:21,860 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 01:24:21,861 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-3' already exists in job_postings with ID 8. Skipping insert.
+2025-06-01 01:24:24,271 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:24:24,486 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:24:24,490 - app.services.scrapers.scraper_manager - INFO - Starting search across 3 sources: ['remote.co', 'indeed', 'stackoverflow']
+2025-06-01 01:24:24,490 - app.services.scrapers.scraper_manager - INFO - Starting search on Remote.co
+2025-06-01 01:24:24,491 - app.services.scrapers.scraper_manager - INFO - Starting search on Indeed
+2025-06-01 01:24:24,491 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 01:24:25,961 - app.services.scrapers.indeed_scraper - ERROR - Error scraping Indeed: 'Page' object has no attribute 'set_user_agent'
+2025-06-01 01:24:25,962 - app.services.scrapers.base_scraper - INFO - Generated 3 mock jobs for Indeed
+2025-06-01 01:24:25,962 - app.services.scrapers.scraper_manager - INFO - Indeed: Found 3 jobs
+2025-06-01 01:24:25,988 - app.services.scrapers.remote_co_scraper - ERROR - Error scraping Remote.co: 'Page' object has no attribute 'set_user_agent'
+2025-06-01 01:24:25,989 - app.services.scrapers.base_scraper - INFO - Generated 3 mock jobs for Remote.co
+2025-06-01 01:24:25,989 - app.services.scrapers.scraper_manager - INFO - Remote.co: Found 3 jobs
+2025-06-01 01:24:26,041 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=React+Developer&l=Remote&sort=p
+2025-06-01 01:24:38,373 - asyncio - ERROR - Future exception was never retrieved
+future: <Future finished exception=TargetClosedError('Target page, context or browser has been closed\nCall log:\n  - waiting for locator("div.js-result") to be visible\n')>
+playwright._impl._errors.TargetClosedError: Target page, context or browser has been closed
+Call log:
+  - waiting for locator("div.js-result") to be visible
+
+2025-06-01 01:24:38,383 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 01:24:38,408 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 01:24:38,408 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 01:24:38,409 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 5 jobs
+2025-06-01 01:24:38,425 - app.services.scrapers.base_scraper - WARNING - Error during cleanup: Browser.close: Connection closed while reading from the driver
+2025-06-01 01:24:38,426 - app.services.scrapers.scraper_manager - INFO - Search completed: 7 unique jobs found (4 duplicates removed) in 13.94s
+2025-06-01 01:24:38,445 - app.services.scrapers.base_scraper - WARNING - Error during cleanup: Page.close: Connection closed while reading from the driver
+2025-06-01 01:24:38,446 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 01:24:38,469 - app.services.database_service - INFO - Saved job posting 'Mock React Developer Position 1' from 'Mock Company 1' with DB ID 9 to job_postings.
+2025-06-01 01:24:38,476 - app.services.database_service - INFO - Saved job posting 'Mock React Developer Position 2' from 'Mock Company 2' with DB ID 10 to job_postings.
+2025-06-01 01:24:38,482 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 01:24:38,483 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 01:24:38,484 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-3' already exists in job_postings with ID 8. Skipping insert.
+2025-06-01 01:24:38,485 - app.services.database_service - INFO - Saved job posting 'Full Stack JavaScript Developer' from 'Meta' with DB ID 11 to job_postings.
+2025-06-01 01:24:38,491 - app.services.database_service - INFO - Saved job posting 'React Developer' from 'Apple' with DB ID 12 to job_postings.
+2025-06-01 01:24:41,219 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:24:41,482 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:24:41,486 - app.services.scrapers.scraper_manager - INFO - Starting search across 4 sources: ['remote.co', 'linkedin', 'indeed', 'stackoverflow']
+2025-06-01 01:24:41,487 - app.services.scrapers.scraper_manager - INFO - Starting search on Remote.co
+2025-06-01 01:24:41,487 - app.services.scrapers.scraper_manager - INFO - Starting search on LinkedIn
+2025-06-01 01:24:41,487 - app.services.scrapers.scraper_manager - INFO - Starting search on Indeed
+2025-06-01 01:24:41,488 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 01:24:42,989 - app.services.scrapers.indeed_scraper - ERROR - Error scraping Indeed: 'Page' object has no attribute 'set_user_agent'
+2025-06-01 01:24:42,990 - app.services.scrapers.base_scraper - INFO - Generated 3 mock jobs for Indeed
+2025-06-01 01:24:42,990 - app.services.scrapers.scraper_manager - INFO - Indeed: Found 3 jobs
+2025-06-01 01:24:44,335 - app.services.scrapers.linkedin_scraper - ERROR - Error scraping LinkedIn: 'Page' object has no attribute 'set_user_agent'
+2025-06-01 01:24:44,336 - app.services.scrapers.base_scraper - INFO - Generated 3 mock jobs for LinkedIn
+2025-06-01 01:24:44,337 - app.services.scrapers.scraper_manager - INFO - LinkedIn: Found 3 jobs
+2025-06-01 01:24:47,829 - app.services.scrapers.remote_co_scraper - ERROR - Error scraping Remote.co: 'Page' object has no attribute 'set_user_agent'
+2025-06-01 01:24:47,830 - app.services.scrapers.base_scraper - INFO - Generated 3 mock jobs for Remote.co
+2025-06-01 01:24:47,830 - app.services.scrapers.scraper_manager - INFO - Remote.co: Found 3 jobs
+2025-06-01 01:24:47,905 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=Senior+Engineer&l=Remote&sort=p
+2025-06-01 01:25:50,431 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 01:25:50,465 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 01:25:50,466 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 01:25:50,466 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 10 jobs
+2025-06-01 01:25:50,565 - app.services.scrapers.scraper_manager - INFO - Search completed: 13 unique jobs found (6 duplicates removed) in 69.08s
+2025-06-01 01:25:50,596 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 01:25:50,620 - app.services.database_service - INFO - Job with URL 'https://mock-remote.co.com/job/1' already exists in job_postings with ID 9. Skipping insert.
+2025-06-01 01:25:50,626 - app.services.database_service - INFO - Saved job posting 'Mock Senior Engineer Position 2' from 'Mock Company 2' with DB ID 13 to job_postings.
+2025-06-01 01:25:50,633 - app.services.database_service - INFO - Saved job posting 'Mock Senior Engineer Position 3' from 'Mock Company 3' with DB ID 14 to job_postings.
+2025-06-01 01:25:50,638 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 01:25:50,639 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 01:25:50,640 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-3' already exists in job_postings with ID 8. Skipping insert.
+2025-06-01 01:25:50,641 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-4' already exists in job_postings with ID 11. Skipping insert.
+2025-06-01 01:25:50,642 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-5' already exists in job_postings with ID 12. Skipping insert.
+2025-06-01 01:25:50,643 - app.services.database_service - INFO - Saved job posting 'Software Engineer (Senior Engineer)' from 'Netflix' with DB ID 15 to job_postings.
+2025-06-01 01:25:50,657 - app.services.database_service - INFO - Saved job posting 'Senior Developer (Senior Engineer)' from 'Spotify' with DB ID 16 to job_postings.
+2025-06-01 01:25:50,664 - app.services.database_service - INFO - Saved job posting 'Backend Engineer' from 'GitHub' with DB ID 17 to job_postings.
+2025-06-01 01:25:50,670 - app.services.database_service - INFO - Saved job posting 'Full Stack Developer' from 'Stack Overflow' with DB ID 18 to job_postings.
+2025-06-01 01:25:50,676 - app.services.database_service - INFO - Saved job posting 'Software Developer' from 'Atlassian' with DB ID 19 to job_postings.
+2025-06-01 01:30:34,047 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:30:34,128 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:30:34,132 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['stackoverflow']
+2025-06-01 01:30:34,133 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 01:30:35,397 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=Python+Developer&l=Remote&sort=p
+2025-06-01 01:31:37,717 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 01:31:37,754 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 01:31:37,755 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 01:31:37,756 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 2 jobs
+2025-06-01 01:31:37,867 - app.services.scrapers.scraper_manager - INFO - Search completed: 2 unique jobs found (0 duplicates removed) in 63.73s
+2025-06-01 01:31:37,882 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 01:31:37,894 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 01:31:37,895 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 01:36:43,024 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:36:46,309 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:36:48,669 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:36:51,076 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:36:54,373 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:36:58,678 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:37:03,516 - __main__ - INFO - AI Job Application Agent CLI Initialized.

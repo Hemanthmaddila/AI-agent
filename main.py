@@ -9,6 +9,12 @@ from typing import List # For type hinting
 from typing_extensions import Annotated # For newer Typer versions
 from datetime import datetime
 
+# Add UTF-8 encoding support for Windows
+if sys.platform.startswith('win'):
+    import codecs
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.detach())
+
 # Assuming your settings and future orchestrator/services will be in the 'app' package
 # and config.settings loads everything we need.
 from config import settings # This will load .env and make settings available
