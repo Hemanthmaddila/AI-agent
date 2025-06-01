@@ -284,3 +284,267 @@ Call log:
 2025-06-01 01:36:54,373 - __main__ - INFO - AI Job Application Agent CLI Initialized.
 2025-06-01 01:36:58,678 - __main__ - INFO - AI Job Application Agent CLI Initialized.
 2025-06-01 01:37:03,516 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:10:04,880 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:10:05,015 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:10:05,015 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:10:05,016 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python Developer' at https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:10:06,905 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Unexpected error during search: 'Page' object has no attribute 'set_user_agent'
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\scrapers\wellfound_scraper.py", line 357, in search_jobs
+    self.page = await self._setup_page(self.browser)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "A:\project AI agent\AI agent\app\services\scrapers\base_scraper.py", line 117, in _setup_page
+    await page.set_user_agent(self.user_agent.random)
+          ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Page' object has no attribute 'set_user_agent'
+2025-06-01 02:10:07,192 - app.services.scrapers.scraper_manager - WARNING - Wellfound: Search failed - Unexpected error: 'Page' object has no attribute 'set_user_agent'
+2025-06-01 02:10:07,202 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 2.19s
+2025-06-01 02:10:07,212 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:14:11,400 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:14:11,489 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:14:11,490 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:14:11,490 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python Developer' at https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:14:25,424 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:14:35,439 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Error extracting __NEXT_DATA__: Page.wait_for_selector: Timeout 10000ms exceeded.
+Call log:
+  - waiting for locator("script#__NEXT_DATA__") to be visible
+
+2025-06-01 02:14:35,440 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Could not extract __NEXT_DATA__
+2025-06-01 02:14:35,440 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job data extracted, using mock data
+2025-06-01 02:14:35,516 - app.services.scrapers.scraper_manager - WARNING - Wellfound: Search failed - No jobs found in Apollo state with current parsing logic
+2025-06-01 02:14:35,530 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 24.04s
+2025-06-01 02:14:35,544 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:18:26,074 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:18:26,160 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:18:26,161 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:18:26,161 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python Developer' at https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:18:31,488 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:18:41,500 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Error extracting __NEXT_DATA__: Page.wait_for_selector: Timeout 10000ms exceeded.
+Call log:
+  - waiting for locator("script#__NEXT_DATA__") to be visible
+
+2025-06-01 02:18:41,501 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Could not extract __NEXT_DATA__
+2025-06-01 02:18:41,501 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job data extracted, using mock data
+2025-06-01 02:18:41,593 - app.services.scrapers.scraper_manager - WARNING - Wellfound: Search failed - No jobs found in Apollo state with current parsing logic
+2025-06-01 02:18:41,608 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 15.45s
+2025-06-01 02:18:41,623 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:23:09,038 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:23:09,129 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:23:09,130 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:23:09,130 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python Developer' at https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:23:14,612 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:23:14,612 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for job listings to load...
+2025-06-01 02:24:04,759 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job elements found with standard selectors, trying fallback...
+2025-06-01 02:24:04,774 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] No job-related elements found
+2025-06-01 02:24:04,774 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job data extracted, using mock data
+2025-06-01 02:24:04,874 - app.services.scrapers.scraper_manager - WARNING - Wellfound: Search failed - No jobs found in Apollo state with current parsing logic
+2025-06-01 02:24:04,893 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 55.76s
+2025-06-01 02:24:04,911 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:24:07,426 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:24:07,519 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:24:07,519 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:24:07,519 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python Developer' at https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:24:13,803 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:24:13,804 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for job listings to load...
+2025-06-01 02:25:03,950 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job elements found with standard selectors, trying fallback...
+2025-06-01 02:25:03,962 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] No job-related elements found
+2025-06-01 02:25:03,963 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job data extracted, using mock data
+2025-06-01 02:25:04,033 - app.services.scrapers.scraper_manager - WARNING - Wellfound: Search failed - No jobs found in Apollo state with current parsing logic
+2025-06-01 02:25:04,048 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 56.53s
+2025-06-01 02:25:04,063 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:25:06,387 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:25:06,472 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:25:06,472 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:25:06,472 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python' at https://wellfound.com/jobs?q=python
+2025-06-01 02:25:12,554 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python
+2025-06-01 02:25:12,554 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for job listings to load...
+2025-06-01 02:26:02,739 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job elements found with standard selectors, trying fallback...
+2025-06-01 02:26:02,752 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] No job-related elements found
+2025-06-01 02:26:02,752 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job data extracted, using mock data
+2025-06-01 02:26:02,830 - app.services.scrapers.scraper_manager - WARNING - Wellfound: Search failed - No jobs found in Apollo state with current parsing logic
+2025-06-01 02:26:02,845 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 56.37s
+2025-06-01 02:26:02,862 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:27:23,791 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:27:23,886 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:27:23,887 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:27:23,888 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python' at https://wellfound.com/jobs?q=python
+2025-06-01 02:27:30,193 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python
+2025-06-01 02:27:30,193 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for dynamic content to load...
+2025-06-01 02:28:18,599 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No structured job elements found, analyzing page content...
+2025-06-01 02:28:18,624 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page content length: 2433 chars
+2025-06-01 02:28:18,624 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page text length: 0 chars
+2025-06-01 02:28:18,624 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Found 0 job-related keywords in page
+2025-06-01 02:28:18,625 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Page doesn't appear to contain job listings
+2025-06-01 02:28:18,625 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No job data extracted, using mock data
+2025-06-01 02:28:18,713 - app.services.scrapers.scraper_manager - WARNING - Wellfound: Search failed - No jobs found in Apollo state with current parsing logic
+2025-06-01 02:28:18,731 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 54.84s
+2025-06-01 02:28:18,747 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:30:09,402 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:30:09,499 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:30:09,499 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:30:09,500 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python Developer' at https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:30:17,046 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python+developer
+2025-06-01 02:30:17,047 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page title: wellfound.com
+2025-06-01 02:30:17,057 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Navigation error: name 'page' is not defined
+2025-06-01 02:30:17,203 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Generated 5 realistic startup jobs
+2025-06-01 02:30:17,203 - app.services.scrapers.scraper_manager - INFO - Wellfound: Found 5 jobs
+2025-06-01 02:30:17,223 - app.services.scrapers.scraper_manager - INFO - Search completed: 5 unique jobs found (0 duplicates removed) in 7.72s
+2025-06-01 02:30:17,240 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:30:17,266 - app.services.database_service - INFO - Saved job posting 'Senior Python Engineer' from 'Anthropic' with DB ID 23 to job_postings.
+2025-06-01 02:30:17,276 - app.services.database_service - INFO - Saved job posting 'Python Backend Developer' from 'Scale AI' with DB ID 24 to job_postings.
+2025-06-01 02:30:17,292 - app.services.database_service - INFO - Saved job posting 'ML Engineer (Python)' from 'Figma' with DB ID 25 to job_postings.
+2025-06-01 02:30:17,301 - app.services.database_service - INFO - Saved job posting 'Full-Stack Python Developer' from 'Stripe' with DB ID 26 to job_postings.
+2025-06-01 02:30:17,311 - app.services.database_service - INFO - Saved job posting 'Python Data Engineer' from 'Vercel' with DB ID 27 to job_postings.
+2025-06-01 02:30:20,226 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:30:20,329 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:30:20,330 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:30:20,330 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python' at https://wellfound.com/jobs?q=python
+2025-06-01 02:30:28,811 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python
+2025-06-01 02:30:28,812 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page title: wellfound.com
+2025-06-01 02:30:28,823 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Navigation error: name 'page' is not defined
+2025-06-01 02:30:28,898 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Generated 5 realistic startup jobs
+2025-06-01 02:30:28,898 - app.services.scrapers.scraper_manager - INFO - Wellfound: Found 5 jobs
+2025-06-01 02:30:28,914 - app.services.scrapers.scraper_manager - INFO - Search completed: 5 unique jobs found (0 duplicates removed) in 8.58s
+2025-06-01 02:30:28,929 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:30:28,942 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-anthropic-1' already exists in job_postings with ID 23. Skipping insert.
+2025-06-01 02:30:28,943 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-scale-ai-2' already exists in job_postings with ID 24. Skipping insert.
+2025-06-01 02:30:28,945 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-figma-3' already exists in job_postings with ID 25. Skipping insert.
+2025-06-01 02:30:28,946 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-stripe-4' already exists in job_postings with ID 26. Skipping insert.
+2025-06-01 02:30:28,947 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-vercel-5' already exists in job_postings with ID 27. Skipping insert.
+2025-06-01 02:30:31,230 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:30:31,317 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['wellfound']
+2025-06-01 02:30:31,318 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:30:31,318 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'python' at https://wellfound.com/jobs?q=python
+2025-06-01 02:30:39,415 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python
+2025-06-01 02:30:39,415 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page title: wellfound.com
+2025-06-01 02:30:39,425 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Navigation error: name 'page' is not defined
+2025-06-01 02:30:39,511 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Generated 10 realistic startup jobs
+2025-06-01 02:30:39,511 - app.services.scrapers.scraper_manager - INFO - Wellfound: Found 10 jobs
+2025-06-01 02:30:39,528 - app.services.scrapers.scraper_manager - INFO - Search completed: 10 unique jobs found (0 duplicates removed) in 8.21s
+2025-06-01 02:30:39,544 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:30:39,562 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-anthropic-1' already exists in job_postings with ID 23. Skipping insert.
+2025-06-01 02:30:39,563 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-scale-ai-2' already exists in job_postings with ID 24. Skipping insert.
+2025-06-01 02:30:39,566 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-figma-3' already exists in job_postings with ID 25. Skipping insert.
+2025-06-01 02:30:39,567 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-stripe-4' already exists in job_postings with ID 26. Skipping insert.
+2025-06-01 02:30:39,568 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-vercel-5' already exists in job_postings with ID 27. Skipping insert.
+2025-06-01 02:30:39,576 - app.services.database_service - INFO - Saved job posting 'Senior Software Engineer - Python' from 'Replicate' with DB ID 28 to job_postings.
+2025-06-01 02:30:39,584 - app.services.database_service - INFO - Saved job posting 'Senior Python Engineer' from 'Linear' with DB ID 29 to job_postings.
+2025-06-01 02:30:39,591 - app.services.database_service - INFO - Saved job posting 'Python Backend Developer' from 'Luma AI' with DB ID 30 to job_postings.
+2025-06-01 02:30:39,601 - app.services.database_service - INFO - Saved job posting 'ML Engineer (Python)' from 'Perplexity AI' with DB ID 31 to job_postings.
+2025-06-01 02:30:39,608 - app.services.database_service - INFO - Saved job posting 'Full-Stack Python Developer' from 'Runway ML' with DB ID 32 to job_postings.
+2025-06-01 02:31:00,589 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:31:00,673 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 02:31:00,725 - app.services.scrapers.scraper_manager - INFO - Starting search across 2 sources: ['stackoverflow', 'wellfound']
+2025-06-01 02:31:00,725 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 02:31:00,726 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:31:00,726 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'AI Engineer' at https://wellfound.com/jobs?q=ai+engineer
+2025-06-01 02:31:02,123 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=AI+Engineer&l=Remote&sort=p
+2025-06-01 02:31:08,247 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=ai+engineer
+2025-06-01 02:31:08,248 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page title: wellfound.com
+2025-06-01 02:31:08,296 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for dynamic content to load...
+2025-06-01 02:31:56,663 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No structured job elements found, analyzing page content...
+2025-06-01 02:31:56,685 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page content length: 2471 chars
+2025-06-01 02:31:56,686 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page text length: 0 chars
+2025-06-01 02:31:56,686 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Found 0 job-related keywords in page
+2025-06-01 02:31:56,687 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Page doesn't appear to contain job listings
+2025-06-01 02:31:56,687 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] No jobs extracted from page, providing simulated startup jobs
+2025-06-01 02:31:56,688 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Generated 3 realistic startup jobs
+2025-06-01 02:31:56,756 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Completed search: 3 jobs in 56.03s
+2025-06-01 02:31:56,757 - app.services.scrapers.scraper_manager - INFO - Wellfound: Found 3 jobs
+2025-06-01 02:32:04,457 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 02:32:04,490 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 02:32:04,491 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 02:32:04,491 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 3 jobs
+2025-06-01 02:32:04,591 - app.services.scrapers.scraper_manager - INFO - Search completed: 6 unique jobs found (0 duplicates removed) in 63.87s
+2025-06-01 02:32:04,618 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:32:04,634 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 02:32:04,635 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 02:32:04,636 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-3' already exists in job_postings with ID 8. Skipping insert.
+2025-06-01 02:32:04,637 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-anthropic-1' already exists in job_postings with ID 23. Skipping insert.
+2025-06-01 02:32:04,638 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-scale-ai-2' already exists in job_postings with ID 24. Skipping insert.
+2025-06-01 02:32:04,639 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-figma-3' already exists in job_postings with ID 25. Skipping insert.
+2025-06-01 02:37:41,116 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:37:41,245 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 02:37:41,254 - app.services.scrapers.scraper_manager - INFO - Starting search across 2 sources: ['wellfound', 'stackoverflow']
+2025-06-01 02:37:41,255 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 02:37:41,255 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Software Engineer' at https://wellfound.com/jobs?q=software+engineer
+2025-06-01 02:37:41,256 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 02:37:42,697 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=Software+Engineer&l=Remote&sort=p
+2025-06-01 02:37:49,696 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=software+engineer
+2025-06-01 02:37:49,696 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page title: wellfound.com
+2025-06-01 02:37:49,741 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for dynamic content to load...
+2025-06-01 02:38:38,112 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No structured job elements found, analyzing page content...
+2025-06-01 02:38:38,134 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page content length: 2446 chars
+2025-06-01 02:38:38,134 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page text length: 0 chars
+2025-06-01 02:38:38,135 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Found 0 job-related keywords in page
+2025-06-01 02:38:38,135 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Page doesn't appear to contain job listings
+2025-06-01 02:38:38,136 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] No jobs extracted from page, providing simulated startup jobs
+2025-06-01 02:38:38,136 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Generated 3 realistic startup jobs
+2025-06-01 02:38:38,205 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Completed search: 3 jobs in 56.95s
+2025-06-01 02:38:38,205 - app.services.scrapers.scraper_manager - INFO - Wellfound: Found 3 jobs
+2025-06-01 02:38:45,580 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 02:38:45,613 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 02:38:45,614 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 02:38:45,614 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 3 jobs
+2025-06-01 02:38:45,715 - app.services.scrapers.scraper_manager - INFO - Search completed: 6 unique jobs found (0 duplicates removed) in 64.46s
+2025-06-01 02:38:45,740 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:38:45,754 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-anthropic-1' already exists in job_postings with ID 23. Skipping insert.
+2025-06-01 02:38:45,755 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-scale-ai-2' already exists in job_postings with ID 24. Skipping insert.
+2025-06-01 02:38:45,757 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-figma-3' already exists in job_postings with ID 25. Skipping insert.
+2025-06-01 02:38:45,758 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 02:38:45,758 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 02:38:45,759 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-3' already exists in job_postings with ID 8. Skipping insert.
+2025-06-01 02:40:08,640 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:40:08,726 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['remote.co']
+2025-06-01 02:40:08,727 - app.services.scrapers.scraper_manager - INFO - Starting search on Remote.co
+2025-06-01 02:40:10,015 - app.services.scrapers.remote_co_scraper - INFO - Searching Remote.co with URL: https://remote.co/remote-jobs/search/?search=Python+Developer
+2025-06-01 02:40:10,107 - app.services.scrapers.remote_co_scraper - ERROR - Error scraping Remote.co: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search=Python+Developer
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search=Python+Developer", waiting until "load"
+
+2025-06-01 02:40:10,108 - app.services.scrapers.base_scraper - INFO - Generated 2 mock jobs for Remote.co
+2025-06-01 02:40:10,108 - app.services.scrapers.scraper_manager - INFO - Remote.co: Found 2 jobs
+2025-06-01 02:40:10,186 - app.services.scrapers.scraper_manager - INFO - Search completed: 1 unique jobs found (1 duplicates removed) in 1.46s
+2025-06-01 02:40:10,201 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 02:40:10,212 - app.services.database_service - INFO - Job with URL 'https://mock-remote.co.com/job/1' already exists in job_postings with ID 9. Skipping insert.
+2025-06-01 02:40:20,416 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:40:20,422 - __main__ - INFO - view_applications command initiated with limit: 20, status_filter: None
+2025-06-01 02:40:20,424 - app.services.database_service - INFO - Retrieved 6 application logs for user 1
+2025-06-01 02:40:20,440 - __main__ - INFO - Displayed 6 application logs to user
+2025-06-01 02:40:51,638 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:41:04,913 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:42:03,273 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:42:14,434 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 02:42:14,442 - __main__ - INFO - smart_workflow command: keywords='Python Developer', target_role='Software Engineer', location='None', num_results=2
+2025-06-01 02:42:15,737 - app.services.playwright_scraper_service - INFO - Starting job search on Remote.co for keywords: 'Python Developer'
+2025-06-01 02:42:16,318 - app.services.playwright_scraper_service - WARNING - Attempt 1 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search_keywords=Python+Developer&search_location=
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search_keywords=Python+Developer&search_location=", waiting until "domcontentloaded"
+
+2025-06-01 02:42:16,874 - app.services.playwright_scraper_service - WARNING - Attempt 2 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/?search=Python+Developer
+Call log:
+  - navigating to "https://remote.co/remote-jobs/?search=Python+Developer", waiting until "domcontentloaded"
+
+2025-06-01 02:42:17,419 - app.services.playwright_scraper_service - WARNING - Attempt 3 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/
+Call log:
+  - navigating to "https://remote.co/remote-jobs/", waiting until "domcontentloaded"
+
+2025-06-01 02:42:17,419 - app.services.playwright_scraper_service - ERROR - All URL attempts failed
+2025-06-01 02:42:17,507 - app.services.playwright_scraper_service - INFO - No jobs found from scraping, generating mock data for MVP testing
+2025-06-01 02:42:17,508 - app.services.playwright_scraper_service - INFO - Generated 2 mock jobs for testing
+2025-06-01 02:42:17,509 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/1' already exists in job_postings with ID 1. Skipping insert.
+2025-06-01 02:42:17,510 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/2' already exists in job_postings with ID 2. Skipping insert.
+2025-06-01 02:42:17,517 - app.services.database_service - INFO - Logged search query: 'Python Developer' for user 1, got 2 results.
+2025-06-01 02:42:17,521 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 02:42:17,524 - app.services.database_service - INFO - Retrieved 2 pending jobs from database.
+2025-06-01 02:42:17,527 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 02:42:17,853 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 02:42:17,853 - app.services.gemini_service - INFO - Gemini relevance score for role 'Software Engineer' is: 4
+2025-06-01 02:42:17,859 - app.services.database_service - INFO - Updated job ID 6: status='analyzed', relevance_score=4
+2025-06-01 02:42:17,863 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 02:42:18,211 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 02:42:18,212 - app.services.gemini_service - INFO - Gemini relevance score for role 'Software Engineer' is: 4
+2025-06-01 02:42:18,221 - app.services.database_service - INFO - Updated job ID 7: status='analyzed', relevance_score=4
+2025-06-01 02:42:18,234 - app.services.database_service - INFO - Retrieved 32 jobs from database (status_filter: None).
+2025-06-01 02:42:18,235 - app.services.database_service - INFO - Retrieved 6 application logs for user 1
+2025-06-01 02:42:18,248 - __main__ - INFO - Smart workflow completed: 2 discovered, 2 analyzed

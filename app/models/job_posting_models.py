@@ -17,10 +17,20 @@ class JobPosting(BaseModel):
     full_description_raw: Optional[str] = Field(None, example="<p>Join our team...</p>") # The full HTML or Markdown of the job description
     full_description_text: Optional[str] = Field(None, example="Join our team...") # Cleaned text version
     
+    # Salary and compensation
     salary_range_text: Optional[str] = Field(None, example="$100,000 - $150,000 per year")
     salary_min: Optional[float] = Field(None, example=100000.00)
     salary_max: Optional[float] = Field(None, example=150000.00)
     currency: Optional[str] = Field(None, example="USD")
+    
+    # Startup-specific equity and funding fields (for platforms like Wellfound)
+    equity_min_percent: Optional[float] = Field(None, example=0.01, description="Minimum equity offered (e.g., 0.01 for 1%)")
+    equity_max_percent: Optional[float] = Field(None, example=0.1, description="Maximum equity offered (e.g., 0.1 for 10%)")
+    equity_range_text: Optional[str] = Field(None, example="0.01% - 0.1%", description="Equity range as text if specific min/max not available")
+    
+    funding_stage: Optional[str] = Field(None, example="Series A", description="Company funding stage (Seed, Series A, B, etc.)")
+    company_size_range: Optional[str] = Field(None, example="11-50 employees", description="Range for company size")
+    company_total_funding: Optional[float] = Field(None, example=5000000.00, description="Total funding raised by company in USD")
     
     skills_extracted: List[str] = Field(default_factory=list, example=["Python", "FastAPI", "SQL"]) # Skills extracted by NLP/AI
     
@@ -41,18 +51,24 @@ class JobPosting(BaseModel):
         json_schema_extra = {
             "example": {
                 "id_on_platform": "jb12345",
-                "source_platform": "SerpApi_GoogleJobs",
-                "job_url": "https://jobs.google.com/example/123",
-                "title": "Senior Python Developer",
-                "company_name": "FutureTech Solutions",
-                "location_text": "Remote (USA)",
+                "source_platform": "Wellfound",
+                "job_url": "https://wellfound.com/l/2A1B3C4D5E",
+                "title": "Senior Full-Stack Engineer",
+                "company_name": "TechStart Inc",
+                "location_text": "San Francisco, CA / Remote",
                 "date_posted_text": "3 hours ago",
                 "date_posted_iso": "2025-05-31T14:00:00Z",
-                "full_description_text": "We are seeking an experienced Python developer to join our innovative team...",
+                "full_description_text": "Join our fast-growing startup building the future of AI-powered analytics...",
                 "salary_min": 120000,
                 "salary_max": 160000,
                 "currency": "USD",
-                "skills_extracted": ["Python", "Django", "AWS", "PostgreSQL"],
+                "equity_min_percent": 0.001,  # 0.1%
+                "equity_max_percent": 0.01,   # 1.0%
+                "equity_range_text": "0.1% - 1.0%",
+                "funding_stage": "Series A",
+                "company_size_range": "11-50 employees",
+                "company_total_funding": 8500000.00,
+                "skills_extracted": ["Python", "React", "TypeScript", "AWS", "PostgreSQL"],
                 "relevance_score": 4.7,
                 "is_remote": True,
                 "scraped_timestamp": "2025-05-31T17:30:00Z",
@@ -61,19 +77,23 @@ class JobPosting(BaseModel):
         }
 
 if __name__ == '__main__':
-    # Example of creating a JobPosting instance
+    # Example of creating a JobPosting instance with startup data
     example_job_data = {
-        "id_on_platform": "indeed_789",
-        "source_platform": "Indeed",
-        "job_url": "http://jobs.indeed.com/viewjob/789",
+        "id_on_platform": "wellfound_789",
+        "source_platform": "Wellfound",
+        "job_url": "http://wellfound.com/l/startup-job-789",
         "title": "Data Scientist",
-        "company_name": "Data Insights Co.",
-        "location_text": "New York, NY",
-        "full_description_text": "Looking for a skilled Data Scientist to analyze large datasets...",
+        "company_name": "AI Startup Co.",
+        "location_text": "Remote (US)",
+        "full_description_text": "Looking for a skilled Data Scientist to join our Series A startup and analyze large datasets...",
+        "equity_min_percent": 0.005,  # 0.5%
+        "equity_max_percent": 0.02,   # 2.0%
+        "funding_stage": "Series A",
+        "company_size_range": "25-50",
         "skills_extracted": ["Python", "Machine Learning", "R", "Statistics"],
-        "is_remote": False,
+        "is_remote": True,
         "processing_status": "Pending"
     }
     job_posting = JobPosting(**example_job_data)
-    print("Successfully created JobPosting instance:")
+    print("Successfully created JobPosting instance with startup data:")
     print(job_posting.model_dump_json(indent=2)) 

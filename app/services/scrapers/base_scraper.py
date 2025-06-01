@@ -110,14 +110,16 @@ class JobScraper(ABC):
     
     async def _setup_page(self, browser: Browser) -> Page:
         """Setup page with realistic user behavior simulation"""
-        page = await browser.new_page()
+        # Create context with user agent if available
+        context_options = {
+            'viewport': {'width': 1366, 'height': 768}
+        }
         
-        # Set realistic user agent
         if self.user_agent:
-            await page.set_user_agent(self.user_agent.random)
+            context_options['user_agent'] = self.user_agent.random
         
-        # Set viewport to common desktop resolution
-        await page.set_viewport_size({"width": 1366, "height": 768})
+        context = await browser.new_context(**context_options)
+        page = await context.new_page()
         
         # Add realistic headers
         await page.set_extra_http_headers({

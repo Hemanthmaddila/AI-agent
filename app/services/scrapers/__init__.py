@@ -7,6 +7,8 @@ This package contains specialized scrapers for different job platforms:
 - remote_co_scraper.py: Remote.co scraper (refactored from original)
 - linkedin_scraper.py: LinkedIn Jobs scraper with authentication handling
 - indeed_scraper.py: Indeed scraper with dynamic content support
+- stackoverflow_scraper.py: Stack Overflow Jobs scraper for developer positions
+- wellfound_scraper.py: Wellfound (AngelList) scraper for startup jobs
 - scraper_manager.py: Orchestrates multiple scrapers and handles deduplication
 
 Each scraper implements the JobScraper interface for consistent behavior.
@@ -18,6 +20,7 @@ from .remote_co_scraper import RemoteCoScraper
 from .linkedin_scraper import LinkedInScraper, LinkedInScraperConfig
 from .indeed_scraper import IndeedScraper
 from .stackoverflow_scraper import StackOverflowJobsScraper
+from .wellfound_scraper import WellfoundScraper
 
 __all__ = [
     'JobScraper', 
@@ -30,6 +33,7 @@ __all__ = [
     'LinkedInScraperConfig',
     'IndeedScraper',
     'StackOverflowJobsScraper',
+    'WellfoundScraper',
     'create_scraper_manager',
     'get_available_scrapers'
 ]
@@ -37,14 +41,15 @@ __all__ = [
 def create_scraper_manager(enabled_sources=None, configs=None):
     """Factory function to create a configured ScraperManager"""
     if enabled_sources is None:
-        enabled_sources = ['remote.co', 'indeed', 'stackoverflow']  # Default safe sources
+        enabled_sources = ['remote.co', 'indeed', 'stackoverflow', 'wellfound']  # Default safe sources
     
     if configs is None:
         configs = {
             'remote.co': ScraperConfig(),
             'linkedin': ScraperConfig(delay_range=(3, 7)),
             'indeed': ScraperConfig(delay_range=(2, 5)),
-            'stackoverflow': ScraperConfig(delay_range=(1, 3))
+            'stackoverflow': ScraperConfig(delay_range=(1, 3)),
+            'wellfound': ScraperConfig(delay_range=(2, 5))
         }
     
     # Create scraper manager
@@ -72,6 +77,10 @@ def create_scraper_manager(enabled_sources=None, configs=None):
                 scraper = StackOverflowJobsScraper(config)
                 manager.scrapers['stackoverflow'] = scraper
                 manager.enabled_sources.add('stackoverflow')
+            elif source == 'wellfound':
+                scraper = WellfoundScraper()
+                manager.scrapers['wellfound'] = scraper
+                manager.enabled_sources.add('wellfound')
             else:
                 print(f"Warning: Unknown scraper source '{source}' skipped")
                 
@@ -104,6 +113,12 @@ def get_available_scrapers():
         'stackoverflow': {
             'name': 'Stack Overflow Jobs',
             'description': 'Developer-focused job board with high-quality tech positions',
+            'authentication_required': False,
+            'reliability': 'High'
+        },
+        'wellfound': {
+            'name': 'Wellfound',
+            'description': 'Startup and tech jobs with equity, funding, and company data',
             'authentication_required': False,
             'reliability': 'High'
         }
