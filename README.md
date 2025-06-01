@@ -11,6 +11,23 @@ An intelligent automation system that helps streamline the job application proce
 - **Application Tracking**: Monitor the status of your job applications
 - **AI Integration**: Powered by Google Gemini for intelligent decision making
 
+## Development Progress
+
+### Phase 2: Core Agent Architecture & MVP Definition ✅ **Completed**
+- ✅ All Pydantic data models defined and validated
+- ✅ MVP scope clearly defined with workflow and success criteria
+- ✅ Database schema implemented and tested
+- ✅ API integrations (Gemini, Playwright) verified
+
+### Phase 3: MVP Development – Building Core Modules ⏳ **In Progress**
+**Objective**: Iteratively build and test the modules defined for the MVP scope.
+
+**Current Status**: 
+- ✅ CLI Framework (`main.py`) implemented using Typer and Rich
+- ✅ SerpAPI Integration (`app/services/serpapi_client.py`) completed and integrated
+- ✅ `find-jobs` command now functional with SerpAPI integration - can fetch and display job listings
+- ⏳ Next: Database Service (`app/services/database_service.py`) for saving job results
+
 ## Project Structure
 
 ```
@@ -58,19 +75,34 @@ ai_job_application_agent/
 Create a `.env` file with the following variables:
 
 ```env
-GOOGLE_API_KEY=your_gemini_api_key_here
-SERPAPI_KEY=your_serpapi_key_here
+GEMINI_API_KEY=your_gemini_api_key_here
+SERPAPI_API_KEY=your_serpapi_key_here
 DATABASE_URL=sqlite:///data/agent_database.db
 CAPSOLVER_API_KEY=your_capsolver_api_key_here
 ```
 
 ## Usage
 
-Run the main CLI application:
+Ensure your virtual environment is active and the `.env` file is configured with necessary API keys.
 
+To see available commands:
 ```bash
-python main.py
+python main.py --help
 ```
+
+To run specific commands:
+```bash
+# Find jobs (requires SERPAPI_API_KEY)
+python main.py find-jobs --keywords "Python Developer" --location "Remote"
+
+# Log a job application
+python main.py log-application --job-url "https://example.com/job/123" --resume-path "resume.pdf"
+
+# Get help for a specific command
+python main.py find-jobs --help
+```
+
+*Note: Actual functionality for commands is under development in Phase 3*
 
 ## Development
 
@@ -91,8 +123,10 @@ pytest
 
 - `user_profile_models.py`: Defines Pydantic models for user profiles, including skills, experience, education, and job search preferences. ✅ **Completed**
 - `job_posting_models.py`: Defines Pydantic models for job postings scraped from various sources (LinkedIn, Indeed, SerpApi), including job details, descriptions, extracted skills, and AI relevance scoring. ✅ **Completed**
-- `application_log_models.py`: ⏳ **Upcoming** - Will define models for tracking job application statuses and history
-- `gemini_interaction_models.py`: ⏳ **Upcoming** - Will define models for structuring requests to and responses from the Gemini API
+- `application_log_models.py`: Defines models for tracking job application statuses and history. ✅ **Completed**
+- `gemini_interaction_models.py`: Defines models for structuring requests to and responses from the Gemini API. ✅ **Completed**
+
+**All core Pydantic data models for Phase 2 are now defined, ensuring consistent data structures across the application.**
 
 ## Contributing
 
