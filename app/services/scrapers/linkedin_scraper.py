@@ -1,49 +1,32 @@
 """
-LinkedIn Jobs Scraper - Handles authentication and anti-bot measures
-IMPORTANT: This scraper requires careful consideration of LinkedIn's Terms of Service
-and implements ethical scraping practices with authentication handling
+LinkedIn Job Scraper - Professional implementation with authentication and application automation
 """
 import asyncio
-import logging
-from typing import List, Optional, Dict, Any
-import time
-import os
-from urllib.parse import urljoin, quote_plus
-from playwright.async_api import Page
 import json
+import logging
+import random
+import time
+from typing import List, Optional, Dict, Any
+from urllib.parse import urljoin, quote_plus
+from playwright.async_api import Page, Browser, BrowserContext
+from pathlib import Path
 
 from .base_scraper import JobScraper, ScraperResult, ScraperConfig
 from app.models.job_posting_models import JobPosting
+from config.enhanced_settings import enhanced_settings
+
+# Import the browser automation service
+try:
+    from app.services.browser_automation_service import browser_service
+    BROWSER_SERVICE_AVAILABLE = True
+except ImportError:
+    BROWSER_SERVICE_AVAILABLE = False
+    browser_service = None
 
 logger = logging.getLogger(__name__)
 
-class LinkedInScraperConfig(ScraperConfig):
-    """Extended config for LinkedIn-specific settings"""
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.login_required = True
-        self.save_session = True
-        self.session_file = "linkedin_session.json"
-        self.max_login_attempts = 3
-        self.respect_rate_limits = True
-        self.min_delay_between_requests = 3  # Increased for LinkedIn
-
 class LinkedInScraper(JobScraper):
-    """
-    LinkedIn Jobs scraper with authentication handling
-    
-    ETHICAL CONSIDERATIONS:
-    - Respects robots.txt and LinkedIn's Terms of Service
-    - Implements rate limiting and human-like behavior
-    - Uses legitimate browser automation, not API abuse
-    - Requires user consent and valid LinkedIn account
-    """
-    
-    def __init__(self, config: Optional[LinkedInScraperConfig] = None):
-        super().__init__(config or LinkedInScraperConfig())
-        self.linkedin_config = config or LinkedInScraperConfig()
-        self.is_authenticated = False
-        self.session_data = None
+    """Professional LinkedIn scraper with authentication and application automation"""
     
     @property
     def site_name(self) -> str:
@@ -51,399 +34,196 @@ class LinkedInScraper(JobScraper):
     
     @property
     def base_url(self) -> str:
-        return "https://www.linkedin.com"
+        return "https://linkedin.com"
     
-    def _build_search_url(self, keywords: str, location: Optional[str] = None) -> str:
-        """Build LinkedIn Jobs search URL"""
-        base_search = f"{self.base_url}/jobs/search/"
+    def __init__(self, config: Optional[ScraperConfig] = None):
+        super().__init__(config)
+        self.search_url = "https://linkedin.com/jobs/search"
+        self.current_task_id = None
+        self.session_file = "linkedin_session.json"
+        self.is_authenticated = False
         
-        params = []
-        if keywords:
-            params.append(f"keywords={quote_plus(keywords)}")
-        if location:
-            params.append(f"location={quote_plus(location)}")
-        
-        # Default filters for remote jobs
-        params.extend([
-            "f_WT=2",  # Remote work filter
-            "f_TPR=r86400",  # Posted in last 24 hours
-            "sortBy=DD"  # Sort by date
-        ])
-        
-        if params:
-            return f"{base_search}?" + "&".join(params)
-        return base_search
-    
-    async def search_jobs(self, keywords: str, location: Optional[str] = None, num_results: int = 10) -> ScraperResult:
-        """
-        Search for jobs on LinkedIn with authentication handling
-        """
-        start_time = time.time()
-        
-        try:
-            # Setup browser with LinkedIn-specific settings
-            self.browser = await self._setup_linkedin_browser()
-            self.page = await self._setup_page(self.browser)
-            
-            # Handle authentication
-            if not await self._ensure_authentication():
-                logger.error("LinkedIn authentication failed")
-                return await self._fallback_to_mock_data(keywords, num_results, start_time)
-            
-            # Build search URL
-            search_url = self._build_search_url(keywords, location)
-            logger.info(f"Searching LinkedIn with URL: {search_url}")
-            
-            # Navigate to search page with extra care
-            await self._navigate_safely(search_url)
-            
-            # Wait for results with LinkedIn-specific selectors
-            if not await self._wait_for_linkedin_results():
-                logger.warning("Failed to load LinkedIn search results")
-                return await self._fallback_to_mock_data(keywords, num_results, start_time)
-            
-            # Extract job data
-            job_data_list = await self._extract_job_data(self.page)
-            
-            # Convert to JobPosting models
-            jobs = []
-            for job_data in job_data_list[:num_results]:
-                job_posting = self._parse_job_to_model(job_data)
-                if job_posting:
-                    jobs.append(job_posting)
-            
-            execution_time = time.time() - start_time
-            
-            if jobs:
-                logger.info(f"Successfully scraped {len(jobs)} jobs from LinkedIn")
-                return ScraperResult(
-                    jobs=jobs,
-                    source=self.site_name,
-                    success=True,
-                    jobs_found=len(jobs),
-                    execution_time=execution_time
-                )
-            else:
-                logger.warning("No jobs found on LinkedIn, using mock data")
-                return await self._fallback_to_mock_data(keywords, num_results, start_time)
-            
-        except Exception as e:
-            logger.error(f"Error scraping LinkedIn: {e}")
-            return await self._fallback_to_mock_data(keywords, num_results, start_time)
-    
-    async def _setup_linkedin_browser(self):
-        """Setup browser with LinkedIn-specific anti-detection measures"""
-        from playwright.async_api import async_playwright
-        
-        playwright = await async_playwright().start()
-        
-        # Enhanced browser args for LinkedIn
-        browser_args = [
-            '--disable-blink-features=AutomationControlled',
-            '--disable-web-security',
-            '--no-sandbox',
-            '--disable-features=VizDisplayCompositor',
-            '--disable-extensions-file-access-check',
-            '--disable-plugins-discovery',
-            '--start-maximized'
+        # LinkedIn-specific selectors
+        self.job_selectors = [
+            '[data-testid="job-card"]',         # Primary job card
+            '.job-search-card',                 # Job search card
+            '.job-result-card',                 # Job result card
+            '.jobs-search-results__list-item',  # List item
+            '.job-card-container',              # Container
+            '[data-entity-urn*="job"]',        # Entity URN
+            '.scaffold-layout__list-item',      # Scaffold layout
+            '.jobs-search__results-list li',    # Results list
+            '[data-job-id]',                   # Job ID attribute
+            '.artdeco-card'                    # Artdeco card
         ]
         
-        browser = await playwright.chromium.launch(
-            headless=False,  # LinkedIn detection is stronger, consider non-headless
-            args=browser_args,
-            slow_mo=100  # Add delay between actions
-        )
+        # Job detail selectors
+        self.title_selectors = [
+            '[data-testid="job-title"]',
+            '.job-title',
+            '.jobs-unified-top-card__job-title',
+            '.job-details-jobs-unified-top-card__job-title',
+            'h1.job-title',
+            '.jobs-details__main-content h1'
+        ]
         
-        return browser
+        self.company_selectors = [
+            '[data-testid="job-company"]',
+            '.job-details-jobs-unified-top-card__company-name',
+            '.jobs-unified-top-card__company-name',
+            '.job-details-company-name',
+            'a.ember-view span[dir="ltr"]'
+        ]
+        
+        self.location_selectors = [
+            '[data-testid="job-location"]',
+            '.jobs-unified-top-card__bullet',
+            '.job-details-jobs-unified-top-card__bullet',
+            '.jobs-unified-top-card__subtitle-secondary-grouping',
+            '.job-details-job-summary__location'
+        ]
+        
+        # Application button selectors
+        self.apply_button_selectors = [
+            '[data-testid="apply-button"]',
+            '.jobs-apply-button',
+            '.job-details-how-you-match__apply-button',
+            'button[aria-label*="Apply"]',
+            'button:has-text("Apply")',
+            'button:has-text("Easy Apply")'
+        ]
     
-    async def _ensure_authentication(self) -> bool:
-        """
-        Ensure user is authenticated with LinkedIn
+    def _build_search_url(self, keywords: str, location: Optional[str] = None) -> str:
+        """Build search URL for LinkedIn Jobs"""
+        params = {
+            'keywords': keywords,
+            'location': location or 'Worldwide',
+            'f_TPR': 'r86400',  # Past 24 hours
+            'f_WT': '2',        # Remote jobs
+            'sortBy': 'DD',     # Date posted descending
+            'f_LF': 'f_AL',     # Easy Apply
+            'start': '0'
+        }
         
-        This method handles:
-        1. Checking for existing session
-        2. Prompting for login if needed
-        3. Saving session for future use
-        """
+        param_string = '&'.join([f"{k}={quote_plus(str(v))}" for k, v in params.items() if v])
+        return f"{self.search_url}?{param_string}"
+    
+    async def _update_progress(self, message: str, progress: float):
+        """Update task progress if browser service is available"""
+        if BROWSER_SERVICE_AVAILABLE and browser_service and self.current_task_id:
+            await browser_service.update_task_progress(self.current_task_id, message, progress)
+        logger.info(f"📊 LinkedIn: {message} ({progress}%)")
+    
+    async def _load_session(self, page: Page) -> bool:
+        """Load saved LinkedIn session if available"""
         try:
-            # Try to load existing session
-            if await self._load_session():
-                # Apply loaded session cookies to the browser context
-                if await self._apply_session_cookies():
-                    if await self._verify_session():
-                        self.is_authenticated = True
-                        logger.info("Successfully authenticated using saved session")
-                        return True
-                    else:
-                        logger.info("Saved session is invalid, requiring fresh login")
+            if not Path(self.session_file).exists():
+                logger.info("No LinkedIn session file found")
+                return False
             
-            # Need to authenticate
-            logger.info("LinkedIn authentication required")
+            with open(self.session_file, 'r') as f:
+                session_data = json.load(f)
             
-            # Navigate to LinkedIn login
-            await self.page.goto(f"{self.base_url}/login", timeout=self.config.timeout)
-            await self._human_like_delay()
+            # Check session age (expire after 7 days)
+            from datetime import datetime, timedelta
+            session_time = datetime.fromisoformat(session_data.get('timestamp', ''))
+            if datetime.now() - session_time > timedelta(days=7):
+                logger.info("LinkedIn session expired")
+                return False
             
-            # Check if already logged in (redirected)
-            if "feed" in self.page.url or "jobs" in self.page.url:
-                logger.info("Already logged in to LinkedIn")
-                await self._save_session()
-                self.is_authenticated = True
+            # Restore cookies
+            cookies = session_data.get('cookies', [])
+            if cookies:
+                await page.context.add_cookies(cookies)
+                logger.info(f"Restored {len(cookies)} LinkedIn cookies")
                 return True
             
-            # Wait for manual login or implement automated login
-            # SECURITY NOTE: Automated login requires careful credential handling
-            success = await self._handle_login_process()
-            
-            if success:
-                await self._save_session()
-                self.is_authenticated = True
-                return True
-            
             return False
             
         except Exception as e:
-            logger.error(f"LinkedIn authentication error: {e}")
+            logger.warning(f"Error loading LinkedIn session: {e}")
             return False
     
-    async def _handle_login_process(self) -> bool:
-        """
-        Handle LinkedIn login process
-        
-        IMPLEMENTATION OPTIONS:
-        1. Manual login (user completes login manually)
-        2. Automated login (requires secure credential storage)
-        3. Session reuse (preferred for repeated usage)
-        """
-        
-        # Option 1: Manual login (safest approach)
-        if await self._prompt_for_manual_login():
-            return True
-        
-        # Option 2: Automated login (implement if credentials are securely stored)
-        # return await self._automated_login()
-        
-        return False
-    
-    async def _prompt_for_manual_login(self) -> bool:
-        """
-        Prompt user to complete login manually
-        This is the safest approach for authentication
-        """
+    async def _save_session(self, page: Page):
+        """Save LinkedIn session for future use"""
         try:
-            logger.info("Please complete LinkedIn login manually in the browser window")
-            logger.info("After logging in, the scraper will continue automatically")
+            from datetime import datetime
             
-            # Wait for successful login (detected by URL change)
-            for attempt in range(60):  # Wait up to 5 minutes
-                await asyncio.sleep(5)
-                current_url = self.page.url
-                
-                # Check for successful login indicators
-                if any(indicator in current_url for indicator in ['feed', 'jobs', 'in/']):
-                    logger.info("Login successful!")
-                    return True
-                
-                # Check if still on login page
-                if 'login' not in current_url and 'challenge' not in current_url:
-                    # Might be logged in, verify
-                    if await self._verify_session():
-                        return True
-            
-            logger.warning("Login timeout - please try again")
-            return False
-            
-        except Exception as e:
-            logger.error(f"Manual login error: {e}")
-            return False
-    
-    async def _verify_session(self) -> bool:
-        """Verify that LinkedIn session is valid"""
-        try:
-            # Navigate to a protected page to verify login
-            await self.page.goto(f"{self.base_url}/jobs/", timeout=10000)
-            await asyncio.sleep(2)
-            
-            # Check for login indicators
-            current_url = self.page.url
-            if 'login' in current_url or 'challenge' in current_url:
-                return False
-            
-            # Look for user-specific elements
-            user_elements = await self.page.query_selector_all('.global-nav__me, [data-test-global-nav-me]')
-            return len(user_elements) > 0
-            
-        except Exception as e:
-            logger.debug(f"Session verification failed: {e}")
-            return False
-    
-    async def _load_session(self) -> bool:
-        """Load saved LinkedIn session from file"""
-        try:
-            session_file_path = os.path.join(os.getcwd(), self.linkedin_config.session_file)
-            
-            if not os.path.exists(session_file_path):
-                logger.debug(f"No existing session file found at: {session_file_path}")
-                return False
-            
-            # Load session data from file
-            with open(session_file_path, 'r') as f:
-                self.session_data = json.load(f)
-            
-            # Validate session data structure
-            if not self.session_data or 'cookies' not in self.session_data:
-                logger.warning("Invalid session data structure")
-                return False
-            
-            # Check if session is recent (within 7 days)
-            if 'timestamp' in self.session_data:
-                import datetime
-                session_time = datetime.datetime.fromisoformat(self.session_data['timestamp'])
-                age_days = (datetime.datetime.now() - session_time).days
-                
-                if age_days > 7:
-                    logger.info(f"Session is {age_days} days old, requiring fresh authentication")
-                    return False
-            
-            logger.info("Valid session data loaded successfully")
-            return True
-            
-        except (json.JSONDecodeError, FileNotFoundError, KeyError) as e:
-            logger.warning(f"Error loading session: {e}")
-            return False
-        except Exception as e:
-            logger.error(f"Unexpected error loading session: {e}")
-            return False
-
-    async def _save_session(self) -> bool:
-        """Save LinkedIn session to file for future use"""
-        try:
-            if not self.page:
-                logger.warning("No page context available for saving session")
-                return False
-            
-            # Get all cookies from the current page context
-            cookies = await self.page.context.cookies()
-            
-            # Filter for LinkedIn-specific cookies
-            linkedin_cookies = [
-                cookie for cookie in cookies 
-                if 'linkedin.com' in cookie.get('domain', '')
-            ]
-            
-            if not linkedin_cookies:
-                logger.warning("No LinkedIn cookies found to save")
-                return False
-            
-            # Prepare session data
-            import datetime
+            cookies = await page.context.cookies()
             session_data = {
-                'cookies': linkedin_cookies,
-                'timestamp': datetime.datetime.now().isoformat(),
-                'user_agent': await self.page.evaluate('navigator.userAgent'),
-                'url': self.page.url
+                'cookies': cookies,
+                'timestamp': datetime.now().isoformat(),
+                'url': page.url,
+                'user_agent': await page.evaluate('navigator.userAgent')
             }
             
-            # Save to file
-            session_file_path = os.path.join(os.getcwd(), self.linkedin_config.session_file)
-            with open(session_file_path, 'w') as f:
+            with open(self.session_file, 'w') as f:
                 json.dump(session_data, f, indent=2)
             
-            logger.info(f"Session saved successfully to: {session_file_path}")
-            self.session_data = session_data
-            return True
+            logger.info(f"Saved LinkedIn session with {len(cookies)} cookies")
             
         except Exception as e:
-            logger.error(f"Error saving session: {e}")
-            return False
+            logger.warning(f"Error saving LinkedIn session: {e}")
     
-    async def _apply_session_cookies(self) -> bool:
-        """Apply loaded session cookies to the current browser context"""
+    async def _authenticate_linkedin(self, page: Page) -> bool:
+        """Handle LinkedIn authentication"""
         try:
-            if not self.session_data or 'cookies' not in self.session_data:
-                logger.warning("No session data or cookies available to apply")
+            await self._update_progress("Checking LinkedIn authentication status", 20)
+            
+            # Try to load existing session first
+            if await self._load_session(page):
+                # Navigate to LinkedIn to check if session is valid
+                await page.goto("https://linkedin.com/feed", timeout=15000)
+                await page.wait_for_timeout(3000)
+                
+                # Check if we're logged in
+                if await page.query_selector('[data-testid="nav-settings__dropdown-trigger"]'):
+                    logger.info("✅ LinkedIn session restored successfully")
+                    self.is_authenticated = True
+                    return True
+            
+            # Need to authenticate
+            await self._update_progress("LinkedIn authentication required", 25)
+            logger.info("🔐 LinkedIn authentication required")
+            
+            # Navigate to login page
+            await page.goto("https://linkedin.com/login", timeout=15000)
+            await page.wait_for_timeout(2000)
+            
+            # Check if login form is present
+            if not await page.query_selector('#username'):
+                logger.error("LinkedIn login form not found")
                 return False
             
-            # Add cookies to the browser context
-            await self.page.context.add_cookies(self.session_data['cookies'])
+            print("\n" + "="*60)
+            print("🔐 LINKEDIN AUTHENTICATION REQUIRED")
+            print("="*60)
+            print("Please log in to LinkedIn in the browser window that opened.")
+            print("After logging in successfully, press ENTER here to continue...")
+            print("="*60)
             
-            logger.info(f"Applied {len(self.session_data['cookies'])} session cookies")
-            return True
+            # Wait for user to complete login
+            input("Press ENTER after you've logged in to LinkedIn: ")
             
-        except Exception as e:
-            logger.error(f"Error applying session cookies: {e}")
-            return False
-    
-    async def _navigate_safely(self, url: str):
-        """Navigate to URL with LinkedIn-specific safety measures"""
-        try:
-            await self.page.goto(url, timeout=self.config.timeout)
-            await self._human_like_delay()
+            # Wait a bit more for page to load
+            await page.wait_for_timeout(3000)
             
-            # Check for CAPTCHA or security challenges
-            if await self._handle_security_challenges():
-                # Retry navigation after handling challenges
-                await self.page.goto(url, timeout=self.config.timeout)
+            # Check authentication status
+            try:
+                await page.wait_for_selector('[data-testid="nav-settings__dropdown-trigger"]', timeout=10000)
+                logger.info("✅ LinkedIn authentication successful")
+                self.is_authenticated = True
+                
+                # Save session for future use
+                await self._save_session(page)
+                return True
+                
+            except:
+                logger.error("❌ LinkedIn authentication failed or timed out")
+                return False
                 
         except Exception as e:
-            logger.warning(f"Navigation error: {e}")
-            raise
-    
-    async def _handle_security_challenges(self) -> bool:
-        """Handle LinkedIn security challenges (CAPTCHA, etc.)"""
-        try:
-            # Check for common challenge indicators
-            challenge_selectors = [
-                '[data-test-challenge]',
-                '.challenge-page',
-                '#captcha-internal',
-                '.captcha-container'
-            ]
-            
-            for selector in challenge_selectors:
-                if await self.page.query_selector(selector):
-                    logger.warning("LinkedIn security challenge detected")
-                    logger.info("Please complete the security challenge manually")
-                    
-                    # Wait for user to complete challenge
-                    for _ in range(30):  # Wait up to 2.5 minutes
-                        await asyncio.sleep(5)
-                        if not await self.page.query_selector(selector):
-                            logger.info("Challenge completed")
-                            return True
-                    
-                    logger.warning("Challenge timeout")
-                    return False
-            
-            return False
-            
-        except Exception as e:
-            logger.warning(f"Error handling security challenges: {e}")
-            return False
-    
-    async def _wait_for_linkedin_results(self) -> bool:
-        """Wait for LinkedIn job search results to load"""
-        try:
-            # LinkedIn-specific result selectors
-            result_selectors = [
-                '.jobs-search__results-list',
-                '.job-card-container',
-                '[data-test-job-card]',
-                '.jobs-search-results-list'
-            ]
-            
-            for selector in result_selectors:
-                try:
-                    await self.page.wait_for_selector(selector, timeout=15000)
-                    return True
-                except:
-                    continue
-            
-            logger.warning("LinkedIn results not found with expected selectors")
-            return False
-            
-        except Exception as e:
-            logger.debug(f"Error waiting for LinkedIn results: {e}")
+            logger.error(f"Error during LinkedIn authentication: {e}")
             return False
     
     async def _extract_job_data(self, page: Page) -> List[Dict[str, Any]]:
@@ -451,137 +231,436 @@ class LinkedInScraper(JobScraper):
         jobs_data = []
         
         try:
-            # LinkedIn job card selectors
-            job_selectors = [
-                '.job-card-container',
-                '[data-test-job-card]',
-                '.jobs-search-results__list-item'
-            ]
+            await self._update_progress("Waiting for LinkedIn job results to load", 40)
             
-            job_elements = None
-            for selector in job_selectors:
+            # Wait for job results to load
+            await page.wait_for_timeout(5000)
+            
+            # Handle potential LinkedIn loading states
+            try:
+                # Wait for jobs container
+                await page.wait_for_selector('.jobs-search__results-list, .scaffold-layout__list', timeout=10000)
+            except:
+                logger.warning("LinkedIn jobs container not found - continuing anyway")
+            
+            await self._update_progress("Analyzing LinkedIn job listings", 50)
+            
+            # Try multiple job card selectors
+            job_cards_found = False
+            
+            for selector in self.job_selectors:
                 try:
-                    job_elements = await page.query_selector_all(selector)
-                    if job_elements:
-                        logger.debug(f"Found {len(job_elements)} LinkedIn jobs with selector: {selector}")
-                        break
-                except:
-                    continue
-            
-            if not job_elements:
-                logger.warning("No LinkedIn job elements found")
-                return []
-            
-            # Extract data from each job card
-            for element in job_elements[:20]:
-                try:
-                    job_data = await self._extract_linkedin_job_data(element)
-                    if job_data and job_data.get('title') and job_data.get('company_name'):
-                        jobs_data.append(job_data)
+                    elements = await page.query_selector_all(selector)
+                    if elements and len(elements) > 0:
+                        logger.info(f"✅ LinkedIn: Found {len(elements)} job cards with selector: {selector}")
+                        
+                        await self._update_progress(f"Extracting data from {len(elements)} LinkedIn jobs", 60)
+                        
+                        # Extract job data
+                        for element in elements:
+                            try:
+                                job_data = await self._extract_linkedin_job_data(element, page)
+                                if job_data and job_data.get('title'):
+                                    jobs_data.append(job_data)
+                            except Exception as e:
+                                logger.debug(f"Error extracting LinkedIn job: {e}")
+                                continue
+                        
+                        if jobs_data:
+                            job_cards_found = True
+                            break
+                            
                 except Exception as e:
-                    logger.debug(f"Error extracting LinkedIn job: {e}")
+                    logger.debug(f"LinkedIn selector {selector} failed: {e}")
                     continue
             
-            logger.info(f"Extracted {len(jobs_data)} valid jobs from LinkedIn")
+            # Fallback: extract from job links
+            if not jobs_data:
+                logger.info("🔄 LinkedIn: Using fallback extraction methods")
+                await self._update_progress("Using LinkedIn fallback extraction", 65)
+                
+                job_links = await page.query_selector_all('a[href*="/jobs/view/"]')
+                
+                for link in job_links[:15]:  # Limit to prevent overwhelming
+                    try:
+                        link_data = await link.evaluate("""
+                            (el) => {
+                                const title = el.textContent?.trim() || el.getAttribute('aria-label') || '';
+                                const href = el.href || el.getAttribute('href') || '';
+                                
+                                // Find parent job card
+                                let parent = el.closest('.job-search-card, .job-result-card, .jobs-search-results__list-item, .artdeco-card');
+                                let company = '';
+                                let location = '';
+                                
+                                if (parent) {
+                                    const companyEl = parent.querySelector('.job-search-card__subtitle, .job-result-card__subtitle');
+                                    company = companyEl?.textContent?.trim() || '';
+                                    
+                                    const locationEl = parent.querySelector('.job-search-card__location, .job-result-card__location');
+                                    location = locationEl?.textContent?.trim() || '';
+                                }
+                                
+                                return {
+                                    title: title,
+                                    company: company || 'Unknown Company',
+                                    location: location || 'Not specified',
+                                    job_url: href,
+                                    description: title,
+                                    source: 'linkedin.com'
+                                };
+                            }
+                        """)
+                        
+                        if link_data.get('title') and len(link_data['title']) > 5:
+                            jobs_data.append(link_data)
+                            
+                    except Exception as e:
+                        logger.debug(f"Error extracting LinkedIn job link: {e}")
+                        continue
+            
+            await self._update_progress(f"Successfully extracted {len(jobs_data)} LinkedIn jobs", 75)
             return jobs_data
             
         except Exception as e:
-            logger.error(f"Error extracting LinkedIn job data: {e}")
+            logger.error(f"LinkedIn job extraction failed: {e}")
+            await self._update_progress(f"LinkedIn extraction error: {str(e)}", 75)
             return []
     
-    async def _extract_linkedin_job_data(self, element) -> Optional[Dict[str, Any]]:
+    async def _extract_linkedin_job_data(self, element, page: Page) -> Optional[Dict[str, Any]]:
         """Extract data from a single LinkedIn job card"""
         try:
-            job_data = {}
+            job_data = await element.evaluate("""
+                (cardEl) => {
+                    // Extract title
+                    const titleSelectors = [
+                        '.job-card-list__title', '.job-search-card__title',
+                        '.job-result-card__title', 'h3 a', '.jobs-search-results__list-item h3'
+                    ];
+                    let title = '';
+                    let href = '';
+                    
+                    for (const sel of titleSelectors) {
+                        const titleEl = cardEl.querySelector(sel);
+                        if (titleEl) {
+                            title = titleEl.textContent?.trim() || titleEl.getAttribute('aria-label') || '';
+                            href = titleEl.href || titleEl.getAttribute('href') || 
+                                   titleEl.closest('a')?.href || '';
+                            if (title) break;
+                        }
+                    }
+                    
+                    // Extract company
+                    const companySelectors = [
+                        '.job-card-container__company-name', '.job-search-card__subtitle',
+                        '.job-result-card__subtitle', '.jobs-search-results__list-item h4'
+                    ];
+                    let company = '';
+                    for (const sel of companySelectors) {
+                        const companyEl = cardEl.querySelector(sel);
+                        if (companyEl) {
+                            company = companyEl.textContent?.trim() || '';
+                            if (company) break;
+                        }
+                    }
+                    
+                    // Extract location
+                    const locationSelectors = [
+                        '.job-card-container__metadata-item', '.job-search-card__location',
+                        '.job-result-card__location', '.jobs-search-results__list-item .job-search-card__location'
+                    ];
+                    let location = '';
+                    for (const sel of locationSelectors) {
+                        const locationEl = cardEl.querySelector(sel);
+                        if (locationEl) {
+                            const text = locationEl.textContent?.trim() || '';
+                            if (text && !text.includes('ago') && !text.includes('applicant')) {
+                                location = text;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Extract description/snippet
+                    const descEl = cardEl.querySelector('.job-search-card__snippet, .job-result-card__snippet');
+                    const description = descEl?.textContent?.trim() || title;
+                    
+                    return {
+                        title: title,
+                        company: company || 'Unknown Company',
+                        location: location || 'Not specified',
+                        job_url: href,
+                        description: description,
+                        source: 'linkedin.com'
+                    };
+                }
+            """)
             
-            # Extract job title and URL
-            title_selectors = [
-                '.job-card-list__title a',
-                '[data-test-job-title] a',
-                '.job-card-container__link'
-            ]
-            for selector in title_selectors:
-                try:
-                    title_element = await element.query_selector(selector)
-                    if title_element:
-                        job_data['title'] = await title_element.inner_text()
-                        job_data['url'] = await title_element.get_attribute('href')
-                        break
-                except:
-                    continue
-            
-            # Extract company name
-            company_selectors = [
-                '.job-card-container__company-name',
-                '[data-test-job-company-name]',
-                '.job-card-list__company-name'
-            ]
-            for selector in company_selectors:
-                try:
-                    company_element = await element.query_selector(selector)
-                    if company_element:
-                        job_data['company_name'] = await company_element.inner_text()
-                        break
-                except:
-                    continue
-            
-            # Extract location
-            location_selectors = [
-                '.job-card-container__metadata-item',
-                '[data-test-job-location]',
-                '.job-card-list__location'
-            ]
-            for selector in location_selectors:
-                try:
-                    location_element = await element.query_selector(selector)
-                    if location_element:
-                        location_text = await location_element.inner_text()
-                        if location_text and 'ago' not in location_text.lower():
-                            job_data['location'] = location_text
-                            break
-                except:
-                    continue
-            
-            return job_data if job_data.get('title') else None
+            if job_data.get('title') and len(job_data['title']) > 3:
+                # Fix relative URLs
+                if job_data.get('job_url') and not job_data['job_url'].startswith('http'):
+                    job_data['job_url'] = urljoin(self.base_url, job_data['job_url'])
+                
+                return job_data
+                
+            return None
             
         except Exception as e:
-            logger.debug(f"Error extracting single LinkedIn job: {e}")
+            logger.debug(f"Error extracting LinkedIn job data: {e}")
             return None
     
     def _parse_job_to_model(self, job_data: Dict[str, Any]) -> Optional[JobPosting]:
-        """Convert raw LinkedIn job data to JobPosting model"""
+        """Convert raw job data to JobPosting model"""
         try:
-            # Ensure URL is absolute
-            job_url = job_data.get('url', '')
-            if job_url and not job_url.startswith('http'):
-                job_url = urljoin(self.base_url, job_url)
-            
-            job_posting = JobPosting(
-                job_url=job_url,
-                title=self._clean_text(job_data.get('title', '')),
-                company_name=self._clean_text(job_data.get('company_name', '')),
-                location_text=self._clean_text(job_data.get('location', 'Remote')),
+            job = JobPosting(
+                job_url=job_data.get('job_url', ''),
+                title=job_data.get('title', 'Unknown Position'),
+                company_name=job_data.get('company', 'Unknown Company'),
+                location_text=job_data.get('location', 'Not specified'),
                 source_platform=self.site_name,
-                full_description_raw=self._clean_text(job_data.get('description', '')),
+                full_description_raw=job_data.get('description', ''),
                 processing_status="pending"
             )
-            
-            return job_posting
-            
+            return job
         except Exception as e:
-            logger.error(f"Error parsing LinkedIn job to model: {e}")
+            logger.debug(f"Error creating LinkedIn job posting: {e}")
             return None
     
-    async def _fallback_to_mock_data(self, keywords: str, num_results: int, start_time: float) -> ScraperResult:
-        """Generate mock LinkedIn data as fallback"""
-        execution_time = time.time() - start_time
-        mock_jobs = self._generate_mock_jobs(keywords, num_results)
+    async def apply_to_job(self, job_url: str, page: Page, profile_data: Dict[str, Any] = None) -> bool:
+        """Apply to a LinkedIn job automatically"""
+        try:
+            await self._update_progress("Navigating to LinkedIn job application", 80)
+            
+            # Navigate to job page
+            await page.goto(job_url, timeout=15000)
+            await page.wait_for_timeout(3000)
+            
+            # Look for apply button
+            apply_button = None
+            for selector in self.apply_button_selectors:
+                try:
+                    apply_button = await page.query_selector(selector)
+                    if apply_button:
+                        break
+                except:
+                    continue
+            
+            if not apply_button:
+                logger.warning("No apply button found on LinkedIn job page")
+                return False
+            
+            # Click apply button
+            await apply_button.click()
+            await page.wait_for_timeout(3000)
+            
+            # Check if it's Easy Apply
+            if await page.query_selector('[data-testid="jobs-apply-form"]'):
+                logger.info("Found LinkedIn Easy Apply form")
+                return await self._handle_easy_apply(page, profile_data)
+            else:
+                logger.info("External application detected - opening in new tab")
+                return True  # External application, user will handle manually
+                
+        except Exception as e:
+            logger.error(f"Error applying to LinkedIn job: {e}")
+            return False
+    
+    async def _handle_easy_apply(self, page: Page, profile_data: Dict[str, Any] = None) -> bool:
+        """Handle LinkedIn Easy Apply process"""
+        try:
+            await self._update_progress("Processing LinkedIn Easy Apply", 85)
+            
+            # Fill out the application form
+            # This is a simplified implementation - can be enhanced
+            
+            # Look for form fields
+            form_fields = await page.query_selector_all('input, textarea, select')
+            
+            for field in form_fields:
+                try:
+                    field_type = await field.get_attribute('type')
+                    field_name = await field.get_attribute('name') or ''
+                    field_id = await field.get_attribute('id') or ''
+                    
+                    # Basic field mapping
+                    if 'phone' in field_name.lower() or 'phone' in field_id.lower():
+                        if profile_data and profile_data.get('phone'):
+                            await field.fill(profile_data['phone'])
+                    elif 'email' in field_name.lower() or 'email' in field_id.lower():
+                        if profile_data and profile_data.get('email'):
+                            await field.fill(profile_data['email'])
+                    
+                except Exception as e:
+                    logger.debug(f"Error filling LinkedIn form field: {e}")
+                    continue
+            
+            # Look for submit/next button
+            submit_selectors = [
+                'button[aria-label*="Submit"], button[aria-label*="Next"]',
+                'button:has-text("Submit")', 'button:has-text("Next")',
+                '[data-testid="submit-btn"]'
+            ]
+            
+            for selector in submit_selectors:
+                try:
+                    submit_btn = await page.query_selector(selector)
+                    if submit_btn:
+                        # For safety, we'll ask for user confirmation
+                        print(f"\n🤖 Ready to submit LinkedIn application")
+                        print("Press ENTER to submit, or Ctrl+C to cancel:")
+                        input()
+                        
+                        await submit_btn.click()
+                        await page.wait_for_timeout(2000)
+                        
+                        # Check for success
+                        if await page.query_selector('[data-testid="application-success"]'):
+                            logger.info("✅ LinkedIn application submitted successfully")
+                            return True
+                        break
+                except:
+                    continue
+            
+            return False
+            
+        except Exception as e:
+            logger.error(f"Error in LinkedIn Easy Apply: {e}")
+            return False
+    
+    async def search_jobs(self, keywords: str, location: Optional[str] = None, num_results: int = 10) -> ScraperResult:
+        """
+        Search jobs on LinkedIn with authentication and application automation
+        """
+        start_time = time.time()
         
-        return ScraperResult(
-            jobs=mock_jobs,
-            source=f"{self.site_name}_Mock",
-            success=True,
-            error_message="Used mock data - LinkedIn scraping requires authentication",
-            jobs_found=len(mock_jobs),
-            execution_time=execution_time
-        ) 
+        try:
+            # Create task for progress tracking
+            if BROWSER_SERVICE_AVAILABLE and browser_service:
+                self.current_task_id = await browser_service.create_task(
+                    f"LinkedIn Job Search: {keywords}",
+                    [
+                        "Setup browser",
+                        "Authenticate with LinkedIn",
+                        "Search jobs",
+                        "Extract data",
+                        "Process results"
+                    ]
+                )
+            
+            await self._update_progress("Starting LinkedIn job search with authentication", 0)
+            
+            # Setup enhanced browser
+            await self._update_progress("Setting up LinkedIn-optimized browser", 10)
+            
+            if BROWSER_SERVICE_AVAILABLE and browser_service:
+                if not browser_service.browser:
+                    await browser_service.start_browser()
+                self.browser = browser_service.browser
+                page = browser_service.page
+            else:
+                self.browser = await self._setup_browser()
+                page = await self._setup_page(self.browser)
+            
+            # Add LinkedIn-specific stealth measures
+            await page.add_init_script("""
+                // LinkedIn-specific anti-detection
+                Object.defineProperty(navigator, 'webdriver', {
+                    get: () => undefined
+                });
+                
+                Object.defineProperty(navigator, 'plugins', {
+                    get: () => [1, 2, 3, 4, 5]
+                });
+                
+                Object.defineProperty(navigator, 'languages', {
+                    get: () => ['en-US', 'en']
+                });
+                
+                // Mock chrome object
+                window.chrome = {
+                    runtime: {},
+                    loadTimes: function() {},
+                    csi: function() {}
+                };
+            """)
+            
+            try:
+                # Authenticate with LinkedIn
+                if not await self._authenticate_linkedin(page):
+                    error_msg = "LinkedIn authentication failed"
+                    await self._update_progress(error_msg, error=error_msg)
+                    return ScraperResult(
+                        jobs=[],
+                        source=self.site_name,
+                        success=False,
+                        error_message=error_msg,
+                        jobs_found=0,
+                        execution_time=time.time() - start_time
+                    )
+                
+                # Navigate to job search
+                search_url = self._build_search_url(keywords, location)
+                logger.info(f"🌐 Navigating to LinkedIn Jobs: {search_url}")
+                
+                await self._update_progress("Navigating to LinkedIn job search", 30)
+                
+                if BROWSER_SERVICE_AVAILABLE and browser_service:
+                    success = await browser_service.navigate_to(search_url, self.current_task_id)
+                else:
+                    response = await page.goto(search_url, wait_until='domcontentloaded', timeout=30000)
+                    success = response and response.status == 200
+                
+                if not success:
+                    logger.warning("LinkedIn navigation had issues, but continuing")
+                
+                # Extract job data
+                await self._update_progress("LinkedIn jobs page loaded, extracting data", 35)
+                jobs_data = await self._extract_job_data(page)
+                
+                # Parse to JobPosting models
+                await self._update_progress("Converting LinkedIn data to structured format", 80)
+                jobs = []
+                for job_data in jobs_data[:num_results]:
+                    job = self._parse_job_to_model(job_data)
+                    if job:
+                        jobs.append(job)
+                
+                success = len(jobs) > 0
+                execution_time = time.time() - start_time
+                
+                if success:
+                    await self._update_progress(f"✅ Successfully found {len(jobs)} LinkedIn jobs!", 100)
+                    logger.info(f"✅ Successfully scraped {len(jobs)} jobs from LinkedIn")
+                else:
+                    logger.warning("⚠️ No jobs found on LinkedIn")
+                    await self._update_progress("No jobs found on LinkedIn", 90)
+                
+                return ScraperResult(
+                    jobs=jobs,
+                    source=self.site_name,
+                    success=success,
+                    error_message=None if success else "No jobs found",
+                    jobs_found=len(jobs),
+                    execution_time=execution_time
+                )
+                
+            finally:
+                # Only close browser if we created it
+                if not BROWSER_SERVICE_AVAILABLE and hasattr(self, 'browser') and self.browser:
+                    await self.browser.close()
+                
+        except Exception as e:
+            execution_time = time.time() - start_time
+            error_msg = f"LinkedIn scraping failed: {str(e)}"
+            logger.error(error_msg)
+            
+            await self._update_progress(f"LinkedIn error: {str(e)}", error=str(e))
+            
+            return ScraperResult(
+                jobs=[],
+                source=self.site_name,
+                success=False,
+                error_message=error_msg,
+                jobs_found=0,
+                execution_time=execution_time
+            ) 

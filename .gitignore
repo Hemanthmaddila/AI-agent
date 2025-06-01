@@ -4,7 +4,7 @@ __pycache__/
 *.egg-info/
 *.so
 *.out
-*.log # General log files, specific app logs might be in data/logs/
+#*.log # General log files, specific app logs might be in data/logs/
 *.tmp
 *.swp
 *.bak
@@ -12,17 +12,10 @@ __pycache__/
 # Virtual Environment
 .venv/
 venv/
-ENV/
-env/
+
+#
 
 # Secrets - CRITICAL
-.env
-*.sqlite
-*.sqlite3
-*.db
-*.db-journal* # SQLite journal files
-service_account_key.json # Or any direct credential files
-
 # IDE - Cursor / VSCode
 .vscode/*
 !.vscode/settings.json

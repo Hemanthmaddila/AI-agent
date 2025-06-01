@@ -1789,5 +1789,469 @@ def test_form_detection(
         console.print(f"[bold red]❌ Error: {e}[/bold red]")
         raise typer.Exit(1)
 
+@app.command()
+def launch_browser():
+    """
+    🌐 Launch the Suna-inspired browser interface for real-time job search visualization
+    
+    This command starts a web server that provides:
+    - Real-time browser automation viewing
+    - Live task progress tracking  
+    - Visual feedback during job scraping
+    - Screenshots and browser state monitoring
+    
+    The interface will be available at http://localhost:8080
+    """
+    console.print("\n🚀 [bold blue]Launching Suna-Inspired Browser Interface[/bold blue]")
+    
+    try:
+        # Check if required dependencies are installed
+        try:
+            import fastapi
+            import uvicorn
+            import websockets
+        except ImportError as e:
+            console.print(f"❌ [bold red]Missing dependency:[/bold red] {e}")
+            console.print("\n📦 [yellow]Please install additional dependencies:[/yellow]")
+            console.print("   [cyan]pip install fastapi uvicorn websockets[/cyan]")
+            return
+        
+        # Import and run the browser interface launcher
+        import subprocess
+        import sys
+        from pathlib import Path
+        
+        launcher_script = Path(__file__).parent / "launch_browser_interface.py"
+        
+        if not launcher_script.exists():
+            console.print("❌ [bold red]Browser interface launcher not found[/bold red]")
+            return
+        
+        console.print("🌐 [green]Starting browser interface server...[/green]")
+        console.print("💡 [yellow]Open your browser and go to:[/yellow] [link]http://localhost:8080[/link]")
+        console.print("🔄 [dim]Press Ctrl+C to stop the service[/dim]\n")
+        
+        # Launch the browser interface
+        subprocess.run([sys.executable, str(launcher_script)], check=True)
+        
+    except KeyboardInterrupt:
+        console.print("\n🛑 [yellow]Browser interface stopped by user[/yellow]")
+    except subprocess.CalledProcessError as e:
+        console.print(f"❌ [bold red]Failed to start browser interface:[/bold red] {e}")
+    except Exception as e:
+        console.print(f"❌ [bold red]Error:[/bold red] {e}")
+
+@app.command()
+def setup_profile():
+    """
+    🤖 Create or update your job application profile for automated applications
+    
+    This command sets up your personal profile with contact information, resume,
+    and preferences for automated job applications across multiple platforms.
+    """
+    console.print("\n🤖 [bold blue]Setting Up Your Job Application Profile[/bold blue]")
+    
+    try:
+        from app.services.job_application_service import job_application_service
+        
+        profile = job_application_service.create_profile_interactive()
+        
+        console.print(f"\n✅ [bold green]Profile setup complete![/bold green]")
+        console.print("Your profile is ready for automated job applications.")
+        
+    except Exception as e:
+        logger.error(f"Error setting up profile: {e}")
+        console.print(f"[bold red]❌ Error setting up profile: {e}[/bold red]")
+
+@app.command()
+def smart_apply(
+    keywords: Annotated[str, typer.Option(help="Job search keywords (e.g., 'Python Developer')")],
+    max_applications: Annotated[int, typer.Option(help="Maximum number of applications to submit")] = 5,
+    platforms: Annotated[str, typer.Option(help="Platforms to search (comma-separated: indeed,linkedin,remote.co)")] = "indeed,linkedin,remote.co"
+):
+    """
+    🚀 Smart job discovery and automated application across multiple platforms
+    
+    This command combines job search, AI analysis, and automated applications:
+    - Searches across multiple job platforms
+    - Uses AI to rank jobs by relevance
+    - Automatically applies to the best matches
+    - Provides real-time progress tracking
+    """
+    console.print(f"\n🚀 [bold blue]Smart Job Discovery & Auto-Apply: {keywords}[/bold blue]")
+    console.print(f"Max applications: {max_applications}")
+    console.print(f"Platforms: {platforms}")
+    
+    async def run_smart_apply():
+        try:
+            from app.services.job_application_service import job_application_service
+            
+            # Check if profile exists
+            if not job_application_service.profile:
+                console.print("[bold yellow]⚠️ No profile found. Please run 'setup-profile' first.[/bold yellow]")
+                return
+            
+            # Run smart discovery and apply
+            results = await job_application_service.smart_job_discovery_and_apply(
+                keywords=keywords,
+                max_applications=max_applications
+            )
+            
+            # Display results
+            console.print(f"\n📊 [bold green]Smart Apply Results[/bold green]")
+            console.print(f"Jobs discovered: {results['jobs_discovered']}")
+            console.print(f"Applications submitted: {results['applications_submitted']}")
+            console.print(f"Platforms searched: {', '.join(results['platforms_searched'])}")
+            
+            if results['applications']:
+                table = Table(title="Application Results")
+                table.add_column("Title", style="cyan")
+                table.add_column("Company", style="magenta")
+                table.add_column("Platform", style="yellow")
+                table.add_column("Status", style="green")
+                
+                for app in results['applications']:
+                    status = "✅ Success" if app['success'] else f"❌ Failed: {app.get('error', 'Unknown')}"
+                    table.add_row(
+                        app['title'],
+                        app['company'],
+                        app['platform'],
+                        status
+                    )
+                console.print(table)
+            
+            if results['errors']:
+                console.print(f"\n⚠️ [bold yellow]Errors encountered:[/bold yellow]")
+                for error in results['errors']:
+                    console.print(f"  • {error}")
+                    
+        except Exception as e:
+            logger.error(f"Error in smart apply: {e}")
+            console.print(f"[bold red]❌ Error: {e}[/bold red]")
+    
+    # Run the async function
+    asyncio.run(run_smart_apply())
+
+@app.command()
+def research_company(
+    company_name: Annotated[str, typer.Option(help="Company name to research")],
+    keywords: Annotated[str, typer.Option(help="Job keywords to search for at this company")] = "",
+    apply_automatically: Annotated[bool, typer.Option("--auto-apply", help="Automatically apply to found jobs")] = False
+):
+    """
+    🔍 Research a company and discover their career opportunities
+    
+    This command uses AI-powered web browsing to:
+    - Find the company's career pages
+    - Discover available job opportunities
+    - Optionally apply to matching positions
+    """
+    console.print(f"\n🔍 [bold blue]Researching Company: {company_name}[/bold blue]")
+    if keywords:
+        console.print(f"Looking for: {keywords}")
+    
+    async def run_company_research():
+        try:
+            from app.services.web_browser_service import web_browser_service
+            from app.services.job_application_service import job_application_service
+            
+            # Search for career pages
+            console.print("🌐 Searching for company career pages...")
+            career_urls = await web_browser_service.search_company_careers(company_name)
+            
+            if not career_urls:
+                console.print(f"[bold yellow]⚠️ No career pages found for {company_name}[/bold yellow]")
+                return
+            
+            console.print(f"✅ Found {len(career_urls)} career page(s):")
+            for i, url in enumerate(career_urls, 1):
+                console.print(f"  {i}. {url}")
+            
+            # Scrape jobs from career pages
+            all_jobs = []
+            for career_url in career_urls[:3]:  # Limit to first 3 pages
+                console.print(f"\n📊 Scraping jobs from: {career_url}")
+                jobs = await web_browser_service.scrape_career_portal(career_url, keywords)
+                all_jobs.extend(jobs)
+            
+            if not all_jobs:
+                console.print(f"[bold yellow]⚠️ No jobs found on {company_name}'s career pages[/bold yellow]")
+                return
+            
+            # Display found jobs
+            table = Table(title=f"Jobs at {company_name}")
+            table.add_column("Title", style="cyan")
+            table.add_column("Location", style="yellow")
+            table.add_column("URL", style="blue")
+            
+            for job in all_jobs:
+                table.add_row(
+                    job.title,
+                    job.location_text,
+                    job.job_url[:50] + "..." if len(job.job_url) > 50 else job.job_url
+                )
+            
+            console.print(table)
+            
+            # Auto-apply if requested
+            if apply_automatically and job_application_service.profile:
+                console.print(f"\n🚀 Auto-applying to {len(all_jobs)} jobs...")
+                
+                applied_count = 0
+                for job in all_jobs:
+                    try:
+                        result = await job_application_service.apply_to_job(job)
+                        if result.success:
+                            applied_count += 1
+                            console.print(f"✅ Applied to {job.title}")
+                        else:
+                            console.print(f"❌ Failed to apply to {job.title}: {result.error_message}")
+                    except Exception as e:
+                        console.print(f"❌ Error applying to {job.title}: {e}")
+                
+                console.print(f"\n📊 Applied to {applied_count}/{len(all_jobs)} jobs")
+            
+            elif apply_automatically:
+                console.print("[bold yellow]⚠️ Auto-apply requested but no profile found. Run 'setup-profile' first.[/bold yellow]")
+                
+        except Exception as e:
+            logger.error(f"Error in company research: {e}")
+            console.print(f"[bold red]❌ Error: {e}[/bold red]")
+    
+    # Run the async function
+    asyncio.run(run_company_research())
+
+@app.command()
+def apply_to_jobs(
+    job_ids: Annotated[str, typer.Option(help="Comma-separated job IDs to apply to (from database)")],
+    max_applications: Annotated[int, typer.Option(help="Maximum number of applications to submit")] = 10
+):
+    """
+    🎯 Apply to specific jobs by their database IDs
+    
+    Use this command to apply to jobs you've already discovered and saved.
+    Supports bulk application with progress tracking.
+    """
+    console.print(f"\n🎯 [bold blue]Applying to Jobs[/bold blue]")
+    
+    try:
+        # Parse job IDs
+        job_id_list = [int(id.strip()) for id in job_ids.split(',')]
+        console.print(f"Job IDs to apply to: {job_id_list}")
+        console.print(f"Maximum applications: {max_applications}")
+        
+        async def run_applications():
+            try:
+                from app.services.job_application_service import job_application_service
+                
+                # Check if profile exists
+                if not job_application_service.profile:
+                    console.print("[bold yellow]⚠️ No profile found. Please run 'setup-profile' first.[/bold yellow]")
+                    return
+                
+                # Apply to jobs
+                results = await job_application_service.bulk_apply_to_jobs(
+                    job_ids=job_id_list,
+                    max_applications=max_applications
+                )
+                
+                # Display results
+                successful = sum(1 for r in results if r.success)
+                
+                console.print(f"\n📊 [bold green]Application Results[/bold green]")
+                console.print(f"Total attempted: {len(results)}")
+                console.print(f"Successful: {successful}")
+                console.print(f"Failed: {len(results) - successful}")
+                
+                if results:
+                    table = Table(title="Application Results")
+                    table.add_column("Job Title", style="cyan")
+                    table.add_column("Company", style="magenta")
+                    table.add_column("Platform", style="yellow")
+                    table.add_column("Status", style="green")
+                    
+                    for result in results:
+                        status = "✅ Success" if result.success else f"❌ Failed"
+                        table.add_row(
+                            result.job_title,
+                            result.company_name,
+                            result.platform,
+                            status
+                        )
+                    console.print(table)
+                    
+            except Exception as e:
+                logger.error(f"Error in bulk apply: {e}")
+                console.print(f"[bold red]❌ Error: {e}[/bold red]")
+        
+        # Run the async function
+        asyncio.run(run_applications())
+        
+    except ValueError as e:
+        console.print(f"[bold red]❌ Invalid job IDs format. Use comma-separated numbers (e.g., '1,2,3')[/bold red]")
+    except Exception as e:
+        logger.error(f"Error parsing job IDs: {e}")
+        console.print(f"[bold red]❌ Error: {e}[/bold red]")
+
+@app.command()
+def application_status():
+    """
+    📊 View your job application history and statistics
+    
+    Shows a comprehensive overview of all your job applications including:
+    - Success rates by platform
+    - Recent applications
+    - Application trends
+    """
+    console.print("\n📊 [bold blue]Job Application Status & History[/bold blue]")
+    
+    try:
+        from app.services.job_application_service import job_application_service
+        
+        summary = job_application_service.get_application_summary()
+        
+        # Overall statistics
+        console.print(f"\n📈 [bold green]Overall Statistics[/bold green]")
+        console.print(f"Total applications: {summary['total_applications']}")
+        console.print(f"Successful applications: {summary['successful_applications']}")
+        console.print(f"Success rate: {summary['success_rate']:.1f}%")
+        
+        # Platform breakdown
+        if summary['platforms']:
+            console.print(f"\n🌐 [bold blue]Platform Breakdown[/bold blue]")
+            platform_table = Table()
+            platform_table.add_column("Platform", style="cyan")
+            platform_table.add_column("Total", style="yellow")
+            platform_table.add_column("Successful", style="green")
+            platform_table.add_column("Success Rate", style="magenta")
+            
+            for platform, stats in summary['platforms'].items():
+                success_rate = (stats['successful'] / stats['total'] * 100) if stats['total'] > 0 else 0
+                platform_table.add_row(
+                    platform,
+                    str(stats['total']),
+                    str(stats['successful']),
+                    f"{success_rate:.1f}%"
+                )
+            console.print(platform_table)
+        
+        # Recent applications
+        if summary['recent_applications']:
+            console.print(f"\n📅 [bold blue]Recent Applications[/bold blue]")
+            recent_table = Table()
+            recent_table.add_column("Date", style="dim")
+            recent_table.add_column("Title", style="cyan")
+            recent_table.add_column("Company", style="magenta")
+            recent_table.add_column("Platform", style="yellow")
+            recent_table.add_column("Status", style="green")
+            
+            for app in summary['recent_applications']:
+                status = "✅ Success" if app['success'] else "❌ Failed"
+                recent_table.add_row(
+                    app['date'],
+                    app['title'],
+                    app['company'],
+                    app['platform'],
+                    status
+                )
+            console.print(recent_table)
+        
+        if summary['total_applications'] == 0:
+            console.print("[bold yellow]📭 No applications found. Use 'smart-apply' or 'apply-to-jobs' to start applying![/bold yellow]")
+            
+    except Exception as e:
+        logger.error(f"Error getting application status: {e}")
+        console.print(f"[bold red]❌ Error: {e}[/bold red]")
+
+@app.command()
+def launch_browser():
+    """
+    🌐 Launch the Suna-inspired browser interface for real-time job search visualization
+    
+    This command starts a web server that provides:
+    - Real-time browser automation viewing
+    - Live task progress tracking  
+    - Visual feedback during job scraping
+    - Screenshots and browser state monitoring
+    
+    The interface will be available at http://localhost:8080
+    """
+    console.print("\n🚀 [bold blue]Launching Suna-Inspired Browser Interface[/bold blue]")
+    
+    try:
+        # Check if required dependencies are installed
+        try:
+            import fastapi
+            import uvicorn
+            import websockets
+        except ImportError as e:
+            console.print(f"❌ [bold red]Missing dependency:[/bold red] {e}")
+            console.print("📦 Installing required packages...")
+            
+            import subprocess
+            import sys
+            
+            packages = ["fastapi", "uvicorn", "websockets"]
+            for package in packages:
+                try:
+                    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+                    console.print(f"✅ Installed {package}")
+                except subprocess.CalledProcessError:
+                    console.print(f"❌ Failed to install {package}")
+                    return
+        
+        console.print("🔧 Starting browser automation service...")
+        
+        # Import and start the browser service
+        from app.services.browser_automation_service import browser_service
+        
+        async def start_browser_interface():
+            try:
+                # Start the browser service
+                await browser_service.start_browser()
+                console.print("✅ Browser service started")
+                
+                # Start the web interface
+                console.print("🌐 Starting web interface...")
+                console.print("📱 Browser interface will be available at:")
+                console.print("   http://localhost:8080")
+                console.print("   http://127.0.0.1:8080")
+                console.print("\n🎮 Features available:")
+                console.print("  • Real-time browser viewing")
+                console.print("  • Live task progress tracking")
+                console.print("  • Screenshot capture")
+                console.print("  • Browser state monitoring")
+                console.print("\n🔧 To test the interface:")
+                console.print("  1. Open http://localhost:8080 in your browser")
+                console.print("  2. Run job search commands in another terminal")
+                console.print("  3. Watch real-time automation in the web interface")
+                console.print("\n⚠️ Press Ctrl+C to stop the browser interface")
+                
+                # Start the FastAPI server
+                import uvicorn
+                uvicorn.run(
+                    "app.services.browser_automation_service:app",
+                    host="127.0.0.1",
+                    port=8080,
+                    log_level="info"
+                )
+                
+            except Exception as e:
+                logger.error(f"Error starting browser interface: {e}")
+                console.print(f"❌ [bold red]Error starting browser interface:[/bold red] {e}")
+        
+        # Run the async function
+        asyncio.run(start_browser_interface())
+        
+    except KeyboardInterrupt:
+        console.print("\n🛑 Browser interface stopped by user")
+    except Exception as e:
+        logger.error(f"Error launching browser interface: {e}")
+        console.print(f"❌ [bold red]Error:[/bold red] {e}")
+        console.print("\n💡 Troubleshooting:")
+        console.print("  • Make sure port 8080 is not in use")
+        console.print("  • Check if all dependencies are installed")
+        console.print("  • Try running 'pip install fastapi uvicorn websockets'")
+
 if __name__ == "__main__":
     app() 

@@ -17,7 +17,7 @@ Each scraper implements the JobScraper interface for consistent behavior.
 from .base_scraper import JobScraper, ScraperConfig, ScraperResult
 from .scraper_manager import ScraperManager, MultiSiteSearchResult
 from .remote_co_scraper import RemoteCoScraper
-from .linkedin_scraper import LinkedInScraper, LinkedInScraperConfig
+from .linkedin_scraper import LinkedInScraper
 from .indeed_scraper import IndeedScraper
 from .stackoverflow_scraper import StackOverflowJobsScraper
 from .wellfound_scraper import WellfoundScraper
@@ -30,7 +30,6 @@ __all__ = [
     'MultiSiteSearchResult',
     'RemoteCoScraper',
     'LinkedInScraper',
-    'LinkedInScraperConfig',
     'IndeedScraper',
     'StackOverflowJobsScraper',
     'WellfoundScraper',

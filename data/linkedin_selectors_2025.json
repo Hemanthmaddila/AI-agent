@@ -1,0 +1,24 @@
+{
+  "job_cards": [
+    ".ember-view",
+    ".display-flex",
+    ".scaffold-layout",
+    ".scaffold-layout__list-header",
+    ".scaffold-layout__detail"
+  ],
+  "job_titles": [
+    ".full-width artdeco-entity-lockup__title ember-view",
+    ".display-flex job-card-container relative job-card-list\n        job-card-container--clickable\n        \n        job-card-list--underline-title-on-hover jobs-search-results-list__list-item--active jobs-search-two-pane__job-card-container--viewport-tracking-0",
+    ".display-flex job-card-container relative job-card-list\n        job-card-container--clickable\n        \n        job-card-list--underline-title-on-hover  jobs-search-two-pane__job-card-container--viewport-tracking-1",
+    ".display-flex job-card-container relative job-card-list\n        job-card-container--clickable\n        \n        job-card-list--underline-title-on-hover  jobs-search-two-pane__job-card-container--viewport-tracking-2",
+    ".display-flex job-card-container relative job-card-list\n        job-card-container--clickable\n        \n        job-card-list--underline-title-on-hover  jobs-search-two-pane__job-card-container--viewport-tracking-3"
+  ],
+  "job_companies": [
+    ".artdeco-entity-lockup__subtitle ember-view",
+    ".jobs-search-results-list__subtitle\n                    ",
+    ".jobs-premium-company-insights__title",
+    ".job-details-jobs-unified-top-card__company-name",
+    ".jobs-premium-company-insights artdeco-card premium-accent-bar\n        "
+  ],
+  "analysis_date": "2025-01-27"
+}

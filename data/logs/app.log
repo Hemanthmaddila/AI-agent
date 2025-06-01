@@ -894,3 +894,1802 @@ Call log:
 2025-06-01 04:34:30,722 - app.application_automation.form_filler - WARNING - No application form found on page
 2025-06-01 04:34:31,304 - app.application_automation.form_filler - INFO - Browser closed successfully
 2025-06-01 04:34:31,311 - __main__ - INFO - Application process completed for job: Manual Application
+2025-06-01 15:15:20,426 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:17:23,840 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:17:23,846 - __main__ - INFO - find_jobs command initiated with keywords: 'Python Developer', location: 'None', num_results: 2
+2025-06-01 15:17:25,454 - app.services.playwright_scraper_service - INFO - Starting job search on Remote.co for keywords: 'Python Developer'
+2025-06-01 15:17:28,932 - app.services.playwright_scraper_service - WARNING - Attempt 1 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search_keywords=Python+Developer&search_location=
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search_keywords=Python+Developer&search_location=", waiting until "domcontentloaded"
+
+2025-06-01 15:17:29,476 - app.services.playwright_scraper_service - WARNING - Attempt 2 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/?search=Python+Developer
+Call log:
+  - navigating to "https://remote.co/remote-jobs/?search=Python+Developer", waiting until "domcontentloaded"
+
+2025-06-01 15:17:30,007 - app.services.playwright_scraper_service - WARNING - Attempt 3 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/
+Call log:
+  - navigating to "https://remote.co/remote-jobs/", waiting until "domcontentloaded"
+
+2025-06-01 15:17:30,008 - app.services.playwright_scraper_service - ERROR - All URL attempts failed
+2025-06-01 15:17:30,117 - app.services.playwright_scraper_service - INFO - No jobs found from scraping, generating mock data for MVP testing
+2025-06-01 15:17:30,118 - app.services.playwright_scraper_service - INFO - Generated 2 mock jobs for testing
+2025-06-01 15:17:30,134 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/1' already exists in job_postings with ID 1. Skipping insert.
+2025-06-01 15:17:30,135 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/2' already exists in job_postings with ID 2. Skipping insert.
+2025-06-01 15:17:30,138 - app.services.database_service - INFO - Logged search query: 'Python Developer' for user 1, got 2 results.
+2025-06-01 15:17:30,141 - __main__ - INFO - Logged search query with ID: 11
+2025-06-01 15:17:30,145 - __main__ - INFO - Job scraping completed. Saved: 2, Skipped: 0
+2025-06-01 15:17:47,137 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:17:47,141 - __main__ - INFO - view_applications command initiated with limit: 20, status_filter: None
+2025-06-01 15:17:47,147 - app.services.database_service - INFO - Retrieved 6 application logs for user 1
+2025-06-01 15:17:47,162 - __main__ - INFO - Displayed 6 application logs to user
+2025-06-01 15:18:25,546 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:18:25,552 - __main__ - INFO - analyze_jobs command initiated with target_role: 'Python Developer', max_jobs: 2
+2025-06-01 15:18:25,553 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 15:18:25,557 - app.services.database_service - INFO - Retrieved 2 pending jobs from database.
+2025-06-01 15:18:25,661 - __main__ - INFO - Analyzing job 1/2: 'Django Developer' from 'Amazon'
+2025-06-01 15:18:25,661 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 15:18:26,138 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 15:18:26,138 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 4
+2025-06-01 15:18:26,148 - app.services.database_service - INFO - Updated job ID 8: status='analyzed', relevance_score=4
+2025-06-01 15:18:26,152 - __main__ - INFO - Successfully analyzed and updated job 8 with score 4
+2025-06-01 15:18:26,152 - __main__ - INFO - Analyzing job 2/2: 'Mock React Developer Position 2' from 'Mock Company 2'
+2025-06-01 15:18:26,153 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 15:18:26,425 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 15:18:26,425 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 1
+2025-06-01 15:18:26,429 - app.services.database_service - INFO - Updated job ID 10: status='analyzed', relevance_score=1
+2025-06-01 15:18:26,434 - __main__ - INFO - Successfully analyzed and updated job 10 with score 1
+2025-06-01 15:18:26,447 - __main__ - INFO - Job analysis completed. Analyzed: 2, Skipped: 0
+2025-06-01 15:18:46,859 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:18:46,865 - __main__ - INFO - log_application command initiated for job_url: https://example.com/test-job
+2025-06-01 15:18:46,870 - app.services.database_service - INFO - No job found with URL: https://example.com/test-job
+2025-06-01 15:21:57,178 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:21:57,183 - __main__ - INFO - view_applications command initiated with limit: 5, status_filter: None
+2025-06-01 15:21:57,187 - app.services.database_service - INFO - Retrieved 5 application logs for user 1
+2025-06-01 15:21:57,206 - __main__ - INFO - Displayed 5 application logs to user
+2025-06-01 15:23:05,274 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:23:44,703 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:38:10,360 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:38:10,623 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 15:38:10,671 - app.services.scrapers.scraper_manager - INFO - Starting search across 3 sources: ['indeed', 'stackoverflow', 'wellfound']
+2025-06-01 15:38:10,672 - app.services.scrapers.scraper_manager - INFO - Starting search on Indeed
+2025-06-01 15:38:10,672 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 15:38:10,672 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 15:38:10,672 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Software Engineer' at https://wellfound.com/jobs?q=software+engineer
+2025-06-01 15:38:12,077 - app.services.scrapers.indeed_scraper - INFO - Searching Indeed with URL: https://www.indeed.com/jobs?q=Software+Engineer&l=Remote&sort=date&fromage=1&radius=0
+2025-06-01 15:38:16,907 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=Software+Engineer&l=Remote&sort=p
+2025-06-01 15:38:19,227 - app.services.scrapers.indeed_scraper - WARNING - Indeed challenge detected in page content
+2025-06-01 15:38:19,292 - app.services.scrapers.indeed_scraper - INFO - Successfully handled Indeed challenges
+2025-06-01 15:38:21,783 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=software+engineer
+2025-06-01 15:38:21,784 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page title: wellfound.com
+2025-06-01 15:38:21,822 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for dynamic content to load...
+2025-06-01 15:39:10,122 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No structured job elements found, analyzing page content...
+2025-06-01 15:39:10,135 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page content length: 2446 chars
+2025-06-01 15:39:10,135 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page text length: 0 chars
+2025-06-01 15:39:10,136 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Found 0 job-related keywords in page
+2025-06-01 15:39:10,136 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Page doesn't appear to contain job listings
+2025-06-01 15:39:10,136 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] No jobs extracted from page, providing simulated startup jobs
+2025-06-01 15:39:10,137 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Generated 2 realistic startup jobs
+2025-06-01 15:39:10,199 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Completed search: 2 jobs in 59.53s
+2025-06-01 15:39:10,199 - app.services.scrapers.scraper_manager - INFO - Wellfound: Found 2 jobs
+2025-06-01 15:39:18,628 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 15:39:18,656 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 15:39:18,656 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 15:39:18,657 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 2 jobs
+2025-06-01 15:39:49,395 - app.services.scrapers.indeed_scraper - WARNING - Indeed results not found with any selector
+2025-06-01 15:39:49,395 - app.services.scrapers.indeed_scraper - WARNING - Failed to load Indeed search results
+2025-06-01 15:39:49,395 - app.services.scrapers.base_scraper - INFO - Generated 2 mock jobs for Indeed
+2025-06-01 15:39:49,396 - app.services.scrapers.scraper_manager - INFO - Indeed: Found 2 jobs
+2025-06-01 15:39:49,507 - app.services.scrapers.scraper_manager - INFO - Search completed: 5 unique jobs found (1 duplicates removed) in 98.84s
+2025-06-01 15:39:49,529 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 15:39:49,550 - app.services.database_service - INFO - Saved job posting 'Mock Software Engineer Position 1' from 'Mock Company 1' with DB ID 33 to job_postings.
+2025-06-01 15:39:49,557 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 15:39:49,558 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 15:39:49,559 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-anthropic-1' already exists in job_postings with ID 23. Skipping insert.
+2025-06-01 15:39:49,560 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-scale-ai-2' already exists in job_postings with ID 24. Skipping insert.
+2025-06-01 15:41:42,817 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:41:43,000 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 15:41:43,050 - app.services.scrapers.scraper_manager - INFO - Starting search across 2 sources: ['stackoverflow', 'wellfound']
+2025-06-01 15:41:43,051 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 15:41:43,051 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 15:41:43,051 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'Python Developer' at https://wellfound.com/jobs?q=python+developer
+2025-06-01 15:41:44,454 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=Python+Developer&l=Remote&sort=p
+2025-06-01 15:41:50,339 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=python+developer
+2025-06-01 15:41:50,340 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page title: wellfound.com
+2025-06-01 15:41:50,380 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for dynamic content to load...
+2025-06-01 15:42:38,628 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No structured job elements found, analyzing page content...
+2025-06-01 15:42:38,642 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page content length: 2476 chars
+2025-06-01 15:42:38,643 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page text length: 0 chars
+2025-06-01 15:42:38,643 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Found 0 job-related keywords in page
+2025-06-01 15:42:38,643 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Page doesn't appear to contain job listings
+2025-06-01 15:42:38,644 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] No jobs extracted from page, providing simulated startup jobs
+2025-06-01 15:42:38,644 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Generated 2 realistic startup jobs
+2025-06-01 15:42:38,717 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Completed search: 2 jobs in 55.67s
+2025-06-01 15:42:38,718 - app.services.scrapers.scraper_manager - INFO - Wellfound: Found 2 jobs
+2025-06-01 15:42:47,363 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 15:42:47,392 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 15:42:47,393 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 15:42:47,394 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 2 jobs
+2025-06-01 15:42:47,565 - app.services.scrapers.scraper_manager - INFO - Search completed: 4 unique jobs found (0 duplicates removed) in 64.52s
+2025-06-01 15:42:47,582 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 15:42:47,596 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 15:42:47,597 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 15:42:47,598 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-anthropic-1' already exists in job_postings with ID 23. Skipping insert.
+2025-06-01 15:42:47,600 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-scale-ai-2' already exists in job_postings with ID 24. Skipping insert.
+2025-06-01 15:43:33,344 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:43:48,686 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:43:48,791 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['linkedin']
+2025-06-01 15:43:48,791 - app.services.scrapers.scraper_manager - INFO - Starting search on LinkedIn
+2025-06-01 15:43:51,249 - app.services.scrapers.linkedin_scraper - ERROR - Unexpected error loading session: 'ScraperConfig' object has no attribute 'session_file'
+2025-06-01 15:43:51,249 - app.services.scrapers.linkedin_scraper - INFO - LinkedIn authentication required
+2025-06-01 15:43:58,725 - app.services.scrapers.linkedin_scraper - INFO - Please complete LinkedIn login manually in the browser window
+2025-06-01 15:43:58,726 - app.services.scrapers.linkedin_scraper - INFO - After logging in, the scraper will continue automatically
+2025-06-01 15:45:41,528 - app.services.scrapers.linkedin_scraper - INFO - Login successful!
+2025-06-01 15:45:41,547 - app.services.scrapers.linkedin_scraper - ERROR - Error saving session: 'ScraperConfig' object has no attribute 'session_file'
+2025-06-01 15:45:41,548 - app.services.scrapers.linkedin_scraper - INFO - Searching LinkedIn with URL: https://www.linkedin.com/jobs/search/?keywords=Python+Developer&f_WT=2&f_TPR=r86400&sortBy=DD
+2025-06-01 15:45:42,295 - app.services.scrapers.linkedin_scraper - WARNING - Navigation error: Page.goto: net::ERR_ABORTED at https://www.linkedin.com/jobs/search/?keywords=Python+Developer&f_WT=2&f_TPR=r86400&sortBy=DD
+Call log:
+  - navigating to "https://www.linkedin.com/jobs/search/?keywords=Python+Developer&f_WT=2&f_TPR=r86400&sortBy=DD", waiting until "load"
+
+2025-06-01 15:45:42,295 - app.services.scrapers.linkedin_scraper - ERROR - Error scraping LinkedIn: Page.goto: net::ERR_ABORTED at https://www.linkedin.com/jobs/search/?keywords=Python+Developer&f_WT=2&f_TPR=r86400&sortBy=DD
+Call log:
+  - navigating to "https://www.linkedin.com/jobs/search/?keywords=Python+Developer&f_WT=2&f_TPR=r86400&sortBy=DD", waiting until "load"
+
+2025-06-01 15:45:42,296 - app.services.scrapers.base_scraper - INFO - Generated 2 mock jobs for LinkedIn
+2025-06-01 15:45:42,296 - app.services.scrapers.scraper_manager - INFO - LinkedIn: Found 2 jobs
+2025-06-01 15:45:42,773 - app.services.scrapers.scraper_manager - INFO - Search completed: 1 unique jobs found (1 duplicates removed) in 113.98s
+2025-06-01 15:45:42,786 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 15:45:42,809 - app.services.database_service - INFO - Saved job posting 'Mock Python Developer Position 1' from 'Mock Company 1' with DB ID 34 to job_postings.
+2025-06-01 15:46:48,969 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:46:49,048 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['remote.co']
+2025-06-01 15:46:49,049 - app.services.scrapers.scraper_manager - INFO - Starting search on Remote.co
+2025-06-01 15:46:50,322 - app.services.scrapers.remote_co_scraper - INFO - Searching Remote.co with URL: https://remote.co/remote-jobs/search/?search=Python+Developer
+2025-06-01 15:46:50,392 - app.services.scrapers.remote_co_scraper - ERROR - Error scraping Remote.co: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search=Python+Developer
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search=Python+Developer", waiting until "load"
+
+2025-06-01 15:46:50,393 - app.services.scrapers.base_scraper - INFO - Generated 2 mock jobs for Remote.co
+2025-06-01 15:46:50,393 - app.services.scrapers.scraper_manager - INFO - Remote.co: Found 2 jobs
+2025-06-01 15:46:50,477 - app.services.scrapers.scraper_manager - INFO - Search completed: 1 unique jobs found (1 duplicates removed) in 1.43s
+2025-06-01 15:46:50,487 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 15:46:50,499 - app.services.database_service - INFO - Job with URL 'https://mock-remote.co.com/job/1' already exists in job_postings with ID 9. Skipping insert.
+2025-06-01 15:48:36,806 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 15:48:36,891 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['remote.co']
+2025-06-01 15:48:36,892 - app.services.scrapers.scraper_manager - INFO - Starting search on Remote.co
+2025-06-01 15:48:38,144 - app.services.scrapers.remote_co_scraper - INFO - Trying Remote.co approach: _try_search_url
+2025-06-01 15:48:38,144 - app.services.scrapers.remote_co_scraper - INFO - Trying Remote.co search URL: https://remote.co/remote-jobs/?search=Python+Developer
+2025-06-01 15:48:58,155 - app.services.scrapers.remote_co_scraper - WARNING - Remote.co approach _try_search_url failed: Page.goto: Timeout 20000ms exceeded.
+Call log:
+  - navigating to "https://remote.co/remote-jobs/?search=Python+Developer", waiting until "domcontentloaded"
+
+2025-06-01 15:48:58,155 - app.services.scrapers.remote_co_scraper - INFO - Trying Remote.co approach: _try_homepage_approach
+2025-06-01 15:48:58,155 - app.services.scrapers.remote_co_scraper - INFO - Trying Remote.co homepage approach
+2025-06-01 15:49:18,164 - app.services.scrapers.remote_co_scraper - WARNING - Remote.co approach _try_homepage_approach failed: Page.goto: Timeout 20000ms exceeded.
+Call log:
+  - navigating to "https://remote.co/", waiting until "domcontentloaded"
+
+2025-06-01 15:49:18,165 - app.services.scrapers.remote_co_scraper - INFO - Trying Remote.co approach: _try_alternative_url
+2025-06-01 15:49:18,165 - app.services.scrapers.remote_co_scraper - INFO - Trying Remote.co alternative URLs
+2025-06-01 15:50:18,208 - app.services.scrapers.remote_co_scraper - WARNING - All Remote.co approaches failed, using mock data
+2025-06-01 15:50:18,209 - app.services.scrapers.base_scraper - INFO - Generated 3 mock jobs for Remote.co
+2025-06-01 15:50:18,288 - app.services.scrapers.scraper_manager - INFO - Remote.co: Found 3 jobs
+2025-06-01 15:50:18,296 - app.services.scrapers.scraper_manager - INFO - Search completed: 1 unique jobs found (2 duplicates removed) in 101.41s
+2025-06-01 15:50:18,305 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 15:50:18,315 - app.services.database_service - INFO - Job with URL 'https://mock-remote.co.com/job/1' already exists in job_postings with ID 9. Skipping insert.
+2025-06-01 16:17:03,746 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 16:17:03,846 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['remote.co']
+2025-06-01 16:17:03,847 - app.services.scrapers.scraper_manager - INFO - Starting search on Remote.co
+2025-06-01 16:17:08,851 - app.services.scrapers.remote_co_scraper - WARNING - Remote.co appears to be unreachable - using enhanced mock data
+2025-06-01 16:17:08,852 - app.services.scrapers.scraper_manager - INFO - Remote.co: Found 3 jobs
+2025-06-01 16:17:08,853 - app.services.scrapers.scraper_manager - INFO - Search completed: 3 unique jobs found (0 duplicates removed) in 5.01s
+2025-06-01 16:17:08,853 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 16:17:08,864 - app.services.database_service - INFO - Job with URL 'https://mock-remote.co.com/job/1' already exists in job_postings with ID 9. Skipping insert.
+2025-06-01 16:17:08,871 - app.services.database_service - INFO - Saved job posting 'Python Backend Engineer - Lead Level' from 'DataFlow Inc Global' with DB ID 35 to job_postings.
+2025-06-01 16:17:08,878 - app.services.database_service - INFO - Saved job posting 'Full Stack Python Developer - Principal Level' from 'CloudTech Solutions International' with DB ID 36 to job_postings.
+2025-06-01 16:34:03,392 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 16:34:03,438 - app.services.scrapers.scraper_manager - WARNING - No valid sources specified or enabled
+2025-06-01 16:35:50,446 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 16:35:50,547 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['remote.co']
+2025-06-01 16:35:50,547 - app.services.scrapers.scraper_manager - INFO - Starting search on Remote.co
+2025-06-01 16:36:22,847 - app.services.scrapers.scraper_manager - INFO - Remote.co: Found 3 jobs
+2025-06-01 16:36:22,848 - app.services.scrapers.scraper_manager - INFO - Search completed: 3 unique jobs found (0 duplicates removed) in 32.30s
+2025-06-01 16:36:22,848 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 16:36:22,868 - app.services.database_service - INFO - Saved job posting 'Senior Python Developer Engineer' from 'TechFlow Solutions' with DB ID 37 to job_postings.
+2025-06-01 16:36:22,875 - app.services.database_service - INFO - Saved job posting 'Python Developer Developer - Remote' from 'CloudVision Inc' with DB ID 38 to job_postings.
+2025-06-01 16:36:22,882 - app.services.database_service - INFO - Saved job posting 'Lead Python Developer Specialist' from 'RemoteFirst Corp' with DB ID 39 to job_postings.
+2025-06-01 16:59:45,426 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:00:06,220 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:00:27,666 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:00:27,672 - __main__ - INFO - find_jobs command initiated with keywords: 'Python developer', location: 'None', num_results: 3
+2025-06-01 17:00:28,791 - app.services.playwright_scraper_service - INFO - Starting job search on Remote.co for keywords: 'Python developer'
+2025-06-01 17:00:32,111 - app.services.playwright_scraper_service - WARNING - Attempt 1 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search_keywords=Python+developer&search_location=
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search_keywords=Python+developer&search_location=", waiting until "domcontentloaded"
+
+2025-06-01 17:00:32,637 - app.services.playwright_scraper_service - WARNING - Attempt 2 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/?search=Python+developer
+Call log:
+  - navigating to "https://remote.co/remote-jobs/?search=Python+developer", waiting until "domcontentloaded"
+
+2025-06-01 17:00:33,228 - app.services.playwright_scraper_service - WARNING - Attempt 3 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/
+Call log:
+  - navigating to "https://remote.co/remote-jobs/", waiting until "domcontentloaded"
+
+2025-06-01 17:00:33,229 - app.services.playwright_scraper_service - ERROR - All URL attempts failed
+2025-06-01 17:00:33,353 - app.services.playwright_scraper_service - INFO - No jobs found from scraping, generating mock data for MVP testing
+2025-06-01 17:00:33,354 - app.services.playwright_scraper_service - INFO - Generated 3 mock jobs for testing
+2025-06-01 17:00:33,374 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/1' already exists in job_postings with ID 1. Skipping insert.
+2025-06-01 17:00:33,376 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/2' already exists in job_postings with ID 2. Skipping insert.
+2025-06-01 17:00:33,377 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/3' already exists in job_postings with ID 3. Skipping insert.
+2025-06-01 17:00:33,379 - app.services.database_service - INFO - Logged search query: 'Python developer' for user 1, got 3 results.
+2025-06-01 17:00:33,383 - __main__ - INFO - Logged search query with ID: 12
+2025-06-01 17:00:33,389 - __main__ - INFO - Job scraping completed. Saved: 3, Skipped: 0
+2025-06-01 17:00:53,442 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:03:14,388 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:03:14,394 - __main__ - INFO - analyze_jobs command initiated with target_role: 'Software Developer', max_jobs: 10
+2025-06-01 17:03:14,396 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 17:03:14,400 - app.services.database_service - INFO - Retrieved 10 pending jobs from database.
+2025-06-01 17:03:14,411 - __main__ - INFO - Analyzing job 1/10: 'Mock React Developer Position 1' from 'Mock Company 1'
+2025-06-01 17:03:14,412 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:14,550 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:18,556 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:18,594 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:22,597 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:22,638 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:22,641 - __main__ - ERROR - Error analyzing job 9: RetryError[<Future at 0x25d6e91e750 state=finished raised InvalidArgument>]
+2025-06-01 17:03:22,641 - __main__ - INFO - Analyzing job 2/10: 'Full Stack JavaScript Developer' from 'Meta'
+2025-06-01 17:03:22,642 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:22,679 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:26,682 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:26,718 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:30,721 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:30,759 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:30,762 - __main__ - ERROR - Error analyzing job 11: RetryError[<Future at 0x25d6e973990 state=finished raised InvalidArgument>]
+2025-06-01 17:03:30,762 - __main__ - INFO - Analyzing job 3/10: 'React Developer' from 'Apple'
+2025-06-01 17:03:30,762 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:30,799 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:34,803 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:34,841 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:38,843 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:38,883 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:38,885 - __main__ - ERROR - Error analyzing job 12: RetryError[<Future at 0x25d6e9aa2d0 state=finished raised InvalidArgument>]
+2025-06-01 17:03:38,886 - __main__ - INFO - Analyzing job 4/10: 'Mock Senior Engineer Position 3' from 'Mock Company 3'
+2025-06-01 17:03:38,886 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:38,923 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:42,927 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:42,962 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:46,965 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:47,002 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:47,004 - __main__ - ERROR - Error analyzing job 14: RetryError[<Future at 0x25d6e9b3450 state=finished raised InvalidArgument>]
+2025-06-01 17:03:47,004 - __main__ - INFO - Analyzing job 5/10: 'Mock Senior Engineer Position 2' from 'Mock Company 2'
+2025-06-01 17:03:47,005 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:47,041 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:51,044 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:51,085 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:55,088 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:55,127 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:55,130 - __main__ - ERROR - Error analyzing job 13: RetryError[<Future at 0x25d6e9bfad0 state=finished raised InvalidArgument>]
+2025-06-01 17:03:55,131 - __main__ - INFO - Analyzing job 6/10: 'Software Engineer (Senior Engineer)' from 'Netflix'
+2025-06-01 17:03:55,131 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:55,180 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:03:59,183 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:03:59,224 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:03,227 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:03,269 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:03,272 - __main__ - ERROR - Error analyzing job 15: RetryError[<Future at 0x25d6e996550 state=finished raised InvalidArgument>]
+2025-06-01 17:04:03,272 - __main__ - INFO - Analyzing job 7/10: 'Senior Developer (Senior Engineer)' from 'Spotify'
+2025-06-01 17:04:03,272 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:03,311 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:07,314 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:07,352 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:11,356 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:11,394 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:11,397 - __main__ - ERROR - Error analyzing job 16: RetryError[<Future at 0x25d6e98b250 state=finished raised InvalidArgument>]
+2025-06-01 17:04:11,398 - __main__ - INFO - Analyzing job 8/10: 'Backend Engineer' from 'GitHub'
+2025-06-01 17:04:11,398 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:11,438 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:15,440 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:15,486 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:19,488 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:19,527 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:19,529 - __main__ - ERROR - Error analyzing job 17: RetryError[<Future at 0x25d6e996f10 state=finished raised InvalidArgument>]
+2025-06-01 17:04:19,530 - __main__ - INFO - Analyzing job 9/10: 'Full Stack Developer' from 'Stack Overflow'
+2025-06-01 17:04:19,530 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:19,570 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:23,572 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:23,610 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:27,613 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:27,651 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:27,653 - __main__ - ERROR - Error analyzing job 18: RetryError[<Future at 0x25d6e9c7190 state=finished raised InvalidArgument>]
+2025-06-01 17:04:27,654 - __main__ - INFO - Analyzing job 10/10: 'Software Developer' from 'Atlassian'
+2025-06-01 17:04:27,654 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:27,692 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:31,694 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:31,731 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:35,734 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Software...'
+2025-06-01 17:04:35,770 - app.services.gemini_service - ERROR - Error during Gemini API call: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 63, in generate_content
+    response = model.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\generativeai\generative_models.py", line 331, in generate_content
+    response = self._client.generate_content(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\ai\generativelanguage_v1beta\services\generative_service\client.py", line 835, in generate_content
+    response = rpc(
+               ^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\gapic_v1\method.py", line 131, in __call__
+    return wrapped_func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 293, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 153, in retry_target
+    _retry_error_helper(
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_base.py", line 212, in _retry_error_helper
+    raise final_exc from source_exc
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\retry\retry_unary.py", line 144, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heman\AppData\Local\Programs\Python\Python311\Lib\site-packages\google\api_core\grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.InvalidArgument: 400 API key not valid. Please pass a valid API key. [reason: "API_KEY_INVALID"
+domain: "googleapis.com"
+metadata {
+  key: "service"
+  value: "generativelanguage.googleapis.com"
+}
+, locale: "en-US"
+message: "API key not valid. Please pass a valid API key."
+]
+2025-06-01 17:04:35,772 - __main__ - ERROR - Error analyzing job 19: RetryError[<Future at 0x25d6ebf00d0 state=finished raised InvalidArgument>]
+2025-06-01 17:04:35,784 - __main__ - INFO - Job analysis completed. Analyzed: 0, Skipped: 10
+2025-06-01 17:05:15,517 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:05:15,524 - __main__ - INFO - view_applications command initiated with limit: 20, status_filter: None
+2025-06-01 17:05:15,528 - app.services.database_service - INFO - Retrieved 6 application logs for user 1
+2025-06-01 17:05:15,550 - __main__ - INFO - Displayed 6 application logs to user
+2025-06-01 17:22:17,944 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:22:17,973 - __main__ - ERROR - Error setting up profile: No module named 'fake_useragent'
+2025-06-01 17:23:00,333 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:23:12,746 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:23:25,515 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:23:25,521 - __main__ - INFO - analyze_jobs command initiated with target_role: 'Python Developer', max_jobs: 5
+2025-06-01 17:23:25,523 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 17:23:25,526 - app.services.database_service - INFO - Retrieved 5 pending jobs from database.
+2025-06-01 17:23:25,540 - __main__ - INFO - Analyzing job 1/5: 'Mock React Developer Position 1' from 'Mock Company 1'
+2025-06-01 17:23:25,540 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 17:23:25,946 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 17:23:25,948 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 1
+2025-06-01 17:23:25,965 - app.services.database_service - INFO - Updated job ID 9: status='analyzed', relevance_score=1
+2025-06-01 17:23:25,972 - __main__ - INFO - Successfully analyzed and updated job 9 with score 1
+2025-06-01 17:23:25,973 - __main__ - INFO - Analyzing job 2/5: 'Full Stack JavaScript Developer' from 'Meta'
+2025-06-01 17:23:25,973 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 17:23:26,203 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 17:23:26,204 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 2
+2025-06-01 17:23:26,215 - app.services.database_service - INFO - Updated job ID 11: status='analyzed', relevance_score=2
+2025-06-01 17:23:26,229 - __main__ - INFO - Successfully analyzed and updated job 11 with score 2
+2025-06-01 17:23:26,230 - __main__ - INFO - Analyzing job 3/5: 'React Developer' from 'Apple'
+2025-06-01 17:23:26,233 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 17:23:26,486 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 17:23:26,487 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 1
+2025-06-01 17:23:26,499 - app.services.database_service - INFO - Updated job ID 12: status='analyzed', relevance_score=1
+2025-06-01 17:23:26,511 - __main__ - INFO - Successfully analyzed and updated job 12 with score 1
+2025-06-01 17:23:26,512 - __main__ - INFO - Analyzing job 4/5: 'Mock Senior Engineer Position 3' from 'Mock Company 3'
+2025-06-01 17:23:26,513 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 17:23:26,754 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 17:23:26,756 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 2
+2025-06-01 17:23:26,775 - app.services.database_service - INFO - Updated job ID 14: status='analyzed', relevance_score=2
+2025-06-01 17:23:26,781 - __main__ - INFO - Successfully analyzed and updated job 14 with score 2
+2025-06-01 17:23:26,782 - __main__ - INFO - Analyzing job 5/5: 'Mock Senior Engineer Position 2' from 'Mock Company 2'
+2025-06-01 17:23:26,792 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 17:23:27,021 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 17:23:27,022 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 2
+2025-06-01 17:23:27,031 - app.services.database_service - INFO - Updated job ID 13: status='analyzed', relevance_score=2
+2025-06-01 17:23:27,038 - __main__ - INFO - Successfully analyzed and updated job 13 with score 2
+2025-06-01 17:23:27,101 - __main__ - INFO - Job analysis completed. Analyzed: 5, Skipped: 0
+2025-06-01 17:26:19,893 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:26:57,974 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:26:57,979 - __main__ - INFO - find_jobs command initiated with keywords: 'Python developer', location: 'None', num_results: 3
+2025-06-01 17:26:59,062 - app.services.playwright_scraper_service - INFO - Starting job search on Remote.co for keywords: 'Python developer'
+2025-06-01 17:27:02,344 - app.services.playwright_scraper_service - WARNING - Attempt 1 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search_keywords=Python+developer&search_location=
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search_keywords=Python+developer&search_location=", waiting until "domcontentloaded"
+
+2025-06-01 17:27:02,879 - app.services.playwright_scraper_service - WARNING - Attempt 2 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/?search=Python+developer
+Call log:
+  - navigating to "https://remote.co/remote-jobs/?search=Python+developer", waiting until "domcontentloaded"
+
+2025-06-01 17:27:03,437 - app.services.playwright_scraper_service - WARNING - Attempt 3 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/
+Call log:
+  - navigating to "https://remote.co/remote-jobs/", waiting until "domcontentloaded"
+
+2025-06-01 17:27:03,438 - app.services.playwright_scraper_service - ERROR - All URL attempts failed
+2025-06-01 17:27:03,525 - app.services.playwright_scraper_service - INFO - No jobs found from scraping, generating mock data for MVP testing
+2025-06-01 17:27:03,526 - app.services.playwright_scraper_service - INFO - Generated 3 mock jobs for testing
+2025-06-01 17:27:03,530 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/1' already exists in job_postings with ID 1. Skipping insert.
+2025-06-01 17:27:03,532 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/2' already exists in job_postings with ID 2. Skipping insert.
+2025-06-01 17:27:03,532 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/3' already exists in job_postings with ID 3. Skipping insert.
+2025-06-01 17:27:03,538 - app.services.database_service - INFO - Logged search query: 'Python developer' for user 1, got 3 results.
+2025-06-01 17:27:03,543 - __main__ - INFO - Logged search query with ID: 13
+2025-06-01 17:27:03,547 - __main__ - INFO - Job scraping completed. Saved: 3, Skipped: 0
+2025-06-01 17:34:02,475 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:34:02,476 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-01 17:34:02,483 - __main__ - INFO - find_jobs command initiated with keywords: 'Python developer', location: 'None', num_results: 3
+2025-06-01 17:34:03,579 - app.services.playwright_scraper_service - INFO - Starting job search on Remote.co for keywords: 'Python developer'
+2025-06-01 17:34:06,882 - app.services.playwright_scraper_service - WARNING - Attempt 1 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search_keywords=Python+developer&search_location=
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search_keywords=Python+developer&search_location=", waiting until "domcontentloaded"
+
+2025-06-01 17:34:07,425 - app.services.playwright_scraper_service - WARNING - Attempt 2 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/?search=Python+developer
+Call log:
+  - navigating to "https://remote.co/remote-jobs/?search=Python+developer", waiting until "domcontentloaded"
+
+2025-06-01 17:34:07,998 - app.services.playwright_scraper_service - WARNING - Attempt 3 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/
+Call log:
+  - navigating to "https://remote.co/remote-jobs/", waiting until "domcontentloaded"
+
+2025-06-01 17:34:07,998 - app.services.playwright_scraper_service - ERROR - All URL attempts failed
+2025-06-01 17:34:08,086 - app.services.playwright_scraper_service - INFO - No jobs found from scraping, generating mock data for MVP testing
+2025-06-01 17:34:08,087 - app.services.playwright_scraper_service - INFO - Generated 3 mock jobs for testing
+2025-06-01 17:34:08,090 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/1' already exists in job_postings with ID 1. Skipping insert.
+2025-06-01 17:34:08,091 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/2' already exists in job_postings with ID 2. Skipping insert.
+2025-06-01 17:34:08,092 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/3' already exists in job_postings with ID 3. Skipping insert.
+2025-06-01 17:34:08,098 - app.services.database_service - INFO - Logged search query: 'Python developer' for user 1, got 3 results.
+2025-06-01 17:34:08,103 - __main__ - INFO - Logged search query with ID: 14
+2025-06-01 17:34:08,108 - __main__ - INFO - Job scraping completed. Saved: 3, Skipped: 0
+2025-06-01 17:36:49,332 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:36:49,338 - __main__ - INFO - analyze_jobs command initiated with target_role: 'Python Developer', max_jobs: 3
+2025-06-01 17:36:49,339 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 17:36:49,344 - app.services.database_service - INFO - Retrieved 3 pending jobs from database.
+2025-06-01 17:36:49,365 - __main__ - INFO - Analyzing job 1/3: 'Software Engineer (Senior Engineer)' from 'Netflix'
+2025-06-01 17:36:49,366 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 17:36:49,706 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 17:36:49,706 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 3
+2025-06-01 17:36:49,713 - app.services.database_service - INFO - Updated job ID 15: status='analyzed', relevance_score=3
+2025-06-01 17:36:49,717 - __main__ - INFO - Successfully analyzed and updated job 15 with score 3
+2025-06-01 17:36:49,717 - __main__ - INFO - Analyzing job 2/3: 'Senior Developer (Senior Engineer)' from 'Spotify'
+2025-06-01 17:36:49,717 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 17:36:49,965 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 17:36:49,966 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 3
+2025-06-01 17:36:49,974 - app.services.database_service - INFO - Updated job ID 16: status='analyzed', relevance_score=3
+2025-06-01 17:36:49,978 - __main__ - INFO - Successfully analyzed and updated job 16 with score 3
+2025-06-01 17:36:49,979 - __main__ - INFO - Analyzing job 3/3: 'Backend Engineer' from 'GitHub'
+2025-06-01 17:36:49,979 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: 'Analyze the following job description and determine its relevance for a candidate who is a 'Python D...'
+2025-06-01 17:36:50,206 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-06-01 17:36:50,206 - app.services.gemini_service - INFO - Gemini relevance score for role 'Python Developer' is: 4
+2025-06-01 17:36:50,214 - app.services.database_service - INFO - Updated job ID 17: status='analyzed', relevance_score=4
+2025-06-01 17:36:50,218 - __main__ - INFO - Successfully analyzed and updated job 17 with score 4
+2025-06-01 17:36:50,232 - __main__ - INFO - Job analysis completed. Analyzed: 3, Skipped: 0
+2025-06-01 17:37:56,557 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:41:40,548 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:41:41,120 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['indeed']
+2025-06-01 17:41:41,120 - app.services.scrapers.scraper_manager - INFO - Starting search on Indeed
+2025-06-01 17:41:44,946 - app.services.scrapers.indeed_scraper - WARNING - Indeed navigation had issues, but continuing
+2025-06-01 17:41:50,366 - app.services.scrapers.scraper_manager - WARNING - Indeed: Search failed - No jobs found
+2025-06-01 17:41:50,817 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 9.70s
+2025-06-01 17:41:50,828 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 17:45:35,792 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:45:36,326 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['linkedin']
+2025-06-01 17:45:36,327 - app.services.scrapers.scraper_manager - INFO - Starting search on LinkedIn
+2025-06-01 17:45:37,918 - app.services.scrapers.linkedin_scraper - INFO - No LinkedIn session file found
+2025-06-01 17:59:05,056 - app.services.scrapers.linkedin_scraper - ERROR - Error during LinkedIn authentication: Page.wait_for_timeout: Target page, context or browser has been closed
+2025-06-01 17:59:05,057 - app.services.scrapers.linkedin_scraper - ERROR - LinkedIn scraping failed: LinkedInScraper._update_progress() got an unexpected keyword argument 'error'
+2025-06-01 17:59:05,057 - app.services.scrapers.scraper_manager - ERROR - Error searching LinkedIn: LinkedInScraper._update_progress() got an unexpected keyword argument 'error'
+2025-06-01 17:59:05,334 - app.services.scrapers.scraper_manager - INFO - Search completed: 0 unique jobs found (0 duplicates removed) in 809.01s
+2025-06-01 17:59:05,340 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 17:59:25,870 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 17:59:26,577 - app.services.job_application_service - INFO - No user profile found - will need to create one

@@ -1,29 +1,30 @@
 """
-Indeed Job Scraper - Handles dynamic content and aggregated job sources
-Addresses Indeed's specific challenges including pagination and source variations
+Indeed Job Scraper - Professional implementation with advanced anti-detection
 """
 import asyncio
 import logging
-from typing import List, Optional, Dict, Any
+import random
 import time
+from typing import List, Optional, Dict, Any
 from urllib.parse import urljoin, quote_plus
-from playwright.async_api import Page
+from playwright.async_api import Page, Browser, BrowserContext
 
 from .base_scraper import JobScraper, ScraperResult, ScraperConfig
 from app.models.job_posting_models import JobPosting
+from config.enhanced_settings import enhanced_settings
+
+# Import the browser automation service
+try:
+    from app.services.browser_automation_service import browser_service
+    BROWSER_SERVICE_AVAILABLE = True
+except ImportError:
+    BROWSER_SERVICE_AVAILABLE = False
+    browser_service = None
 
 logger = logging.getLogger(__name__)
 
 class IndeedScraper(JobScraper):
-    """
-    Indeed job scraper with enhanced dynamic content handling
-    
-    CHALLENGES ADDRESSED:
-    - Dynamic content loading and AJAX requests
-    - Aggregated job sources (external redirects)
-    - Anti-scraping measures and rate limiting
-    - Variable page structures and A/B testing
-    """
+    """Professional Indeed scraper with advanced anti-detection and automation"""
     
     @property
     def site_name(self) -> str:
@@ -31,489 +32,560 @@ class IndeedScraper(JobScraper):
     
     @property
     def base_url(self) -> str:
-        return "https://www.indeed.com"
+        return "https://indeed.com"
+    
+    def __init__(self, config: Optional[ScraperConfig] = None):
+        super().__init__(config)
+        self.search_url = "https://indeed.com/jobs"
+        self.current_task_id = None
+        
+        # Enhanced Indeed-specific selectors
+        self.job_selectors = [
+            '[data-testid="job-title"]',       # Primary job title selector
+            '.jobTitle a',                     # Traditional job title link
+            '[data-testid="job-title"] a',     # Job title with test ID
+            '.jobTitle-color-purple',          # Purple job title
+            'h2.jobTitle a',                   # H2 job title
+            '[data-jk] .jobTitle',            # Job key with title
+            '.result .jobTitle',              # Result item job title
+            '.slider_container .jobTitle',     # Slider job title
+            'a[data-jk]',                     # Job key links
+            '.jobsearch-SerpJobCard .jobTitle' # SERP job card title
+        ]
+        
+        # Company name selectors
+        self.company_selectors = [
+            '[data-testid="company-name"]',    # Primary company name
+            '.companyName',                    # Traditional company name
+            'span.companyName',                # Span company name
+            '[data-testid="company-name"] a',  # Company name link
+            '.result .companyName',            # Result company name
+            '.companyInfo .companyName',       # Company info section
+            'a[data-testid="company-name"]'    # Company name as link
+        ]
+        
+        # Location selectors
+        self.location_selectors = [
+            '[data-testid="job-location"]',    # Primary location
+            '.companyLocation',                # Traditional location
+            '.locationsContainer',             # Location container
+            '[data-testid="job-location"] div', # Location div
+            '.result .companyLocation',        # Result location
+            '.companyInfo .companyLocation'    # Company info location
+        ]
+        
+        # Salary selectors
+        self.salary_selectors = [
+            '[data-testid="attribute_snippet_testid"]', # Salary attribute
+            '.salary-snippet',                 # Salary snippet
+            '.salaryText',                    # Salary text
+            '.estimated-salary',              # Estimated salary
+            '[data-testid="salary-snippet"]'  # Salary test ID
+        ]
     
     def _build_search_url(self, keywords: str, location: Optional[str] = None) -> str:
-        """Build Indeed search URL with proper parameters"""
-        base_search = f"{self.base_url}/jobs"
+        """Build search URL for Indeed"""
+        params = {
+            'q': keywords,
+            'l': location or '',
+            'sort': 'date',  # Sort by most recent
+            'radius': '25',  # 25 mile radius
+            'limit': '50'    # Maximum results per page
+        }
         
-        params = []
-        if keywords:
-            params.append(f"q={quote_plus(keywords)}")
-        if location:
-            params.append(f"l={quote_plus(location)}")
-        else:
-            params.append("l=Remote")  # Default to remote jobs
+        param_string = '&'.join([f"{k}={quote_plus(str(v))}" for k, v in params.items() if v])
+        return f"{self.search_url}?{param_string}"
+    
+    async def _update_progress(self, message: str, progress: float):
+        """Update task progress if browser service is available"""
+        if BROWSER_SERVICE_AVAILABLE and browser_service and self.current_task_id:
+            await browser_service.update_task_progress(self.current_task_id, message, progress)
+        logger.info(f"📊 Indeed: {message} ({progress}%)")
+    
+    async def _extract_job_data(self, page: Page) -> List[Dict[str, Any]]:
+        """Extract job data from Indeed search results page"""
+        jobs_data = []
         
-        # Additional Indeed-specific parameters
-        params.extend([
-            "sort=date",  # Sort by date
-            "fromage=1",  # Jobs posted in last day
-            "radius=0"    # Exact location match
-        ])
+        try:
+            await self._update_progress("Waiting for Indeed page to load completely", 35)
+            
+            # Wait for dynamic content and handle potential loading states
+            await page.wait_for_timeout(3000)
+            
+            # Handle potential bot detection
+            try:
+                captcha_present = await page.is_visible('iframe[title*="reCAPTCHA"]', timeout=2000)
+                if captcha_present:
+                    logger.warning("🤖 Indeed CAPTCHA detected - may need manual intervention")
+                    await self._update_progress("CAPTCHA detected - continuing with available data", 40)
+            except:
+                pass  # No CAPTCHA, continue normally
+            
+            await self._update_progress("Analyzing Indeed page structure", 45)
+            
+            # Try to find job cards using multiple strategies
+            job_cards_found = False
+            
+            for selector_type, selectors in [
+                ("job_titles", self.job_selectors),
+                ("job_cards", ['.jobsearch-SerpJobCard', '.result', '.job_seen_beacon', '[data-jk]']),
+                ("slider_items", ['.slider_container .slider_item', '.jobsearch-NoResult'])
+            ]:
+                
+                if job_cards_found:
+                    break
+                    
+                for selector in selectors:
+                    try:
+                        elements = await page.query_selector_all(selector)
+                        if elements:
+                            logger.info(f"✅ Indeed: Found {len(elements)} elements with {selector_type} selector: {selector}")
+                            
+                            await self._update_progress(f"Extracting data from {len(elements)} Indeed job listings", 50)
+                            
+                            # Extract data based on selector type
+                            if selector_type == "job_titles":
+                                jobs_data = await self._extract_from_title_elements(page, elements)
+                            else:
+                                jobs_data = await self._extract_from_card_elements(page, elements)
+                            
+                            if jobs_data:
+                                job_cards_found = True
+                                break
+                                
+                    except Exception as e:
+                        logger.debug(f"Indeed selector {selector} failed: {e}")
+                        continue
+            
+            # Fallback: Extract from any job-related links
+            if not jobs_data:
+                logger.info("🔄 Indeed: Using fallback extraction methods")
+                await self._update_progress("Using Indeed fallback extraction", 60)
+                
+                # Try to find any job links
+                job_links = await page.query_selector_all('a[href*="/viewjob?jk="], a[href*="/clk?jk="]')
+                
+                for link in job_links[:20]:  # Limit to prevent overwhelming
+                    try:
+                        link_data = await link.evaluate("""
+                            (el) => {
+                                const title = el.textContent?.trim() || el.getAttribute('aria-label') || '';
+                                const href = el.href || el.getAttribute('href') || '';
+                                
+                                // Find parent container for additional info
+                                let parent = el.closest('.jobsearch-SerpJobCard, .result, [data-jk]');
+                                let company = '';
+                                let location = '';
+                                
+                                if (parent) {
+                                    const companyEl = parent.querySelector('.companyName, [data-testid="company-name"]');
+                                    company = companyEl?.textContent?.trim() || '';
+                                    
+                                    const locationEl = parent.querySelector('.companyLocation, [data-testid="job-location"]');
+                                    location = locationEl?.textContent?.trim() || '';
+                                }
+                                
+                                return {
+                                    title: title,
+                                    company: company || 'Unknown Company',
+                                    location: location || 'Unknown Location',
+                                    job_url: href,
+                                    description: title,
+                                    source: 'indeed.com'
+                                };
+                            }
+                        """)
+                        
+                        if link_data.get('title') and len(link_data['title']) > 5:
+                            # Fix relative URLs
+                            if link_data.get('job_url') and not link_data['job_url'].startswith('http'):
+                                link_data['job_url'] = urljoin(self.base_url, link_data['job_url'])
+                            
+                            jobs_data.append(link_data)
+                            
+                    except Exception as e:
+                        logger.debug(f"Error extracting Indeed job link: {e}")
+                        continue
+            
+            await self._update_progress(f"Successfully extracted {len(jobs_data)} Indeed job listings", 80)
+            return jobs_data
+            
+        except Exception as e:
+            logger.error(f"Indeed element detection failed: {e}")
+            await self._update_progress(f"Indeed extraction failed: {str(e)}", 80)
+            return []
+    
+    async def _extract_from_title_elements(self, page: Page, title_elements: List) -> List[Dict[str, Any]]:
+        """Extract job data when we found title elements"""
+        jobs_data = []
         
-        if params:
-            return f"{base_search}?" + "&".join(params)
-        return base_search
+        for element in title_elements:
+            try:
+                job_data = await element.evaluate("""
+                    (titleEl) => {
+                        const title = titleEl.textContent?.trim() || titleEl.getAttribute('title') || '';
+                        const href = titleEl.href || titleEl.getAttribute('href') || '';
+                        
+                        // Find the job card container
+                        let jobCard = titleEl.closest('.jobsearch-SerpJobCard, .result, [data-jk], .slider_item');
+                        
+                        let company = '';
+                        let location = '';
+                        let salary = '';
+                        let description = '';
+                        
+                        if (jobCard) {
+                            // Extract company
+                            const companySelectors = [
+                                '.companyName', '[data-testid="company-name"]', 
+                                '.companyInfo .companyName', 'span.companyName'
+                            ];
+                            for (const sel of companySelectors) {
+                                const companyEl = jobCard.querySelector(sel);
+                                if (companyEl) {
+                                    company = companyEl.textContent?.trim() || '';
+                                    break;
+                                }
+                            }
+                            
+                            // Extract location
+                            const locationSelectors = [
+                                '.companyLocation', '[data-testid="job-location"]',
+                                '.locationsContainer', '.companyInfo .companyLocation'
+                            ];
+                            for (const sel of locationSelectors) {
+                                const locationEl = jobCard.querySelector(sel);
+                                if (locationEl) {
+                                    location = locationEl.textContent?.trim() || '';
+                                    break;
+                                }
+                            }
+                            
+                            // Extract salary if available
+                            const salarySelectors = [
+                                '.salary-snippet', '.salaryText', '.estimated-salary',
+                                '[data-testid="attribute_snippet_testid"]'
+                            ];
+                            for (const sel of salarySelectors) {
+                                const salaryEl = jobCard.querySelector(sel);
+                                if (salaryEl) {
+                                    salary = salaryEl.textContent?.trim() || '';
+                                    break;
+                                }
+                            }
+                            
+                            // Extract description snippet
+                            const descEl = jobCard.querySelector('.summary, .jobSnippet, [data-testid="job-snippet"]');
+                            description = descEl?.textContent?.trim() || title;
+                        }
+                        
+                        return {
+                            title: title,
+                            company: company || 'Unknown Company',
+                            location: location || 'Not specified',
+                            job_url: href,
+                            salary: salary,
+                            description: description || title,
+                            source: 'indeed.com'
+                        };
+                    }
+                """)
+                
+                if job_data.get('title') and len(job_data['title']) > 3:
+                    # Fix relative URLs
+                    if job_data.get('job_url') and not job_data['job_url'].startswith('http'):
+                        job_data['job_url'] = urljoin(self.base_url, job_data['job_url'])
+                    
+                    jobs_data.append(job_data)
+                    
+            except Exception as e:
+                logger.debug(f"Error extracting Indeed job from title element: {e}")
+                continue
+        
+        return jobs_data
+    
+    async def _extract_from_card_elements(self, page: Page, card_elements: List) -> List[Dict[str, Any]]:
+        """Extract job data when we found job card elements"""
+        jobs_data = []
+        
+        for element in card_elements:
+            try:
+                job_data = await element.evaluate("""
+                    (cardEl) => {
+                        // Extract title
+                        const titleSelectors = [
+                            '.jobTitle a', '[data-testid="job-title"]', 
+                            '.jobTitle-color-purple', 'h2.jobTitle a'
+                        ];
+                        let title = '';
+                        let href = '';
+                        
+                        for (const sel of titleSelectors) {
+                            const titleEl = cardEl.querySelector(sel);
+                            if (titleEl) {
+                                title = titleEl.textContent?.trim() || titleEl.getAttribute('title') || '';
+                                href = titleEl.href || titleEl.getAttribute('href') || '';
+                                break;
+                            }
+                        }
+                        
+                        // Extract company
+                        const companySelectors = [
+                            '.companyName', '[data-testid="company-name"]',
+                            'span.companyName', '.companyInfo .companyName'
+                        ];
+                        let company = '';
+                        for (const sel of companySelectors) {
+                            const companyEl = cardEl.querySelector(sel);
+                            if (companyEl) {
+                                company = companyEl.textContent?.trim() || '';
+                                break;
+                            }
+                        }
+                        
+                        // Extract location
+                        const locationSelectors = [
+                            '.companyLocation', '[data-testid="job-location"]',
+                            '.locationsContainer'
+                        ];
+                        let location = '';
+                        for (const sel of locationSelectors) {
+                            const locationEl = cardEl.querySelector(sel);
+                            if (locationEl) {
+                                location = locationEl.textContent?.trim() || '';
+                                break;
+                            }
+                        }
+                        
+                        // Extract salary
+                        const salarySelectors = [
+                            '.salary-snippet', '.salaryText', '.estimated-salary'
+                        ];
+                        let salary = '';
+                        for (const sel of salarySelectors) {
+                            const salaryEl = cardEl.querySelector(sel);
+                            if (salaryEl) {
+                                salary = salaryEl.textContent?.trim() || '';
+                                break;
+                            }
+                        }
+                        
+                        // Extract description
+                        const descEl = cardEl.querySelector('.summary, .jobSnippet, [data-testid="job-snippet"]');
+                        const description = descEl?.textContent?.trim() || title;
+                        
+                        return {
+                            title: title,
+                            company: company || 'Unknown Company',
+                            location: location || 'Not specified',
+                            job_url: href,
+                            salary: salary,
+                            description: description,
+                            source: 'indeed.com'
+                        };
+                    }
+                """)
+                
+                if job_data.get('title') and len(job_data['title']) > 3:
+                    # Fix relative URLs
+                    if job_data.get('job_url') and not job_data['job_url'].startswith('http'):
+                        job_data['job_url'] = urljoin(self.base_url, job_data['job_url'])
+                    
+                    jobs_data.append(job_data)
+                    
+            except Exception as e:
+                logger.debug(f"Error extracting Indeed job from card element: {e}")
+                continue
+        
+        return jobs_data
+    
+    def _parse_job_to_model(self, job_data: Dict[str, Any]) -> Optional[JobPosting]:
+        """Convert raw job data to JobPosting model"""
+        try:
+            # Parse salary information
+            salary_min = None
+            salary_max = None
+            salary_text = job_data.get('salary', '')
+            
+            if salary_text:
+                # Simple salary parsing (can be enhanced)
+                import re
+                salary_numbers = re.findall(r'\$?([\d,]+)', salary_text)
+                if len(salary_numbers) >= 2:
+                    try:
+                        salary_min = float(salary_numbers[0].replace(',', ''))
+                        salary_max = float(salary_numbers[1].replace(',', ''))
+                    except:
+                        pass
+                elif len(salary_numbers) == 1:
+                    try:
+                        salary_min = salary_max = float(salary_numbers[0].replace(',', ''))
+                    except:
+                        pass
+            
+            job = JobPosting(
+                job_url=job_data.get('job_url', ''),
+                title=job_data.get('title', 'Unknown Position'),
+                company_name=job_data.get('company', 'Unknown Company'),
+                location_text=job_data.get('location', 'Not specified'),
+                source_platform=self.site_name,
+                full_description_raw=job_data.get('description', ''),
+                salary_min=salary_min,
+                salary_max=salary_max,
+                processing_status="pending"
+            )
+            return job
+        except Exception as e:
+            logger.debug(f"Error creating Indeed job posting: {e}")
+            return None
     
     async def search_jobs(self, keywords: str, location: Optional[str] = None, num_results: int = 10) -> ScraperResult:
         """
-        Search for jobs on Indeed with dynamic content handling
+        Search jobs on Indeed with advanced anti-detection and visual feedback
         """
         start_time = time.time()
         
         try:
-            # Setup browser with Indeed-specific settings
-            self.browser = await self._setup_indeed_browser()
-            self.page = await self._setup_page(self.browser)
+            # Create task for progress tracking
+            if BROWSER_SERVICE_AVAILABLE and browser_service:
+                self.current_task_id = await browser_service.create_task(
+                    f"Indeed Job Search: {keywords}",
+                    [
+                        "Setup browser",
+                        "Navigate to Indeed",
+                        "Search jobs",
+                        "Extract data",
+                        "Process results"
+                    ]
+                )
             
-            # Build search URL
-            search_url = self._build_search_url(keywords, location)
-            logger.info(f"Searching Indeed with URL: {search_url}")
+            await self._update_progress("Starting Indeed job search with anti-detection", 0)
             
-            # Navigate to search page with Indeed-specific handling
-            await self._navigate_to_indeed_search(search_url)
+            # Setup enhanced browser
+            await self._update_progress("Setting up Indeed-optimized browser", 15)
             
-            # Handle potential bot detection
-            if await self._handle_indeed_challenges():
-                logger.info("Successfully handled Indeed challenges")
+            if BROWSER_SERVICE_AVAILABLE and browser_service:
+                if not browser_service.browser:
+                    await browser_service.start_browser()
+                self.browser = browser_service.browser
+                page = browser_service.page
+            else:
+                self.browser = await self._setup_browser()
+                page = await self._setup_page(self.browser)
             
-            # Wait for dynamic content to load
-            if not await self._wait_for_indeed_results():
-                logger.warning("Failed to load Indeed search results")
-                return await self._fallback_to_mock_data(keywords, num_results, start_time)
+            # Add Indeed-specific stealth measures
+            await page.add_init_script("""
+                // Indeed-specific anti-detection
+                Object.defineProperty(navigator, 'plugins', {
+                    get: () => [1, 2, 3, 4, 5, 6]
+                });
+                
+                Object.defineProperty(navigator, 'languages', {
+                    get: () => ['en-US', 'en']
+                });
+                
+                // Override webdriver detection
+                Object.defineProperty(navigator, 'webdriver', {
+                    get: () => undefined
+                });
+                
+                // Mock chrome object
+                window.chrome = {
+                    runtime: {},
+                    loadTimes: function() {},
+                    csi: function() {},
+                };
+            """)
             
-            # Extract job data with pagination support
-            job_data_list = await self._extract_job_data_with_pagination(num_results)
-            
-            # Convert to JobPosting models
-            jobs = []
-            for job_data in job_data_list[:num_results]:
-                job_posting = self._parse_job_to_model(job_data)
-                if job_posting:
-                    jobs.append(job_posting)
-            
-            execution_time = time.time() - start_time
-            
-            if jobs:
-                logger.info(f"Successfully scraped {len(jobs)} jobs from Indeed")
+            try:
+                # Navigate to Indeed search
+                search_url = self._build_search_url(keywords, location)
+                logger.info(f"🌐 Navigating to Indeed: {search_url}")
+                
+                await self._update_progress(f"Navigating to Indeed search page", 25)
+                
+                # Add random delay to seem more human
+                await page.wait_for_timeout(random.randint(1000, 3000))
+                
+                if BROWSER_SERVICE_AVAILABLE and browser_service:
+                    success = await browser_service.navigate_to(search_url, self.current_task_id)
+                else:
+                    response = await page.goto(search_url, wait_until='domcontentloaded', timeout=30000)
+                    success = response and response.status == 200
+                
+                if not success:
+                    logger.warning("Indeed navigation had issues, but continuing")
+                
+                # Handle potential redirects or consent pages
+                await page.wait_for_timeout(2000)
+                current_url = page.url
+                
+                if 'consent' in current_url.lower() or 'privacy' in current_url.lower():
+                    logger.info("📋 Handling Indeed consent/privacy page")
+                    # Try to accept cookies/consent
+                    consent_buttons = [
+                        'button[id*="consent"]', 'button[id*="accept"]',
+                        'button:has-text("Accept")', 'button:has-text("OK")',
+                        'button:has-text("Continue")', '#onetrust-accept-btn-handler'
+                    ]
+                    for selector in consent_buttons:
+                        try:
+                            button = await page.query_selector(selector)
+                            if button:
+                                await button.click()
+                                await page.wait_for_timeout(2000)
+                                break
+                        except:
+                            continue
+                
+                # Extract job data
+                await self._update_progress("Indeed page loaded, extracting job data", 30)
+                jobs_data = await self._extract_job_data(page)
+                
+                # Parse to JobPosting models
+                await self._update_progress("Converting Indeed data to structured format", 85)
+                jobs = []
+                for job_data in jobs_data[:num_results]:
+                    job = self._parse_job_to_model(job_data)
+                    if job:
+                        jobs.append(job)
+                
+                success = len(jobs) > 0
+                execution_time = time.time() - start_time
+                
+                if success:
+                    await self._update_progress(f"✅ Successfully found {len(jobs)} Indeed jobs!", 100)
+                    logger.info(f"✅ Successfully scraped {len(jobs)} jobs from Indeed")
+                else:
+                    logger.warning("⚠️ No jobs found on Indeed")
+                    await self._update_progress("No jobs found on Indeed", 90)
+                
                 return ScraperResult(
                     jobs=jobs,
                     source=self.site_name,
-                    success=True,
+                    success=success,
+                    error_message=None if success else "No jobs found",
                     jobs_found=len(jobs),
                     execution_time=execution_time
                 )
-            else:
-                logger.warning("No jobs found on Indeed, using mock data")
-                return await self._fallback_to_mock_data(keywords, num_results, start_time)
-            
+                
+            finally:
+                # Only close browser if we created it
+                if not BROWSER_SERVICE_AVAILABLE and hasattr(self, 'browser') and self.browser:
+                    await self.browser.close()
+                
         except Exception as e:
-            logger.error(f"Error scraping Indeed: {e}")
-            return await self._fallback_to_mock_data(keywords, num_results, start_time)
-    
-    async def _setup_indeed_browser(self):
-        """Setup browser with Indeed-specific anti-detection measures"""
-        from playwright.async_api import async_playwright
-        
-        playwright = await async_playwright().start()
-        
-        # Indeed-optimized browser args
-        browser_args = [
-            '--disable-blink-features=AutomationControlled',
-            '--disable-web-security',
-            '--no-sandbox',
-            '--disable-features=VizDisplayCompositor',
-            '--disable-extensions-file-access-check',
-            '--disable-plugins-discovery',
-            '--disable-background-timer-throttling',
-            '--disable-backgrounding-occluded-windows',
-            '--disable-renderer-backgrounding'
-        ]
-        
-        browser = await playwright.chromium.launch(
-            headless=self.config.headless,
-            args=browser_args
-        )
-        
-        return browser
-    
-    async def _navigate_to_indeed_search(self, url: str):
-        """Navigate to Indeed search with specific handling"""
-        try:
-            # Set Indeed-specific headers
-            await self.page.set_extra_http_headers({
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Cache-Control': 'no-cache',
-                'Pragma': 'no-cache',
-                'Sec-Fetch-Dest': 'document',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'none',
-                'Sec-Fetch-User': '?1',
-                'Upgrade-Insecure-Requests': '1'
-            })
+            execution_time = time.time() - start_time
+            error_msg = f"Indeed scraping failed: {str(e)}"
+            logger.error(error_msg)
             
-            # Navigate with increased timeout for Indeed
-            await self.page.goto(url, timeout=45000, wait_until='domcontentloaded')
-            await self._human_like_delay()
+            await self._update_progress(f"Indeed error: {str(e)}", error=str(e))
             
-        except Exception as e:
-            logger.warning(f"Navigation to Indeed failed: {e}")
-            raise
-    
-    async def _handle_indeed_challenges(self) -> bool:
-        """Handle Indeed's bot detection and challenges"""
-        try:
-            # Check for common Indeed challenge indicators
-            challenge_indicators = [
-                'blocked',
-                'captcha',
-                'verification',
-                'robot',
-                'suspicious'
-            ]
-            
-            page_content = await self.page.content()
-            page_url = self.page.url
-            
-            # Check page content for challenge indicators
-            if any(indicator in page_content.lower() for indicator in challenge_indicators):
-                logger.warning("Indeed challenge detected in page content")
-                
-                # Look for CAPTCHA or verification elements
-                captcha_selectors = [
-                    '[data-testid="captcha"]',
-                    '.captcha-container',
-                    '#captcha',
-                    '[aria-label*="captcha"]'
-                ]
-                
-                for selector in captcha_selectors:
-                    if await self.page.query_selector(selector):
-                        logger.info("CAPTCHA detected - please complete manually")
-                        
-                        # Wait for user to complete CAPTCHA
-                        for _ in range(24):  # Wait up to 2 minutes
-                            await asyncio.sleep(5)
-                            if not await self.page.query_selector(selector):
-                                logger.info("CAPTCHA completed successfully")
-                                return True
-                        
-                        logger.warning("CAPTCHA timeout")
-                        return False
-            
-            # Check for redirect to blocked page
-            if 'blocked' in page_url or 'captcha' in page_url:
-                logger.warning("Redirected to Indeed blocked page")
-                return False
-            
-            return True
-            
-        except Exception as e:
-            logger.warning(f"Error handling Indeed challenges: {e}")
-            return False
-    
-    async def _wait_for_indeed_results(self) -> bool:
-        """Wait for Indeed search results to load"""
-        try:
-            # Indeed uses different selectors for job results
-            result_selectors = [
-                '[data-testid="job-card"]',
-                '.job_seen_beacon',
-                '.jobsearch-SerpJobCard',
-                '.jobsearch-ResultCard',
-                '[data-jk]',
-                '.slider_container .slider_item'
-            ]
-            
-            # Try each selector with reasonable timeout
-            for selector in result_selectors:
-                try:
-                    await self.page.wait_for_selector(selector, timeout=15000)
-                    logger.debug(f"Found Indeed results with selector: {selector}")
-                    return True
-                except:
-                    continue
-            
-            # Fallback: check for "no results" message
-            no_results_selectors = [
-                '[data-testid="no-results"]',
-                '.jobsearch-NoResult',
-                '#searchform-no-results'
-            ]
-            
-            for selector in no_results_selectors:
-                if await self.page.query_selector(selector):
-                    logger.info("Indeed returned no results")
-                    return True
-            
-            logger.warning("Indeed results not found with any selector")
-            return False
-            
-        except Exception as e:
-            logger.debug(f"Error waiting for Indeed results: {e}")
-            return False
-    
-    async def _extract_job_data_with_pagination(self, max_results: int) -> List[Dict[str, Any]]:
-        """Extract job data with pagination support"""
-        all_jobs = []
-        page_num = 1
-        
-        while len(all_jobs) < max_results and page_num <= 3:  # Limit to 3 pages
-            try:
-                logger.debug(f"Extracting jobs from Indeed page {page_num}")
-                
-                # Extract jobs from current page
-                page_jobs = await self._extract_job_data(self.page)
-                
-                if not page_jobs:
-                    logger.debug(f"No jobs found on page {page_num}")
-                    break
-                
-                all_jobs.extend(page_jobs)
-                logger.debug(f"Found {len(page_jobs)} jobs on page {page_num}, total: {len(all_jobs)}")
-                
-                # Check if we have enough jobs
-                if len(all_jobs) >= max_results:
-                    break
-                
-                # Try to navigate to next page
-                if not await self._navigate_to_next_page():
-                    logger.debug("No more pages available")
-                    break
-                
-                page_num += 1
-                await self._human_like_delay()
-                
-            except Exception as e:
-                logger.warning(f"Error extracting from page {page_num}: {e}")
-                break
-        
-        logger.info(f"Extracted total of {len(all_jobs)} jobs from {page_num} Indeed pages")
-        return all_jobs
-    
-    async def _navigate_to_next_page(self) -> bool:
-        """Navigate to the next page of Indeed results"""
-        try:
-            # Look for next page link
-            next_selectors = [
-                '[aria-label="Next Page"]',
-                '[data-testid="pagination-page-next"]',
-                'a[aria-label="Next"]',
-                '.pn:last-child'
-            ]
-            
-            for selector in next_selectors:
-                try:
-                    next_element = await self.page.query_selector(selector)
-                    if next_element:
-                        # Check if link is enabled
-                        is_disabled = await next_element.get_attribute('aria-disabled')
-                        if is_disabled == 'true':
-                            return False
-                        
-                        await next_element.click()
-                        await self._human_like_delay()
-                        
-                        # Wait for new page to load
-                        await self.page.wait_for_load_state('domcontentloaded', timeout=15000)
-                        return True
-                except:
-                    continue
-            
-            return False
-            
-        except Exception as e:
-            logger.debug(f"Error navigating to next page: {e}")
-            return False
-    
-    async def _extract_job_data(self, page: Page) -> List[Dict[str, Any]]:
-        """Extract job data from Indeed search results"""
-        jobs_data = []
-        
-        try:
-            # Indeed job card selectors (they change frequently)
-            job_selectors = [
-                '[data-testid="job-card"]',
-                '.job_seen_beacon',
-                '.jobsearch-SerpJobCard',
-                '.jobsearch-ResultCard',
-                '[data-jk]'
-            ]
-            
-            job_elements = None
-            for selector in job_selectors:
-                try:
-                    job_elements = await page.query_selector_all(selector)
-                    if job_elements:
-                        logger.debug(f"Found {len(job_elements)} Indeed jobs with selector: {selector}")
-                        break
-                except:
-                    continue
-            
-            if not job_elements:
-                logger.warning("No Indeed job elements found")
-                return []
-            
-            # Extract data from each job card
-            for element in job_elements:
-                try:
-                    job_data = await self._extract_indeed_job_data(element)
-                    if job_data and job_data.get('title') and job_data.get('company_name'):
-                        jobs_data.append(job_data)
-                except Exception as e:
-                    logger.debug(f"Error extracting Indeed job: {e}")
-                    continue
-            
-            logger.debug(f"Successfully extracted {len(jobs_data)} valid jobs from Indeed page")
-            return jobs_data
-            
-        except Exception as e:
-            logger.error(f"Error extracting Indeed job data: {e}")
-            return []
-    
-    async def _extract_indeed_job_data(self, element) -> Optional[Dict[str, Any]]:
-        """Extract data from a single Indeed job card"""
-        try:
-            job_data = {}
-            
-            # Extract job title and URL
-            title_selectors = [
-                '[data-testid="job-title"] a',
-                '.jobTitle a',
-                'h2.jobTitle a',
-                '[data-jk] h2 a'
-            ]
-            for selector in title_selectors:
-                try:
-                    title_element = await element.query_selector(selector)
-                    if title_element:
-                        job_data['title'] = await title_element.inner_text()
-                        job_data['url'] = await title_element.get_attribute('href')
-                        break
-                except:
-                    continue
-            
-            # Extract company name
-            company_selectors = [
-                '[data-testid="company-name"]',
-                '.companyName',
-                '[data-testid="company-name"] a',
-                '.companyName a'
-            ]
-            for selector in company_selectors:
-                try:
-                    company_element = await element.query_selector(selector)
-                    if company_element:
-                        company_text = await company_element.inner_text()
-                        job_data['company_name'] = company_text
-                        break
-                except:
-                    continue
-            
-            # Extract location
-            location_selectors = [
-                '[data-testid="job-location"]',
-                '.companyLocation',
-                '[data-testid="location"]'
-            ]
-            for selector in location_selectors:
-                try:
-                    location_element = await element.query_selector(selector)
-                    if location_element:
-                        job_data['location'] = await location_element.inner_text()
-                        break
-                except:
-                    continue
-            
-            # Extract salary if available
-            salary_selectors = [
-                '[data-testid="salary-snippet"]',
-                '.salaryText',
-                '.metadata.salary-snippet-container'
-            ]
-            for selector in salary_selectors:
-                try:
-                    salary_element = await element.query_selector(selector)
-                    if salary_element:
-                        job_data['salary'] = await salary_element.inner_text()
-                        break
-                except:
-                    continue
-            
-            # Extract job snippet/description
-            snippet_selectors = [
-                '[data-testid="job-snippet"]',
-                '.job-snippet',
-                '.summary'
-            ]
-            for selector in snippet_selectors:
-                try:
-                    snippet_element = await element.query_selector(selector)
-                    if snippet_element:
-                        snippet_text = await snippet_element.inner_text()
-                        if len(snippet_text) > 20:  # Only use substantial snippets
-                            job_data['description'] = snippet_text
-                            break
-                except:
-                    continue
-            
-            return job_data if job_data.get('title') else None
-            
-        except Exception as e:
-            logger.debug(f"Error extracting single Indeed job: {e}")
-            return None
-    
-    def _parse_job_to_model(self, job_data: Dict[str, Any]) -> Optional[JobPosting]:
-        """Convert raw Indeed job data to JobPosting model"""
-        try:
-            # Handle Indeed's URL structure
-            job_url = job_data.get('url', '')
-            if job_url:
-                if not job_url.startswith('http'):
-                    job_url = urljoin(self.base_url, job_url)
-                
-                # Indeed URLs often have tracking parameters, clean them
-                if '?' in job_url:
-                    base_url = job_url.split('?')[0]
-                    job_url = base_url
-            
-            # Combine description and salary info
-            description_parts = []
-            if job_data.get('description'):
-                description_parts.append(job_data['description'])
-            if job_data.get('salary'):
-                description_parts.append(f"Salary: {job_data['salary']}")
-            
-            full_description = ' | '.join(description_parts) if description_parts else ''
-            
-            job_posting = JobPosting(
-                job_url=job_url,
-                title=self._clean_text(job_data.get('title', '')),
-                company_name=self._clean_text(job_data.get('company_name', '')),
-                location_text=self._clean_text(job_data.get('location', 'Remote')),
-                source_platform=self.site_name,
-                full_description_raw=self._clean_text(full_description),
-                processing_status="pending"
-            )
-            
-            return job_posting
-            
-        except Exception as e:
-            logger.error(f"Error parsing Indeed job to model: {e}")
-            return None
-    
-    async def _fallback_to_mock_data(self, keywords: str, num_results: int, start_time: float) -> ScraperResult:
-        """Generate mock Indeed data as fallback"""
-        execution_time = time.time() - start_time
-        mock_jobs = self._generate_mock_jobs(keywords, num_results)
-        
-        return ScraperResult(
-            jobs=mock_jobs,
-            source=f"{self.site_name}_Mock",
-            success=True,
-            error_message="Used mock data due to Indeed scraping challenges",
-            jobs_found=len(mock_jobs),
-            execution_time=execution_time
-        ) 
+            return ScraperResult(
+                jobs=[],
+                source=self.site_name,
+                success=False,
+                error_message=error_msg,
+                jobs_found=0,
+                execution_time=execution_time
+            ) 

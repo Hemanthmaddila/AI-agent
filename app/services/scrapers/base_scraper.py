@@ -8,6 +8,7 @@ from dataclasses import dataclass
 import logging
 import time
 import random
+import asyncio
 from playwright.async_api import async_playwright, Browser, Page
 from fake_useragent import UserAgent
 
