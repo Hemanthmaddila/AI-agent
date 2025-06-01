@@ -862,3 +862,35 @@ Call log:
 2025-06-01 04:07:08,404 - __main__ - INFO - Application process completed for job: Manual Application
 2025-06-01 04:07:21,906 - __main__ - INFO - AI Job Application Agent CLI Initialized.
 2025-06-01 04:07:34,482 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:26:40,534 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:26:40,563 - __main__ - INFO - Created user profile: test_automation
+2025-06-01 04:27:02,658 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:28:17,703 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:29:02,902 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:29:24,706 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:31:40,030 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:31:40,056 - __main__ - INFO - Created user profile: automation_demo
+2025-06-01 04:32:03,690 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:32:32,182 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:33:17,137 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:33:17,146 - app.services.database_service - INFO - Retrieved 32 jobs from database (status_filter: None).
+2025-06-01 04:33:17,159 - app.hitl.hitl_service - INFO - HITLService initialized
+2025-06-01 04:33:39,574 - app.application_automation.form_filler - INFO - FormFillerService initialized
+2025-06-01 04:33:41,371 - app.application_automation.form_filler - INFO - Browser started successfully
+2025-06-01 04:33:41,372 - app.application_automation.form_filler - INFO - Navigating to: https://example-jobs.com/job/1
+2025-06-01 04:33:42,448 - app.application_automation.form_filler - ERROR - Error navigating to application: Page.goto: net::ERR_NAME_NOT_RESOLVED at https://example-jobs.com/job/1
+Call log:
+  - navigating to "https://example-jobs.com/job/1", waiting until "networkidle"
+
+2025-06-01 04:33:42,791 - app.application_automation.form_filler - INFO - Browser closed successfully
+2025-06-01 04:33:42,797 - __main__ - INFO - Application process completed for job: Senior Python Developer
+2025-06-01 04:34:13,283 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:34:13,289 - app.services.database_service - INFO - No job found with URL: https://google.com
+2025-06-01 04:34:13,305 - app.hitl.hitl_service - INFO - HITLService initialized
+2025-06-01 04:34:19,708 - app.application_automation.form_filler - INFO - FormFillerService initialized
+2025-06-01 04:34:21,598 - app.application_automation.form_filler - INFO - Browser started successfully
+2025-06-01 04:34:21,599 - app.application_automation.form_filler - INFO - Navigating to: https://google.com/
+2025-06-01 04:34:26,411 - app.application_automation.form_filler - INFO - Found apply button with selector: a:has-text("Apply")
+2025-06-01 04:34:30,722 - app.application_automation.form_filler - WARNING - No application form found on page
+2025-06-01 04:34:31,304 - app.application_automation.form_filler - INFO - Browser closed successfully
+2025-06-01 04:34:31,311 - __main__ - INFO - Application process completed for job: Manual Application

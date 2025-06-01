@@ -1,0 +1,26 @@
+{
+  "profile_name": "test_automation",
+  "full_name": "Alex TestUser",
+  "email": "alex.test@example.com",
+  "phone": "555-123-4567",
+  "linkedin_url": "https://linkedin.com/in/alextest",
+  "github_url": null,
+  "portfolio_url": null,
+  "base_resume_path": null,
+  "summary_statement": null,
+  "skills": [],
+  "experiences": [],
+  "education": [],
+  "target_roles": [],
+  "target_industries": [],
+  "preferred_locations": [
+    "Remote"
+  ],
+  "salary_expectations_min": null,
+  "salary_expectations_max": null,
+  "job_type_preferences": [],
+  "company_culture_preferences": [],
+  "custom_questions_answers": {},
+  "created_at": "2025-06-01T09:26:40.548387",
+  "last_updated_at": "2025-06-01T09:26:40.548387"
+}
