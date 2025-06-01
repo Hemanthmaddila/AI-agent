@@ -33,9 +33,13 @@ from app.services.database_service import (
 from app.services.gemini_service import GeminiService
 # Phase 5.1: Import Semantic Analysis Service
 from app.services.semantic_analysis_service import get_semantic_analysis_service
+# Phase 4.2: Import Application Automation Services
+from app.application_automation.form_filler import get_form_filler_service, FormFillerService
+from app.hitl.hitl_service import get_hitl_service
 # We will also need our JobPosting model for type hinting and potentially for displaying
 from app.models.job_posting_models import JobPosting
 from app.models.application_log_models import ApplicationLog
+from app.models.user_profile_models import UserProfile
 # Import the AgentOrchestrator
 from app.agent_orchestrator import AgentOrchestrator
 
@@ -1364,6 +1368,426 @@ def semantic_search(
     
     # Run the async search
     asyncio.run(run_semantic_search())
+
+@app.command()
+def create_profile(
+    profile_name: str = typer.Argument(help="Name for this profile (e.g., 'senior_python_dev')"),
+    full_name: Annotated[str, typer.Option(help="Your full name")] = None,
+    email: Annotated[str, typer.Option(help="Your email address")] = None,
+    phone: Annotated[str, typer.Option(help="Your phone number")] = None,
+    linkedin_url: Annotated[str, typer.Option(help="Your LinkedIn URL")] = None,
+    github_url: Annotated[str, typer.Option(help="Your GitHub URL")] = None,
+    interactive: Annotated[bool, typer.Option("--interactive", help="Create profile interactively")] = False
+):
+    """
+    📝 Phase 4.2: Create User Profile for Application Automation
+    
+    Creates a comprehensive user profile for automated job applications.
+    """
+    console.print(f"\n[bold blue]📝 Phase 4.2: Creating User Profile '{profile_name}'[/bold blue]")
+    
+    try:
+        if interactive:
+            # Interactive profile creation
+            console.print("🔍 Interactive Profile Creation")
+            console.print("Please provide the following information (press Enter to skip optional fields):")
+            
+            if not full_name:
+                full_name = typer.prompt("Full Name", default="")
+            if not email:
+                email = typer.prompt("Email Address", default="")
+            if not phone:
+                phone = typer.prompt("Phone Number", default="")
+            if not linkedin_url:
+                linkedin_url = typer.prompt("LinkedIn URL", default="")
+            if not github_url:
+                github_url = typer.prompt("GitHub URL", default="")
+            
+            # Additional fields
+            summary = typer.prompt("Professional Summary", default="")
+            target_roles = typer.prompt("Target Roles (comma-separated)", default="")
+            preferred_locations = typer.prompt("Preferred Locations (comma-separated)", default="Remote")
+            years_experience = typer.prompt("Years of Experience", type=int, default=0)
+        else:
+            summary = ""
+            target_roles = ""
+            preferred_locations = "Remote"
+            years_experience = 0
+        
+        # Create UserProfile instance
+        profile_data = {
+            "profile_name": profile_name,
+            "full_name": full_name,
+            "email": email,
+            "phone": phone,
+            "linkedin_url": linkedin_url,
+            "github_url": github_url,
+            "summary_statement": summary,
+            "target_roles": target_roles.split(",") if target_roles else [],
+            "preferred_locations": preferred_locations.split(",") if preferred_locations else ["Remote"],
+        }
+        
+        # Remove None values
+        profile_data = {k: v for k, v in profile_data.items() if v}
+        
+        # Create profile
+        user_profile = UserProfile(**profile_data)
+        
+        # Save profile to file
+        profile_dir = "data/user_profiles"
+        os.makedirs(profile_dir, exist_ok=True)
+        profile_path = f"{profile_dir}/{profile_name}.json"
+        
+        with open(profile_path, 'w') as f:
+            f.write(user_profile.model_dump_json(indent=2))
+        
+        console.print(f"✅ Profile '{profile_name}' created successfully!")
+        console.print(f"📁 Saved to: {profile_path}")
+        
+        # Display profile summary
+        table = Table(title=f"👤 Profile: {profile_name}")
+        table.add_column("Field", style="cyan")
+        table.add_column("Value", style="white")
+        
+        table.add_row("Full Name", user_profile.full_name or "Not set")
+        table.add_row("Email", str(user_profile.email) if user_profile.email else "Not set")
+        table.add_row("Phone", user_profile.phone or "Not set")
+        table.add_row("LinkedIn", str(user_profile.linkedin_url) if user_profile.linkedin_url else "Not set")
+        table.add_row("GitHub", str(user_profile.github_url) if user_profile.github_url else "Not set")
+        table.add_row("Target Roles", ", ".join(user_profile.target_roles[:2]) if user_profile.target_roles else "Not set")
+        
+        console.print(table)
+        
+        console.print("\n💡 Next steps:")
+        console.print("  • Use 'apply-to-job' command to apply to jobs with this profile")
+        console.print("  • Edit the profile file directly for more detailed customization")
+        console.print("  • Add work experience and education details to the JSON file")
+        
+        logger.info(f"Created user profile: {profile_name}")
+        
+    except Exception as e:
+        logger.error(f"Error creating profile: {e}", exc_info=True)
+        console.print(f"[bold red]❌ Error creating profile: {e}[/bold red]")
+        raise typer.Exit(1)
+
+@app.command()
+def apply_to_job(
+    job_id: Annotated[int, typer.Option(help="Database ID of the job to apply to")] = None,
+    job_url: Annotated[str, typer.Option(help="URL of the job to apply to (alternative to job-id)")] = None,
+    profile_name: Annotated[str, typer.Option(help="Name of user profile to use for application")] = "default",
+    headless: Annotated[bool, typer.Option("--headless", help="Run browser in headless mode")] = False,
+    dry_run: Annotated[bool, typer.Option("--dry-run", help="Test form detection without filling")] = False
+):
+    """
+    🚀 Phase 4.2: Automated Job Application with Form Filling
+    
+    Automatically navigates to job application page, fills forms with profile data,
+    and provides Human-in-the-Loop review before submission.
+    """
+    console.print(f"\n[bold blue]🚀 Phase 4.2: Automated Job Application[/bold blue]")
+    
+    if not job_id and not job_url:
+        console.print("[bold red]❌ Error: Must provide either --job-id or --job-url[/bold red]")
+        raise typer.Exit(1)
+    
+    try:
+        # Load job from database
+        job = None
+        if job_id:
+            # Get job by ID
+            all_jobs = get_all_jobs(limit=1000)  # Get a large number to find by ID
+            job = next((j for j in all_jobs if j.internal_db_id == job_id), None)
+            if not job:
+                console.print(f"[bold red]❌ Job with ID {job_id} not found in database[/bold red]")
+                raise typer.Exit(1)
+        elif job_url:
+            # Find job by URL
+            job = find_job_by_url(job_url)
+            if not job:
+                console.print(f"[bold yellow]⚠️ Job not found in database, creating temporary job object[/bold yellow]")
+                # Create temporary job object for URL
+                job = JobPosting(
+                    id_on_platform="temp",
+                    source_platform="manual",
+                    job_url=job_url,
+                    title="Manual Application",
+                    company_name="Unknown Company",
+                    location="Unknown Location"
+                )
+        
+        console.print(f"📋 Job: {job.title} at {job.company_name}")
+        console.print(f"🔗 URL: {job.job_url}")
+        
+        # Load user profile
+        profile_path = f"data/user_profiles/{profile_name}.json"
+        if not os.path.exists(profile_path):
+            console.print(f"[bold red]❌ Profile '{profile_name}' not found at {profile_path}[/bold red]")
+            console.print("💡 Create a profile first using: create-profile")
+            raise typer.Exit(1)
+        
+        with open(profile_path, 'r') as f:
+            profile_data = f.read()
+        
+        user_profile = UserProfile.model_validate_json(profile_data)
+        console.print(f"👤 Using profile: {user_profile.profile_name}")
+        console.print(f"📧 Email: {user_profile.email}")
+        
+        # Confirm action with user
+        hitl_service = get_hitl_service()
+        if not hitl_service.confirm_action(
+            f"Apply to {job.title} at {job.company_name}",
+            context={
+                "Job URL": str(job.job_url),
+                "Profile": user_profile.profile_name,
+                "Email": str(user_profile.email) if user_profile.email else "None",
+                "Mode": "Dry Run" if dry_run else "Live Application"
+            },
+            default_response=False
+        ):
+            console.print("❌ Application cancelled by user")
+            return
+        
+        # Initialize form filler service
+        console.print("🔧 Initializing browser automation...")
+        form_filler = get_form_filler_service(headless=headless)
+        
+        # Run the application process
+        async def run_application():
+            try:
+                if dry_run:
+                    console.print("🧪 [bold yellow]DRY RUN MODE - No actual application will be submitted[/bold yellow]")
+                
+                # Navigate to application page
+                console.print("🌐 Navigating to job application page...")
+                if not await form_filler.navigate_to_application(str(job.job_url)):
+                    console.print("[bold red]❌ Failed to navigate to application page[/bold red]")
+                    return
+                
+                # Detect form fields
+                console.print("🔍 Detecting form fields...")
+                detected_fields = await form_filler.detect_form_fields()
+                
+                if not detected_fields:
+                    console.print("[bold yellow]⚠️ No form fields detected on this page[/bold yellow]")
+                    console.print("💡 This might be because:")
+                    console.print("  • The page doesn't have an application form")
+                    console.print("  • The form uses non-standard field structures")
+                    console.print("  • You need to click an 'Apply' button first")
+                    return
+                
+                console.print(f"✅ Detected {len(detected_fields)} field types:")
+                for field_type, selectors in detected_fields.items():
+                    console.print(f"  • {field_type}: {len(selectors)} selector(s)")
+                
+                if dry_run:
+                    console.print("🧪 [bold yellow]DRY RUN COMPLETE - Form fields detected successfully[/bold yellow]")
+                    await form_filler.take_screenshot("dry_run_detection.png")
+                    return
+                
+                # Fill form fields
+                console.print("✏️ Filling form fields with profile data...")
+                fill_results = await form_filler.fill_form_fields(user_profile, detected_fields)
+                
+                successful_fills = sum(fill_results.values())
+                total_fields = len(fill_results)
+                console.print(f"📝 Filled {successful_fills}/{total_fields} fields successfully")
+                
+                # Take screenshot for review
+                screenshot_path = await form_filler.take_screenshot()
+                console.print(f"📸 Screenshot saved: {screenshot_path}")
+                
+                # Human review and submission
+                console.print("👀 Starting Human-in-the-Loop review...")
+                if await form_filler.human_review_and_submit(user_profile, job):
+                    # Log successful application
+                    try:
+                        app_log_id = save_application_log(
+                            job_url=str(job.job_url),
+                            resume_path="",  # Could be enhanced to include resume
+                            status="Applied",
+                            notes=f"Automated application via form filler. Filled {successful_fills}/{total_fields} fields.",
+                            job_title=job.title,
+                            company_name=job.company_name
+                        )
+                        console.print(f"📊 Application logged with ID: {app_log_id}")
+                    except Exception as e:
+                        logger.warning(f"Failed to log application: {e}")
+                    
+                    console.print("🎉 [bold green]Application submitted successfully![/bold green]")
+                else:
+                    console.print("❌ Application was not submitted")
+                
+            except Exception as e:
+                logger.error(f"Error during application process: {e}", exc_info=True)
+                console.print(f"[bold red]❌ Error during application: {e}[/bold red]")
+            finally:
+                # Clean up browser
+                await form_filler.close_browser()
+        
+        # Run the async application process
+        asyncio.run(run_application())
+        
+        console.print("\n💡 Tips for future applications:")
+        console.print("  • Use --dry-run to test form detection first")
+        console.print("  • Create multiple profiles for different job types")
+        console.print("  • Check screenshots to verify form filling accuracy")
+        console.print("  • Use 'view-applications' to track your application status")
+        
+        logger.info(f"Application process completed for job: {job.title}")
+        
+    except Exception as e:
+        logger.error(f"Error in apply_to_job: {e}", exc_info=True)
+        console.print(f"[bold red]❌ Error: {e}[/bold red]")
+        raise typer.Exit(1)
+
+@app.command()
+def list_profiles():
+    """
+    📋 Phase 4.2: List Available User Profiles
+    
+    Shows all available user profiles for job applications.
+    """
+    console.print(f"\n[bold blue]📋 Available User Profiles[/bold blue]")
+    
+    try:
+        profile_dir = "data/user_profiles"
+        if not os.path.exists(profile_dir):
+            console.print("[yellow]⚠️ No profiles directory found[/yellow]")
+            console.print("💡 Create your first profile with: create-profile")
+            return
+        
+        profile_files = [f for f in os.listdir(profile_dir) if f.endswith('.json')]
+        
+        if not profile_files:
+            console.print("[yellow]⚠️ No profiles found[/yellow]")
+            console.print("💡 Create your first profile with: create-profile")
+            return
+        
+        console.print(f"Found {len(profile_files)} profile(s):")
+        
+        table = Table(title="👤 User Profiles")
+        table.add_column("Profile Name", style="cyan")
+        table.add_column("Full Name", style="white")
+        table.add_column("Email", style="yellow")
+        table.add_column("Target Roles", style="green")
+        table.add_column("Created", style="dim")
+        
+        for profile_file in profile_files:
+            try:
+                profile_path = os.path.join(profile_dir, profile_file)
+                with open(profile_path, 'r') as f:
+                    profile_data = f.read()
+                
+                profile = UserProfile.model_validate_json(profile_data)
+                
+                # Get file creation time
+                created_time = datetime.fromtimestamp(os.path.getctime(profile_path))
+                
+                table.add_row(
+                    profile.profile_name,
+                    profile.full_name or "Not set",
+                    str(profile.email) if profile.email else "Not set",
+                    ", ".join(profile.target_roles[:2]) if profile.target_roles else "Not set",
+                    created_time.strftime("%Y-%m-%d")
+                )
+                
+            except Exception as e:
+                logger.warning(f"Error loading profile {profile_file}: {e}")
+                table.add_row(
+                    profile_file.replace('.json', ''),
+                    "Error loading",
+                    "Error loading",
+                    "Error loading",
+                    "Unknown"
+                )
+        
+        console.print(table)
+        
+        console.print("\n💡 Commands:")
+        console.print("  • apply-to-job --profile-name <name> - Use profile for job application")
+        console.print("  • create-profile <name> - Create new profile")
+        console.print("  • Edit profile files directly for detailed customization")
+        
+    except Exception as e:
+        logger.error(f"Error listing profiles: {e}", exc_info=True)
+        console.print(f"[bold red]❌ Error: {e}[/bold red]")
+        raise typer.Exit(1)
+
+@app.command()
+def test_form_detection(
+    url: str = typer.Argument(help="URL to test form detection on"),
+    headless: Annotated[bool, typer.Option("--headless", help="Run browser in headless mode")] = False
+):
+    """
+    🧪 Phase 4.2: Test Form Detection
+    
+    Test the form field detection capabilities on any URL.
+    Useful for debugging and improving form filling accuracy.
+    """
+    console.print(f"\n[bold blue]🧪 Phase 4.2: Testing Form Detection[/bold blue]")
+    console.print(f"🔗 URL: {url}")
+    
+    try:
+        # Initialize form filler service
+        form_filler = get_form_filler_service(headless=headless)
+        
+        async def run_test():
+            try:
+                # Navigate to the page
+                console.print("🌐 Navigating to page...")
+                if not await form_filler.navigate_to_application(url):
+                    console.print("[bold red]❌ Failed to navigate to page[/bold red]")
+                    return
+                
+                # Detect form fields
+                console.print("🔍 Detecting form fields...")
+                detected_fields = await form_filler.detect_form_fields()
+                
+                if not detected_fields:
+                    console.print("[bold yellow]⚠️ No form fields detected[/bold yellow]")
+                    await form_filler.take_screenshot("no_fields_detected.png")
+                    return
+                
+                # Display detected fields
+                table = Table(title="🔍 Detected Form Fields")
+                table.add_column("Field Type", style="cyan")
+                table.add_column("Selectors Found", style="yellow")
+                table.add_column("Count", style="green")
+                
+                total_selectors = 0
+                for field_type, selectors in detected_fields.items():
+                    table.add_row(
+                        field_type,
+                        ", ".join(selectors[:3]) + ("..." if len(selectors) > 3 else ""),
+                        str(len(selectors))
+                    )
+                    total_selectors += len(selectors)
+                
+                console.print(table)
+                console.print(f"✅ Total: {len(detected_fields)} field types, {total_selectors} selectors")
+                
+                # Take screenshot
+                screenshot_path = await form_filler.take_screenshot("form_detection_test.png")
+                console.print(f"📸 Screenshot saved: {screenshot_path}")
+                
+                console.print("\n💡 Field Detection Tips:")
+                console.print("  • High selector count indicates multiple similar fields")
+                console.print("  • Missing expected fields suggest field mapping improvements needed")
+                console.print("  • Use screenshots to verify detection accuracy")
+                
+            except Exception as e:
+                logger.error(f"Error during form detection test: {e}", exc_info=True)
+                console.print(f"[bold red]❌ Error: {e}[/bold red]")
+            finally:
+                await form_filler.close_browser()
+        
+        # Run the async test
+        asyncio.run(run_test())
+        
+    except Exception as e:
+        logger.error(f"Error in test_form_detection: {e}", exc_info=True)
+        console.print(f"[bold red]❌ Error: {e}[/bold red]")
+        raise typer.Exit(1)
 
 if __name__ == "__main__":
     app() 

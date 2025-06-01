@@ -828,3 +828,24 @@ Call log:
 2025-06-01 03:44:49,165 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
 2025-06-01 03:44:49,183 - app.services.semantic_analysis_service - INFO - Semantic search for 'backend development with Python and APIs' returned 3 results
 2025-06-01 03:44:49,243 - __main__ - INFO - Semantic search completed: 3 results found
+2025-06-01 04:00:58,483 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:00:58,506 - __main__ - INFO - Created user profile: test_user
+2025-06-01 04:01:26,728 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:01:54,200 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:01:54,206 - app.application_automation.form_filler - INFO - FormFillerService initialized
+2025-06-01 04:02:04,687 - app.application_automation.form_filler - INFO - Browser started successfully
+2025-06-01 04:02:04,688 - app.application_automation.form_filler - INFO - Navigating to: https://remote.co/job/29751-remote-machine-learning-engineer
+2025-06-01 04:02:08,570 - app.application_automation.form_filler - ERROR - Error navigating to application: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/job/29751-remote-machine-learning-engineer
+Call log:
+  - navigating to "https://remote.co/job/29751-remote-machine-learning-engineer", waiting until "networkidle"
+
+2025-06-01 04:02:08,713 - app.application_automation.form_filler - INFO - Browser closed successfully
+2025-06-01 04:02:51,643 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:02:51,649 - app.application_automation.form_filler - INFO - FormFillerService initialized
+2025-06-01 04:02:53,084 - app.application_automation.form_filler - INFO - Browser started successfully
+2025-06-01 04:02:53,085 - app.application_automation.form_filler - INFO - Navigating to: https://httpbin.org/forms/post
+2025-06-01 04:02:57,225 - app.application_automation.form_filler - INFO - Successfully navigated to application form
+2025-06-01 04:02:57,906 - app.application_automation.form_filler - INFO - Detected form fields: ['full_name', 'phone', 'email']
+2025-06-01 04:02:57,994 - app.application_automation.form_filler - INFO - Screenshot saved: data/screenshots/form_detection_test.png
+2025-06-01 04:02:58,099 - app.application_automation.form_filler - INFO - Browser closed successfully
+2025-06-01 04:03:30,634 - __main__ - INFO - AI Job Application Agent CLI Initialized.
