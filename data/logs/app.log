@@ -1,0 +1,109 @@
+2025-05-31 23:50:36,534 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:50:36,539 - __main__ - INFO - find_jobs command initiated with keywords: 'Data Scientist', location: 'None', num_results: 2
+2025-05-31 23:50:37,832 - app.services.playwright_scraper_service - INFO - Starting job search on Remote.co for keywords: 'Data Scientist'
+2025-05-31 23:50:41,190 - app.services.playwright_scraper_service - WARNING - Attempt 1 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/search/?search_keywords=Data+Scientist&search_location=
+Call log:
+  - navigating to "https://remote.co/remote-jobs/search/?search_keywords=Data+Scientist&search_location=", waiting until "domcontentloaded"
+
+2025-05-31 23:50:41,763 - app.services.playwright_scraper_service - WARNING - Attempt 2 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/?search=Data+Scientist
+Call log:
+  - navigating to "https://remote.co/remote-jobs/?search=Data+Scientist", waiting until "domcontentloaded"
+
+2025-05-31 23:50:42,293 - app.services.playwright_scraper_service - WARNING - Attempt 3 failed: Page.goto: net::ERR_HTTP2_PROTOCOL_ERROR at https://remote.co/remote-jobs/
+Call log:
+  - navigating to "https://remote.co/remote-jobs/", waiting until "domcontentloaded"
+
+2025-05-31 23:50:42,293 - app.services.playwright_scraper_service - ERROR - All URL attempts failed
+2025-05-31 23:50:42,390 - app.services.playwright_scraper_service - INFO - No jobs found from scraping, generating mock data for MVP testing
+2025-05-31 23:50:42,390 - app.services.playwright_scraper_service - INFO - Generated 2 mock jobs for testing
+2025-05-31 23:50:42,392 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/1' already exists in job_postings with ID 1. Skipping insert.
+2025-05-31 23:50:42,393 - app.services.database_service - INFO - Job with URL 'https://example-jobs.com/job/2' already exists in job_postings with ID 2. Skipping insert.
+2025-05-31 23:50:42,400 - app.services.database_service - INFO - Logged search query: 'Data Scientist' for user 1, got 2 results.
+2025-05-31 23:50:42,404 - __main__ - INFO - Logged search query with ID: 8
+2025-05-31 23:50:42,409 - __main__ - INFO - Job scraping completed. Saved: 2, Skipped: 0
+2025-05-31 23:50:51,460 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:50:51,466 - __main__ - INFO - analyze_jobs command initiated with target_role: 'Data Scientist', max_jobs: 3
+2025-05-31 23:50:51,468 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-05-31 23:50:51,471 - app.services.database_service - INFO - Retrieved 0 pending jobs from database.
+2025-05-31 23:50:51,473 - __main__ - INFO - No pending jobs found for analysis
+2025-05-31 23:51:02,559 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:51:02,564 - __main__ - INFO - log_application command initiated for job_url: https://linkedin.com/jobs/123456
+2025-05-31 23:51:02,566 - app.services.database_service - INFO - No job found with URL: https://linkedin.com/jobs/123456
+2025-05-31 23:51:02,568 - __main__ - WARNING - Resume file not found: test_resume.pdf
+2025-05-31 23:51:02,570 - app.services.database_service - INFO - No job found with URL: https://linkedin.com/jobs/123456
+2025-05-31 23:51:02,570 - app.services.database_service - INFO - Job not found in database for URL: https://linkedin.com/jobs/123456. Creating application log anyway.
+2025-05-31 23:51:02,576 - app.services.database_service - INFO - Saved application log: 'Senior Data Engineer' at 'Meta' with DB ID 4
+2025-05-31 23:51:02,589 - __main__ - INFO - Successfully logged application with ID 4 for 'Senior Data Engineer' at 'Meta'
+2025-05-31 23:51:11,309 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:51:11,313 - __main__ - INFO - view_applications command initiated with limit: 20, status_filter: None
+2025-05-31 23:51:11,317 - app.services.database_service - INFO - Retrieved 4 application logs for user 1
+2025-05-31 23:51:11,332 - __main__ - INFO - Displayed 4 application logs to user
+2025-05-31 23:51:20,787 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:51:20,791 - __main__ - INFO - view_applications command initiated with limit: 5, status_filter: applied
+2025-05-31 23:51:20,794 - app.services.database_service - INFO - Retrieved 4 application logs for user 1
+2025-05-31 23:51:20,805 - __main__ - INFO - Displayed 3 application logs to user
+2025-05-31 23:51:32,771 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:51:32,775 - __main__ - INFO - log_application command initiated for job_url: https://example-jobs.com/job/1
+2025-05-31 23:51:32,777 - app.services.database_service - INFO - Found job by URL: 'Senior Python Developer' at 'TechCorp Remote' (ID: 1)
+2025-05-31 23:51:32,779 - __main__ - WARNING - Resume file not found: test_resume.pdf
+2025-05-31 23:51:32,781 - app.services.database_service - INFO - Found job by URL: 'Senior Python Developer' at 'TechCorp Remote' (ID: 1)
+2025-05-31 23:51:32,788 - app.services.database_service - INFO - Saved application log: 'Senior Python Developer' at 'TechCorp Remote' with DB ID 5
+2025-05-31 23:51:32,855 - __main__ - INFO - Successfully logged application with ID 5 for 'Senior Python Developer' at 'TechCorp Remote'
+2025-05-31 23:54:03,307 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:54:03,312 - __main__ - INFO - view_applications command initiated with limit: 20, status_filter: None
+2025-05-31 23:54:03,316 - app.services.database_service - INFO - Retrieved 5 application logs for user 1
+2025-05-31 23:54:03,333 - __main__ - INFO - Displayed 5 application logs to user
+2025-05-31 23:54:13,538 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:54:13,542 - __main__ - INFO - view_applications command initiated with limit: 3, status_filter: None
+2025-05-31 23:54:13,544 - app.services.database_service - INFO - Retrieved 3 application logs for user 1
+2025-05-31 23:54:13,557 - __main__ - INFO - Displayed 3 application logs to user
+2025-05-31 23:54:48,303 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:54:48,307 - __main__ - INFO - view_applications command initiated with limit: 20, status_filter: None
+2025-05-31 23:54:48,310 - app.services.database_service - INFO - Retrieved 5 application logs for user 1
+2025-05-31 23:54:48,325 - __main__ - INFO - Displayed 5 application logs to user
+2025-05-31 23:54:56,659 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:54:56,663 - __main__ - INFO - view_applications command initiated with limit: 20, status_filter: applied
+2025-05-31 23:54:56,666 - app.services.database_service - INFO - Retrieved 5 application logs for user 1
+2025-05-31 23:54:56,678 - __main__ - INFO - Displayed 3 application logs to user
+2025-05-31 23:56:41,895 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:56:52,842 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:56:52,847 - __main__ - INFO - optimize_resume command: resume_path='sample_resume.txt', job_id=1, job_url='None'
+2025-05-31 23:56:52,851 - app.services.database_service - INFO - Retrieved 5 jobs from database (status_filter: None).
+2025-05-31 23:56:52,853 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-05-31 23:56:52,853 - app.services.gemini_service - INFO - Generating resume optimization suggestions for job: Senior Python Developer
+2025-05-31 23:56:52,853 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: '
+        As an expert career coach and ATS specialist, analyze this resume against the job descripti...'
+2025-05-31 23:56:57,840 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-05-31 23:56:57,841 - app.services.gemini_service - ERROR - Error generating resume optimization suggestions: 'GeminiResponse' object has no attribute 'content'
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\app\services\gemini_service.py", line 218, in get_resume_optimization_suggestions
+    if response and response.content:
+                    ^^^^^^^^^^^^^^^^
+  File "A:\project AI agent\AI agent\venv\Lib\site-packages\pydantic\main.py", line 991, in __getattr__
+    raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+AttributeError: 'GeminiResponse' object has no attribute 'content'
+2025-05-31 23:56:57,847 - __main__ - ERROR - An unexpected error occurred during resume optimization: 
+Traceback (most recent call last):
+  File "A:\project AI agent\AI agent\main.py", line 659, in optimize_resume
+    raise typer.Exit(code=1)
+click.exceptions.Exit
+2025-05-31 23:57:26,210 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:57:26,215 - __main__ - INFO - optimize_resume command: resume_path='sample_resume.txt', job_id=1, job_url='None'
+2025-05-31 23:57:26,220 - app.services.database_service - INFO - Retrieved 5 jobs from database (status_filter: None).
+2025-05-31 23:57:26,224 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-05-31 23:57:26,224 - app.services.gemini_service - INFO - Generating resume optimization suggestions for job: Senior Python Developer
+2025-05-31 23:57:26,225 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: '
+        As an expert career coach and ATS specialist, analyze this resume against the job descripti...'
+2025-05-31 23:57:30,627 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-05-31 23:57:30,628 - app.services.gemini_service - INFO - Successfully generated resume optimization suggestions
+2025-05-31 23:57:30,647 - __main__ - INFO - Successfully generated resume optimization suggestions for job 1
+2025-05-31 23:57:47,181 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-05-31 23:57:47,186 - __main__ - INFO - optimize_resume command: resume_path='sample_resume.txt', job_id=None, job_url='https://example-jobs.com/job/2'
+2025-05-31 23:57:47,191 - app.services.database_service - INFO - Found job by URL: 'Junior Python Developer' at 'GlobalSoft Inc' (ID: 2)
+2025-05-31 23:57:47,194 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-05-31 23:57:47,194 - app.services.gemini_service - INFO - Generating resume optimization suggestions for job: Junior Python Developer
+2025-05-31 23:57:47,194 - app.services.gemini_service - INFO - Sending request to Gemini model: gemini-1.5-flash-latest with prompt starting: '
+        As an expert career coach and ATS specialist, analyze this resume against the job descripti...'
+2025-05-31 23:57:51,209 - app.services.gemini_service - INFO - Received response from Gemini. Finish reason: COMPLETED
+2025-05-31 23:57:51,210 - app.services.gemini_service - INFO - Successfully generated resume optimization suggestions
+2025-05-31 23:57:51,229 - __main__ - INFO - Successfully generated resume optimization suggestions for job 2
