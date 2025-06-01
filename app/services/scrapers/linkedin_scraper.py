@@ -10,6 +10,7 @@ import time
 import os
 from urllib.parse import urljoin, quote_plus
 from playwright.async_api import Page
+import json
 
 from .base_scraper import JobScraper, ScraperResult, ScraperConfig
 from app.models.job_posting_models import JobPosting
@@ -167,9 +168,14 @@ class LinkedInScraper(JobScraper):
         try:
             # Try to load existing session
             if await self._load_session():
-                if await self._verify_session():
-                    self.is_authenticated = True
-                    return True
+                # Apply loaded session cookies to the browser context
+                if await self._apply_session_cookies():
+                    if await self._verify_session():
+                        self.is_authenticated = True
+                        logger.info("Successfully authenticated using saved session")
+                        return True
+                    else:
+                        logger.info("Saved session is invalid, requiring fresh login")
             
             # Need to authenticate
             logger.info("LinkedIn authentication required")
@@ -272,16 +278,101 @@ class LinkedInScraper(JobScraper):
             return False
     
     async def _load_session(self) -> bool:
-        """Load saved LinkedIn session"""
-        # Implementation would load browser cookies/session data
-        # For now, return False to require fresh authentication
-        return False
-    
+        """Load saved LinkedIn session from file"""
+        try:
+            session_file_path = os.path.join(os.getcwd(), self.linkedin_config.session_file)
+            
+            if not os.path.exists(session_file_path):
+                logger.debug(f"No existing session file found at: {session_file_path}")
+                return False
+            
+            # Load session data from file
+            with open(session_file_path, 'r') as f:
+                self.session_data = json.load(f)
+            
+            # Validate session data structure
+            if not self.session_data or 'cookies' not in self.session_data:
+                logger.warning("Invalid session data structure")
+                return False
+            
+            # Check if session is recent (within 7 days)
+            if 'timestamp' in self.session_data:
+                import datetime
+                session_time = datetime.datetime.fromisoformat(self.session_data['timestamp'])
+                age_days = (datetime.datetime.now() - session_time).days
+                
+                if age_days > 7:
+                    logger.info(f"Session is {age_days} days old, requiring fresh authentication")
+                    return False
+            
+            logger.info("Valid session data loaded successfully")
+            return True
+            
+        except (json.JSONDecodeError, FileNotFoundError, KeyError) as e:
+            logger.warning(f"Error loading session: {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Unexpected error loading session: {e}")
+            return False
+
     async def _save_session(self) -> bool:
-        """Save LinkedIn session for future use"""
-        # Implementation would save browser cookies/session data
-        # This would enable session reuse across runs
-        return True
+        """Save LinkedIn session to file for future use"""
+        try:
+            if not self.page:
+                logger.warning("No page context available for saving session")
+                return False
+            
+            # Get all cookies from the current page context
+            cookies = await self.page.context.cookies()
+            
+            # Filter for LinkedIn-specific cookies
+            linkedin_cookies = [
+                cookie for cookie in cookies 
+                if 'linkedin.com' in cookie.get('domain', '')
+            ]
+            
+            if not linkedin_cookies:
+                logger.warning("No LinkedIn cookies found to save")
+                return False
+            
+            # Prepare session data
+            import datetime
+            session_data = {
+                'cookies': linkedin_cookies,
+                'timestamp': datetime.datetime.now().isoformat(),
+                'user_agent': await self.page.evaluate('navigator.userAgent'),
+                'url': self.page.url
+            }
+            
+            # Save to file
+            session_file_path = os.path.join(os.getcwd(), self.linkedin_config.session_file)
+            with open(session_file_path, 'w') as f:
+                json.dump(session_data, f, indent=2)
+            
+            logger.info(f"Session saved successfully to: {session_file_path}")
+            self.session_data = session_data
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error saving session: {e}")
+            return False
+    
+    async def _apply_session_cookies(self) -> bool:
+        """Apply loaded session cookies to the current browser context"""
+        try:
+            if not self.session_data or 'cookies' not in self.session_data:
+                logger.warning("No session data or cookies available to apply")
+                return False
+            
+            # Add cookies to the browser context
+            await self.page.context.add_cookies(self.session_data['cookies'])
+            
+            logger.info(f"Applied {len(self.session_data['cookies'])} session cookies")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error applying session cookies: {e}")
+            return False
     
     async def _navigate_safely(self, url: str):
         """Navigate to URL with LinkedIn-specific safety measures"""

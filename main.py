@@ -972,6 +972,162 @@ def find_jobs_multi(
         console.print(f"[red]❌ Error in multi-site job search: {e}[/red]")
         raise typer.Exit(1)
 
+@app.command(name="linkedin-session-info")
+def linkedin_session_info():
+    """
+    📋 Display LinkedIn session information and status.
+    Shows session file location, age, and validity.
+    """
+    import os
+    import json
+    from rich.panel import Panel
+    
+    console.print(f"\n[bold blue]📋 LinkedIn Session Information[/bold blue]")
+    
+    session_file = "linkedin_session.json"
+    session_path = os.path.join(os.getcwd(), session_file)
+    
+    try:
+        if not os.path.exists(session_path):
+            panel = Panel(
+                "❌ **No session file found**\n\n"
+                f"Expected location: `{session_path}`\n"
+                "Run LinkedIn scraping once to create a session.",
+                title="Session Status: Not Found",
+                title_align="left"
+            )
+            console.print(panel)
+            return
+        
+        # Load and analyze session
+        with open(session_path, 'r') as f:
+            session_data = json.load(f)
+        
+        # Calculate session age
+        if 'timestamp' in session_data:
+            session_time = datetime.fromisoformat(session_data['timestamp'])
+            age_days = (datetime.now() - session_time).days
+            age_hours = ((datetime.now() - session_time).seconds // 3600)
+            
+            if age_days > 0:
+                age_str = f"{age_days} days old"
+            else:
+                age_str = f"{age_hours} hours old"
+        else:
+            age_str = "Unknown age"
+        
+        # Session validity
+        is_valid = age_days <= 7 if 'timestamp' in session_data else False
+        validity_status = "✅ Valid" if is_valid else "⚠️ Expired"
+        
+        # Cookie count
+        cookie_count = len(session_data.get('cookies', []))
+        
+        # Create info panel
+        panel_content = (
+            f"📁 **File:** `{session_path}`\n"
+            f"🕒 **Age:** {age_str}\n"
+            f"✅ **Status:** {validity_status}\n"
+            f"🍪 **Cookies:** {cookie_count} stored\n"
+            f"🌐 **User Agent:** {session_data.get('user_agent', 'Not stored')[:50]}...\n"
+            f"🔗 **Last URL:** {session_data.get('url', 'Not stored')}"
+        )
+        
+        if is_valid:
+            panel = Panel(panel_content, title="Session Status: Active", title_align="left", border_style="green")
+        else:
+            panel_content += "\n\n⚠️ Session will require fresh login on next use."
+            panel = Panel(panel_content, title="Session Status: Expired", title_align="left", border_style="yellow")
+        
+        console.print(panel)
+        
+        # Show management options
+        console.print(f"\n💡 **Session Management:**")
+        console.print("• `python main.py linkedin-session-refresh` - Force new login")
+        console.print("• `python main.py linkedin-session-clear` - Clear session file")
+        
+    except Exception as e:
+        console.print(f"[red]❌ Error reading session file: {e}[/red]")
+
+@app.command(name="linkedin-session-refresh")
+def linkedin_session_refresh():
+    """
+    🔄 Force refresh LinkedIn session by clearing current session and prompting for new login.
+    """
+    import os
+    from rich.panel import Panel
+    
+    console.print(f"\n[bold blue]🔄 Refreshing LinkedIn Session[/bold blue]")
+    
+    session_file = "linkedin_session.json"
+    session_path = os.path.join(os.getcwd(), session_file)
+    
+    try:
+        # Clear existing session
+        if os.path.exists(session_path):
+            os.remove(session_path)
+            console.print(f"✅ Cleared existing session file")
+        else:
+            console.print(f"ℹ️ No existing session file found")
+        
+        # Inform user about next steps
+        panel = Panel(
+            "🔄 **Session Cleared Successfully**\n\n"
+            "Next LinkedIn scraping command will prompt for fresh login.\n"
+            "Your new session will be automatically saved after successful login.\n\n"
+            "**Try this command:**\n"
+            "`python main.py find-jobs-multi \"Python Developer\" --sources linkedin --results 3`",
+            title="Session Refresh Complete",
+            title_align="left",
+            border_style="green"
+        )
+        console.print(panel)
+        
+    except Exception as e:
+        console.print(f"[red]❌ Error refreshing session: {e}[/red]")
+        raise typer.Exit(1)
+
+@app.command(name="linkedin-session-clear")  
+def linkedin_session_clear():
+    """
+    🗑️ Clear LinkedIn session file completely.
+    Next LinkedIn scraping will require fresh manual login.
+    """
+    import os
+    from rich.panel import Panel
+    
+    console.print(f"\n[bold blue]🗑️ Clearing LinkedIn Session[/bold blue]")
+    
+    session_file = "linkedin_session.json"
+    session_path = os.path.join(os.getcwd(), session_file)
+    
+    try:
+        if os.path.exists(session_path):
+            # Confirm deletion
+            confirm = typer.confirm("Are you sure you want to clear the LinkedIn session? You'll need to login manually next time.")
+            
+            if confirm:
+                os.remove(session_path)
+                
+                panel = Panel(
+                    "🗑️ **Session Cleared Successfully**\n\n"
+                    "LinkedIn session file has been permanently deleted.\n"
+                    "Next LinkedIn scraping will require fresh manual login.\n\n"
+                    "**Privacy Note:** All stored cookies have been removed.",
+                    title="Session Clear Complete", 
+                    title_align="left",
+                    border_style="green"
+                )
+                console.print(panel)
+            else:
+                console.print("[yellow]Session clear cancelled.[/yellow]")
+        else:
+            console.print("[yellow]No LinkedIn session file found to clear.[/yellow]")
+            
+    except Exception as e:
+        console.print(f"[red]❌ Error clearing session: {e}[/red]")
+        raise typer.Exit(1)
+
 if __name__ == "__main__":
     # Basic logging setup has been moved to the top of the script
     # so it's configured when the module is imported.
