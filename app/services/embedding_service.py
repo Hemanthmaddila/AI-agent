@@ -229,11 +229,16 @@ class EmbeddingService:
         """
         try:
             embedding_list = json.loads(json_str)
-            return np.array(embedding_list)
+            
+            # Handle double-encoded JSON (string inside string)
+            if isinstance(embedding_list, str):
+                embedding_list = json.loads(embedding_list)
+            
+            return np.array(embedding_list, dtype=np.float32)
         except Exception as e:
             logger.error(f"Error converting JSON to embedding: {e}")
             self._load_model()
-            return np.zeros(self.embedding_dimension)
+            return np.zeros(self.embedding_dimension, dtype=np.float32)
     
     def get_model_info(self) -> Dict[str, Any]:
         """
@@ -249,6 +254,16 @@ class EmbeddingService:
             "max_seq_length": getattr(self.model, 'max_seq_length', 'Unknown'),
             "loaded": self.model is not None
         }
+    
+    def get_embedding_dimension(self) -> int:
+        """
+        Get the dimension of embeddings produced by this model.
+        
+        Returns:
+            Integer dimension of the embedding vectors
+        """
+        self._load_model()
+        return self.embedding_dimension
     
     def cleanup(self):
         """Clean up resources."""

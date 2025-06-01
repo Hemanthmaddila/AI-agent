@@ -22,7 +22,13 @@ from config import settings # This will load .env and make settings available
 # Import the Playwright scraper service (replaces SerpAPI for MVP)
 from app.services.playwright_scraper_service import search_jobs_sync
 # Import the DatabaseService functions including new application logging
-from app.services.database_service import save_job_posting, save_search_query, get_pending_jobs, update_job_processing_status, save_application_log, find_job_by_url, get_application_logs, get_all_jobs
+from app.services.database_service import (
+    save_job_posting, save_search_query, get_pending_jobs, update_job_processing_status, 
+    save_application_log, find_job_by_url, get_application_logs, get_all_jobs,
+    # New Phase 5.1 functions
+    add_embedding_columns_if_not_exist, save_job_embeddings, update_semantic_scores,
+    get_jobs_needing_embeddings, get_jobs_with_embeddings
+)
 # Import the GeminiService
 from app.services.gemini_service import GeminiService
 # Phase 5.1: Import Semantic Analysis Service
@@ -1125,11 +1131,30 @@ def linkedin_session_clear():
         raise typer.Exit(1)
 
 @app.command()
+def ensure_semantic_schema():
+    """
+    🔧 Ensures database schema supports semantic analysis features.
+    Run this once before using semantic analysis commands.
+    """
+    console.print("\n[bold blue]🔧 Ensuring Database Schema for Semantic Analysis[/bold blue]")
+    logger.info("ensure_semantic_schema command initiated")
+    
+    try:
+        console.print("📋 Checking and updating database schema...")
+        add_embedding_columns_if_not_exist()
+        console.print("[bold green]✅ Database schema ready for semantic analysis![/bold green]")
+        logger.info("Database schema successfully updated for semantic analysis")
+    except Exception as e:
+        console.print(f"[bold red]❌ Error updating database schema: {e}[/bold red]")
+        logger.error(f"Database schema update failed: {e}", exc_info=True)
+        raise typer.Exit(code=1)
+
+@app.command()
 def semantic_analysis(
+    target_role: Annotated[str, typer.Option(help="Your target role for semantic matching analysis.")] = "Software Engineer",
     limit: Annotated[int, typer.Option(help="Maximum number of jobs to analyze.")] = 20,
     min_score: Annotated[float, typer.Option(help="Minimum combined score threshold.")] = 3.0,
     model: Annotated[str, typer.Option(help="Embedding model to use.")] = "all-MiniLM-L6-v2",
-    target_role: Annotated[str, typer.Option(help="Target role for analysis.")] = "Software Engineer",
     update_db: Annotated[bool, typer.Option(help="Update database with semantic scores.")] = True
 ):
     """
@@ -1142,11 +1167,11 @@ def semantic_analysis(
     console.print(f"🎯 Target Role: {target_role}")
     console.print(f"📊 Model: {model}")
     console.print(f"🔢 Analyzing up to {limit} jobs with min score {min_score}")
-    logger.info(f"semantic_analysis command: limit={limit}, min_score={min_score}, model={model}")
+    logger.info(f"semantic_analysis command: target_role='{target_role}', limit={limit}, min_score={min_score}, model={model}")
 
     async def run_semantic_analysis():
         try:
-            # Initialize semantic analysis service
+            # Initialize services
             console.print("🔧 Initializing semantic analysis service...")
             service = get_semantic_analysis_service(model)
             
@@ -1164,8 +1189,8 @@ def semantic_analysis(
             # Create custom user profile
             custom_profile = {
                 "target_role": target_role,
-                "experience_years": 5,  # Could be made configurable
-                "skills": ["Python", "JavaScript", "React", "FastAPI", "PostgreSQL", "AWS"],  # Could load from config
+                "experience_years": 5,
+                "skills": ["Python", "JavaScript", "React", "FastAPI", "PostgreSQL", "AWS"],
                 "preferred_locations": ["Remote", "San Francisco", "New York"],
                 "resume_text": f"""
                 Experienced {target_role} with strong technical skills and industry experience.
@@ -1235,28 +1260,6 @@ def semantic_analysis(
                 console.print(f"   Combined Score: {top_job.combined_match_score:.2f}/5.0")
                 console.print(f"   Semantic Match: {top_job.semantic_similarity_score:.3f} (cosine similarity)")
                 console.print(f"   AI Relevance: {top_job.relevance_score}/5.0")
-                if top_job.equity_min_percent:
-                    console.print(f"   Equity: {top_job.equity_min_percent*100:.1f}% - {top_job.equity_max_percent*100:.1f}%")
-                if top_job.funding_stage:
-                    console.print(f"   Funding Stage: {top_job.funding_stage}")
-            
-            # Update database if requested
-            if update_db and analyzed_jobs:
-                console.print("\n💾 Updating database with semantic scores...")
-                # Note: This would require extending the database schema
-                # For now, we'll just update the processing status
-                updated_count = 0
-                for job in analyzed_jobs:
-                    if job.internal_db_id and job.combined_match_score:
-                        success = update_job_processing_status(
-                            job.internal_db_id, 
-                            "Embeddings_Generated",
-                            relevance_score=job.combined_match_score
-                        )
-                        if success:
-                            updated_count += 1
-                
-                console.print(f"✅ Updated {updated_count} jobs in database")
             
             # Summary and next steps
             console.print(f"\n🎉 [bold green]Semantic Analysis Complete![/bold green]")
@@ -1307,9 +1310,6 @@ def semantic_search(
                 console.print("💡 Try different keywords or run 'semantic-analysis' first to ensure jobs have embeddings.")
                 return
             
-            # Generate query embedding for similarity display
-            query_embedding = service.embedding_service.encode_text(query)
-            
             # Display results table
             table = Table(title=f"🔍 Semantic Search Results: '{query}'")
             table.add_column("Rank", style="dim", width=4)
@@ -1325,6 +1325,7 @@ def semantic_search(
                 similarity = 0.0
                 if job.description_embedding:
                     job_embedding = service.embedding_service.embedding_from_json(job.description_embedding)
+                    query_embedding = service.embedding_service.encode_text(query)
                     similarity = service.embedding_service.calculate_similarity(query_embedding, job_embedding)
                 
                 combined_score = f"{job.combined_match_score:.2f}" if job.combined_match_score else "N/A"

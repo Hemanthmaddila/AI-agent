@@ -428,6 +428,238 @@ def get_application_logs(user_profile_id: int = 1, limit: int = 50) -> List[Appl
         if conn:
             conn.close()
 
+def add_embedding_columns_if_not_exist():
+    """Adds embedding related columns to job_postings if they don't exist."""
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        # Check existing columns
+        cursor.execute("PRAGMA table_info(job_postings)")
+        columns = [col[1] for col in cursor.fetchall()]  # col[1] is the column name
+        
+        # Add new columns if they don't exist
+        if 'description_embedding' not in columns:
+            cursor.execute("ALTER TABLE job_postings ADD COLUMN description_embedding TEXT")
+            logger.info("Added 'description_embedding' column to 'job_postings'.")
+        
+        if 'title_embedding' not in columns:
+            cursor.execute("ALTER TABLE job_postings ADD COLUMN title_embedding TEXT")
+            logger.info("Added 'title_embedding' column to 'job_postings'.")
+            
+        if 'embedding_model' not in columns:
+            cursor.execute("ALTER TABLE job_postings ADD COLUMN embedding_model TEXT")
+            logger.info("Added 'embedding_model' column to 'job_postings'.")
+            
+        if 'embedding_generated_at' not in columns:
+            cursor.execute("ALTER TABLE job_postings ADD COLUMN embedding_generated_at TEXT")
+            logger.info("Added 'embedding_generated_at' column to 'job_postings'.")
+            
+        if 'semantic_similarity_score' not in columns:
+            cursor.execute("ALTER TABLE job_postings ADD COLUMN semantic_similarity_score REAL")
+            logger.info("Added 'semantic_similarity_score' column to 'job_postings'.")
+            
+        if 'combined_match_score' not in columns:
+            cursor.execute("ALTER TABLE job_postings ADD COLUMN combined_match_score REAL")
+            logger.info("Added 'combined_match_score' column to 'job_postings'.")
+
+        conn.commit()
+        logger.info("Database schema update completed successfully.")
+    except sqlite3.Error as e:
+        logger.error(f"Error updating database schema for embeddings: {e}", exc_info=True)
+        conn.rollback()
+    finally:
+        if conn:
+            conn.close()
+
+def save_job_embeddings(job_db_id: int, title_embedding: list = None, description_embedding: list = None, 
+                       model_name: str = None) -> bool:
+    """Saves embeddings for a job posting."""
+    if not title_embedding and not description_embedding:
+        logger.warning(f"No embeddings provided for job ID {job_db_id}")
+        return False
+        
+    updates = []
+    params = []
+    
+    if title_embedding:
+        updates.append("title_embedding = ?")
+        params.append(json.dumps(title_embedding))
+        
+    if description_embedding:
+        updates.append("description_embedding = ?")
+        params.append(json.dumps(description_embedding))
+        
+    if model_name:
+        updates.append("embedding_model = ?")
+        params.append(model_name)
+        
+    updates.append("embedding_generated_at = ?")
+    params.append(datetime.utcnow().isoformat())
+    
+    updates.append("status = ?")
+    params.append("embedded")
+    
+    sql_update = f"UPDATE job_postings SET {', '.join(updates)} WHERE id = ?"
+    params.append(job_db_id)
+    
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql_update, params)
+        if cursor.rowcount > 0:
+            conn.commit()
+            logger.info(f"Saved embeddings for job ID {job_db_id} using model '{model_name}'")
+            return True
+        else:
+            logger.warning(f"No job found with ID {job_db_id} to update embeddings")
+            return False
+    except sqlite3.Error as e:
+        logger.error(f"Database error saving embeddings for job ID {job_db_id}: {e}", exc_info=True)
+        conn.rollback()
+        return False
+    finally:
+        if conn:
+            conn.close()
+
+def update_semantic_scores(job_db_id: int, semantic_similarity_score: float = None, 
+                          combined_match_score: float = None) -> bool:
+    """Updates semantic analysis scores for a job."""
+    updates = []
+    params = []
+    
+    if semantic_similarity_score is not None:
+        updates.append("semantic_similarity_score = ?")
+        params.append(semantic_similarity_score)
+        
+    if combined_match_score is not None:
+        updates.append("combined_match_score = ?")
+        params.append(combined_match_score)
+        
+    if not updates:
+        return False
+        
+    sql_update = f"UPDATE job_postings SET {', '.join(updates)} WHERE id = ?"
+    params.append(job_db_id)
+    
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql_update, params)
+        if cursor.rowcount > 0:
+            conn.commit()
+            logger.info(f"Updated semantic scores for job ID {job_db_id}")
+            return True
+        else:
+            logger.warning(f"No job found with ID {job_db_id} to update semantic scores")
+            return False
+    except sqlite3.Error as e:
+        logger.error(f"Database error updating semantic scores for job ID {job_db_id}: {e}", exc_info=True)
+        conn.rollback()
+        return False
+    finally:
+        if conn:
+            conn.close()
+
+def get_jobs_needing_embeddings(limit: int = 50) -> List[JobPosting]:
+    """Gets jobs that need embeddings generated."""
+    sql_select = """
+        SELECT * FROM job_postings 
+        WHERE description_embedding IS NULL 
+        AND (title IS NOT NULL OR description IS NOT NULL)
+        ORDER BY scraped_at DESC LIMIT ?
+    """
+    
+    jobs = []
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql_select, (limit,))
+        rows = cursor.fetchall()
+        
+        for row in rows:
+            job = JobPosting(
+                internal_db_id=row["id"],
+                id_on_platform=row["job_id"],
+                source_platform=row["source"],
+                job_url=row["source_url"] or row["application_url"],
+                title=row["title"] or "No Title",
+                company_name=row["company"] or "No Company",
+                full_description_text=row["description"] or "",
+                processing_status=row["status"] or "discovered",
+                scraped_timestamp=datetime.fromisoformat(row["scraped_at"]) if row["scraped_at"] else datetime.utcnow()
+            )
+            jobs.append(job)
+            
+        logger.info(f"Retrieved {len(jobs)} jobs needing embeddings")
+        return jobs
+    except sqlite3.Error as e:
+        logger.error(f"Database error getting jobs needing embeddings: {e}", exc_info=True)
+        return []
+    finally:
+        if conn:
+            conn.close()
+
+def get_jobs_with_embeddings(limit: int = 100) -> List[JobPosting]:
+    """Gets jobs that have embeddings for semantic search."""
+    sql_select = """
+        SELECT * FROM job_postings 
+        WHERE description_embedding IS NOT NULL
+        ORDER BY scraped_at DESC LIMIT ?
+    """
+    
+    jobs = []
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql_select, (limit,))
+        rows = cursor.fetchall()
+        
+        for row in rows:
+            # Parse embeddings from JSON
+            title_embedding = None
+            description_embedding = None
+            
+            if row["title_embedding"]:
+                try:
+                    title_embedding = json.loads(row["title_embedding"])
+                except json.JSONDecodeError:
+                    logger.warning(f"Failed to parse title embedding for job ID {row['id']}")
+                    
+            if row["description_embedding"]:
+                try:
+                    description_embedding = json.loads(row["description_embedding"])
+                except json.JSONDecodeError:
+                    logger.warning(f"Failed to parse description embedding for job ID {row['id']}")
+            
+            job = JobPosting(
+                internal_db_id=row["id"],
+                id_on_platform=row["job_id"],
+                source_platform=row["source"],
+                job_url=row["source_url"] or row["application_url"],
+                title=row["title"] or "No Title",
+                company_name=row["company"] or "No Company",
+                full_description_text=row["description"] or "",
+                title_embedding=json.dumps(title_embedding) if title_embedding else None,
+                description_embedding=json.dumps(description_embedding) if description_embedding else None,
+                embedding_model=row["embedding_model"],
+                embedding_generated_at=datetime.fromisoformat(row["embedding_generated_at"]) if row["embedding_generated_at"] else None,
+                semantic_similarity_score=row["semantic_similarity_score"],
+                combined_match_score=row["combined_match_score"],
+                relevance_score=row["relevance_score"],
+                processing_status=row["status"] or "discovered",
+                scraped_timestamp=datetime.fromisoformat(row["scraped_at"]) if row["scraped_at"] else datetime.utcnow()
+            )
+            jobs.append(job)
+            
+        logger.info(f"Retrieved {len(jobs)} jobs with embeddings")
+        return jobs
+    except sqlite3.Error as e:
+        logger.error(f"Database error getting jobs with embeddings: {e}", exc_info=True)
+        return []
+    finally:
+        if conn:
+            conn.close()
+
 if __name__ == "__main__":
     # This section is for direct testing of the database_service.py
     # Ensure your database is initialized by running scripts/initialize_database.py first.

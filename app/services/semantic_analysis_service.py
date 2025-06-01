@@ -176,6 +176,16 @@ class SemanticAnalysisService:
                 if embeddings_data:
                     for key, value in embeddings_data.items():
                         setattr(job, key, value)
+                    
+                    # Save embeddings to database
+                    if job.internal_db_id and embeddings_data.get('description_embedding'):
+                        from app.services.database_service import save_job_embeddings
+                        save_job_embeddings(
+                            job.internal_db_id,
+                            title_embedding=embeddings_data.get('title_embedding'),
+                            description_embedding=embeddings_data.get('description_embedding'),
+                            model_name=embeddings_data.get('embedding_model')
+                        )
             
             # Calculate semantic similarity
             if job.description_embedding:
@@ -187,7 +197,16 @@ class SemanticAnalysisService:
                 job.combined_match_score = combined_score
                 
                 # Update processing status
-                job.processing_status = "Embeddings_Generated"
+                job.processing_status = "embedded"
+                
+                # Save semantic scores to database
+                if job.internal_db_id:
+                    from app.services.database_service import update_semantic_scores
+                    update_semantic_scores(
+                        job.internal_db_id,
+                        semantic_similarity_score=semantic_similarity,
+                        combined_match_score=combined_score
+                    )
                 
                 logger.debug(f"Semantic analysis complete for job {job.id_on_platform}: "
                            f"similarity={semantic_similarity:.3f}, combined_score={combined_score:.2f}")
@@ -281,11 +300,11 @@ class SemanticAnalysisService:
             List of semantically matched jobs
         """
         try:
-            # Get all analyzed jobs from database
-            all_jobs = database_service.get_all_jobs(status_filter=None)
+            # Get jobs with embeddings from database
+            all_jobs = database_service.get_jobs_with_embeddings(limit=100)  # Get more jobs to search through
             
             if not all_jobs:
-                logger.warning("No jobs found in database for semantic search")
+                logger.warning("No jobs with embeddings found in database for semantic search")
                 return []
             
             # Generate query embedding
@@ -299,11 +318,18 @@ class SemanticAnalysisService:
                     similarity = self.embedding_service.calculate_similarity(query_embedding, job_embedding)
                     similarities.append((job, similarity))
                 else:
+                    # This shouldn't happen since we're getting jobs with embeddings
                     similarities.append((job, 0.0))
             
             # Sort by similarity and return top matches
             similarities.sort(key=lambda x: x[1], reverse=True)
-            top_jobs = [job for job, _ in similarities[:limit]]
+            
+            # Create result jobs with similarity scores for display
+            top_jobs = []
+            for job, similarity in similarities[:limit]:
+                # Update the job object with the similarity score for display
+                job.semantic_similarity_score = similarity
+                top_jobs.append(job)
             
             logger.info(f"Semantic search for '{search_query}' returned {len(top_jobs)} results")
             return top_jobs

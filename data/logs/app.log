@@ -696,3 +696,135 @@ Call log:
 2025-06-01 03:10:52,393 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
 2025-06-01 03:10:52,411 - app.services.semantic_analysis_service - INFO - Semantic search for 'machine learning and AI development' returned 5 results
 2025-06-01 03:10:52,445 - __main__ - INFO - Semantic search completed: 5 results found
+2025-06-01 03:33:59,516 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:33:59,527 - __main__ - INFO - ensure_semantic_schema command initiated
+2025-06-01 03:33:59,534 - app.services.database_service - INFO - Database schema update completed successfully.
+2025-06-01 03:33:59,538 - __main__ - INFO - Database schema successfully updated for semantic analysis
+2025-06-01 03:34:38,395 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:34:38,412 - __main__ - INFO - semantic_search command: query='Python developer with machine learning experience', limit=3
+2025-06-01 03:34:38,415 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:34:38,416 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:34:38,418 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:34:38,428 - app.services.database_service - INFO - Retrieved 32 jobs from database (status_filter: None).
+2025-06-01 03:34:38,430 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:34:38,437 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:34:38,437 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:34:43,352 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:34:43,422 - app.services.semantic_analysis_service - INFO - Semantic search for 'Python developer with machine learning experience' returned 3 results
+2025-06-01 03:34:43,452 - __main__ - INFO - Semantic search completed: 3 results found
+2025-06-01 03:35:26,547 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:35:26,564 - __main__ - INFO - semantic_analysis command: target_role='Python Developer', limit=5, min_score=2.0, model=all-MiniLM-L6-v2
+2025-06-01 03:35:26,569 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:35:26,570 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:35:26,571 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:35:26,579 - app.services.database_service - INFO - Retrieved 10 jobs from database (status_filter: None).
+2025-06-01 03:35:26,607 - app.services.semantic_analysis_service - INFO - Starting batch semantic analysis for 10 jobs
+2025-06-01 03:35:26,610 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:35:26,611 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:35:26,618 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:35:26,619 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:35:26,621 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:35:26,622 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:35:31,797 - app.services.embedding_service - ERROR - Failed to load model all-MiniLM-L6-v2: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:35:31,803 - app.services.semantic_analysis_service - ERROR - Error generating embeddings for job wellfound_sim_7: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:35:32,006 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:35:33,820 - app.services.semantic_analysis_service - INFO - Completed batch semantic analysis: 10 jobs processed
+2025-06-01 03:35:33,867 - __main__ - INFO - Semantic analysis completed: 5 top matches found
+2025-06-01 03:36:24,559 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:36:24,573 - __main__ - INFO - semantic_search command: query='machine learning and AI development', limit=3
+2025-06-01 03:36:24,576 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:36:24,577 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:36:24,578 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:36:24,585 - app.services.database_service - INFO - Retrieved 32 jobs from database (status_filter: None).
+2025-06-01 03:36:24,587 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:36:24,593 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:36:24,594 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:36:30,124 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:36:30,182 - app.services.semantic_analysis_service - INFO - Semantic search for 'machine learning and AI development' returned 3 results
+2025-06-01 03:36:30,211 - __main__ - INFO - Semantic search completed: 3 results found
+2025-06-01 03:38:09,519 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:38:09,537 - __main__ - INFO - semantic_analysis command: target_role='Python Developer', limit=3, min_score=2.0, model=all-MiniLM-L6-v2
+2025-06-01 03:38:09,546 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:38:09,546 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:38:09,547 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:38:09,553 - app.services.database_service - INFO - Retrieved 6 jobs from database (status_filter: None).
+2025-06-01 03:38:09,584 - app.services.semantic_analysis_service - INFO - Starting batch semantic analysis for 6 jobs
+2025-06-01 03:38:09,586 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:38:09,588 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:38:09,596 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:38:09,597 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:38:09,600 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:38:09,601 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:38:14,517 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:38:14,581 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:38:15,308 - app.services.database_service - INFO - Saved embeddings for job ID 29 using model 'all-MiniLM-L6-v2'
+2025-06-01 03:38:15,487 - app.services.database_service - INFO - Updated semantic scores for job ID 29
+2025-06-01 03:38:15,507 - app.services.database_service - INFO - Saved embeddings for job ID 28 using model 'all-MiniLM-L6-v2'
+2025-06-01 03:38:15,660 - app.services.database_service - INFO - Updated semantic scores for job ID 28
+2025-06-01 03:38:15,733 - app.services.database_service - INFO - Saved embeddings for job ID 30 using model 'all-MiniLM-L6-v2'
+2025-06-01 03:38:15,850 - app.services.database_service - INFO - Updated semantic scores for job ID 30
+2025-06-01 03:38:15,863 - app.services.database_service - INFO - Saved embeddings for job ID 31 using model 'all-MiniLM-L6-v2'
+2025-06-01 03:38:15,952 - app.services.database_service - INFO - Updated semantic scores for job ID 31
+2025-06-01 03:38:15,970 - app.services.database_service - INFO - Saved embeddings for job ID 32 using model 'all-MiniLM-L6-v2'
+2025-06-01 03:38:16,131 - app.services.database_service - INFO - Updated semantic scores for job ID 32
+2025-06-01 03:38:16,161 - app.services.database_service - INFO - Saved embeddings for job ID 24 using model 'all-MiniLM-L6-v2'
+2025-06-01 03:38:16,219 - app.services.database_service - INFO - Updated semantic scores for job ID 24
+2025-06-01 03:38:16,220 - app.services.semantic_analysis_service - INFO - Completed batch semantic analysis: 6 jobs processed
+2025-06-01 03:38:16,263 - __main__ - INFO - Semantic analysis completed: 3 top matches found
+2025-06-01 03:39:08,352 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:39:08,363 - __main__ - INFO - semantic_search command: query='machine learning and AI development', limit=3
+2025-06-01 03:39:08,367 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:39:08,367 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:39:08,368 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:39:08,378 - app.services.database_service - INFO - Retrieved 32 jobs from database (status_filter: None).
+2025-06-01 03:39:08,379 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:39:08,385 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:39:08,386 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:39:13,568 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:39:13,631 - app.services.semantic_analysis_service - INFO - Semantic search for 'machine learning and AI development' returned 3 results
+2025-06-01 03:39:13,653 - __main__ - INFO - Semantic search completed: 3 results found
+2025-06-01 03:40:32,544 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:40:32,556 - __main__ - INFO - semantic_search command: query='machine learning and AI development', limit=3
+2025-06-01 03:40:32,558 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:40:32,558 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:40:32,559 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:40:32,564 - app.services.database_service - INFO - Retrieved 6 jobs with embeddings
+2025-06-01 03:40:32,565 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:40:32,569 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:40:32,570 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:40:35,658 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:40:35,679 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8442')) -> None
+2025-06-01 03:40:35,680 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8425')) -> None
+2025-06-01 03:40:35,681 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8417')) -> None
+2025-06-01 03:40:35,682 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8452')) -> None
+2025-06-01 03:40:35,683 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8424')) -> None
+2025-06-01 03:40:35,683 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8421')) -> None
+2025-06-01 03:40:35,684 - app.services.semantic_analysis_service - INFO - Semantic search for 'machine learning and AI development' returned 3 results
+2025-06-01 03:40:35,705 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8442')) -> None
+2025-06-01 03:40:35,726 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8425')) -> None
+2025-06-01 03:40:35,750 - app.services.embedding_service - ERROR - Error calculating similarity: ufunc 'multiply' did not contain a loop with signature matching types (dtype('<U32'), dtype('<U8417')) -> None
+2025-06-01 03:40:35,763 - __main__ - INFO - Semantic search completed: 3 results found
+2025-06-01 03:44:00,280 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:44:00,287 - __main__ - INFO - semantic_search command: query='machine learning and AI development', limit=3
+2025-06-01 03:44:00,289 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:44:00,289 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:44:00,289 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:44:00,293 - app.services.database_service - INFO - Retrieved 6 jobs with embeddings
+2025-06-01 03:44:00,294 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:44:00,296 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:44:00,297 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:44:02,814 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:44:02,835 - app.services.semantic_analysis_service - INFO - Semantic search for 'machine learning and AI development' returned 3 results
+2025-06-01 03:44:02,894 - __main__ - INFO - Semantic search completed: 3 results found
+2025-06-01 03:44:46,455 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:44:46,464 - __main__ - INFO - semantic_search command: query='backend development with Python and APIs', limit=3
+2025-06-01 03:44:46,638 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:44:46,639 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:44:46,639 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:44:46,644 - app.services.database_service - INFO - Retrieved 6 jobs with embeddings
+2025-06-01 03:44:46,645 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:44:46,647 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:44:46,648 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:44:49,165 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:44:49,183 - app.services.semantic_analysis_service - INFO - Semantic search for 'backend development with Python and APIs' returned 3 results
+2025-06-01 03:44:49,243 - __main__ - INFO - Semantic search completed: 3 results found
