@@ -21,6 +21,8 @@ from app.services.gemini_service import GeminiService
 # We will also need our JobPosting model for type hinting and potentially for displaying
 from app.models.job_posting_models import JobPosting
 from app.models.application_log_models import ApplicationLog
+# Import the AgentOrchestrator
+from app.agent_orchestrator import AgentOrchestrator
 
 # Initialize Rich Console for better output
 console = Console()
@@ -708,6 +710,83 @@ def optimize_resume(
         console.print("  • Gemini API service problems")
         console.print("  • Invalid resume or job content")
         raise typer.Exit(code=1)
+
+@app.command()
+def smart_workflow(
+    keywords: Annotated[str, typer.Option(help="Keywords for job search (e.g., 'Python Developer').")],
+    target_role: Annotated[str, typer.Option(help="Your target role for AI analysis (e.g., 'Senior Python Developer').")],
+    location: Annotated[str, typer.Option(help="Location preference (optional).")] = None,
+    num_results: Annotated[int, typer.Option(help="Number of jobs to discover and analyze.")] = 5,
+    interactive: Annotated[bool, typer.Option("--interactive", help="Run in interactive mode with prompts.")] = False
+):
+    """
+    🚀 Intelligent end-to-end workflow: Discover jobs → AI analysis → Smart recommendations.
+    Combines job discovery, AI relevance analysis, and actionable suggestions in one command.
+    """
+    if interactive:
+        console.print(f"\n[bold blue]🤖 Starting Interactive Smart Workflow[/bold blue]")
+        logger.info("smart_workflow command: starting interactive mode")
+        
+        try:
+            orchestrator = AgentOrchestrator()
+            orchestrator.interactive_workflow_prompt()
+        except KeyboardInterrupt:
+            console.print("\n[yellow]👋 Interactive workflow cancelled by user.[/yellow]")
+            logger.info("Interactive workflow cancelled by user")
+        except Exception as e:
+            logger.error(f"Error during interactive workflow: {e}", exc_info=True)
+            console.print(f"[bold red]Interactive workflow error: {e}[/bold red]")
+            raise typer.Exit(code=1)
+    else:
+        console.print(f"\n[bold blue]🚀 Starting Smart Workflow[/bold blue]")
+        console.print(f"Keywords: '{keywords}' | Target Role: '{target_role}' | Location: '{location or 'Any'}'")
+        logger.info(f"smart_workflow command: keywords='{keywords}', target_role='{target_role}', location='{location}', num_results={num_results}")
+        
+        try:
+            orchestrator = AgentOrchestrator()
+            
+            # Execute the discover and analyze workflow
+            workflow_results = orchestrator.discover_and_analyze_workflow(
+                keywords=keywords,
+                location=location,
+                num_results=num_results,
+                target_role=target_role,
+                auto_analyze=True
+            )
+            
+            # Show smart application suggestions if we found high-relevance jobs
+            high_relevance_jobs = workflow_results.get("high_relevance_jobs", [])
+            if high_relevance_jobs:
+                console.print(f"\n[bold green]🎯 Smart Application Recommendations[/bold green]")
+                suggestions = orchestrator.smart_application_suggestions()
+                
+                if suggestions:
+                    for i, suggestion in enumerate(suggestions[:5], 1):
+                        console.print(f"{i}. {suggestion.get('action', 'No action available')}")
+                        if suggestion.get('reason'):
+                            console.print(f"   💡 {suggestion['reason']}")
+                else:
+                    console.print("💡 All high-relevance jobs have been applied to or no suggestions available")
+                
+                console.print(f"\n[bold cyan]📋 Recommended Next Steps:[/bold cyan]")
+                console.print("• Use 'optimize-resume --job-id X' for top jobs")
+                console.print("• Use 'log-application' when you apply")
+                console.print("• Run 'view-applications' to track progress")
+            
+            # Summary
+            total_errors = len(workflow_results.get("errors", []))
+            if total_errors == 0:
+                console.print(f"\n[bold green]✅ Smart workflow completed successfully![/bold green]")
+            else:
+                console.print(f"\n[bold yellow]⚠️ Workflow completed with {total_errors} issues. Check logs for details.[/bold yellow]")
+            
+            logger.info(f"Smart workflow completed: {workflow_results.get('jobs_discovered', 0)} discovered, {workflow_results.get('jobs_analyzed', 0)} analyzed")
+            
+        except Exception as e:
+            logger.error(f"Error during smart workflow: {e}", exc_info=True)
+            console.print(f"[bold red]Smart workflow error: {e}[/bold red]")
+            console.print("💡 Try running individual commands (find-jobs, analyze-jobs) to isolate the issue")
+            raise typer.Exit(code=1)
 
 if __name__ == "__main__":
     # Basic logging setup has been moved to the top of the script
