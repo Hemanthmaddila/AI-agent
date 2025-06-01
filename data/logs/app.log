@@ -849,3 +849,16 @@ Call log:
 2025-06-01 04:02:57,994 - app.application_automation.form_filler - INFO - Screenshot saved: data/screenshots/form_detection_test.png
 2025-06-01 04:02:58,099 - app.application_automation.form_filler - INFO - Browser closed successfully
 2025-06-01 04:03:30,634 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:06:33,720 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:06:33,744 - __main__ - INFO - Created user profile: my_profile
+2025-06-01 04:06:45,514 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:06:45,550 - app.services.database_service - INFO - No job found with URL: https://company.com/jobs/123
+2025-06-01 04:06:45,564 - app.hitl.hitl_service - INFO - HITLService initialized
+2025-06-01 04:07:01,620 - app.application_automation.form_filler - INFO - FormFillerService initialized
+2025-06-01 04:07:04,082 - app.application_automation.form_filler - INFO - Browser started successfully
+2025-06-01 04:07:04,088 - app.application_automation.form_filler - INFO - Navigating to: https://company.com/jobs/123
+2025-06-01 04:07:08,034 - app.application_automation.form_filler - WARNING - No application form found on page
+2025-06-01 04:07:08,399 - app.application_automation.form_filler - INFO - Browser closed successfully
+2025-06-01 04:07:08,404 - __main__ - INFO - Application process completed for job: Manual Application
+2025-06-01 04:07:21,906 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 04:07:34,482 - __main__ - INFO - AI Job Application Agent CLI Initialized.
