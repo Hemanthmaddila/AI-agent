@@ -8,6 +8,7 @@ import logging # Import logging
 from typing import List # For type hinting
 from typing_extensions import Annotated # For newer Typer versions
 from datetime import datetime
+import asyncio # For Phase 5.1 async operations
 
 # Add UTF-8 encoding support for Windows
 if sys.platform.startswith('win'):
@@ -24,6 +25,8 @@ from app.services.playwright_scraper_service import search_jobs_sync
 from app.services.database_service import save_job_posting, save_search_query, get_pending_jobs, update_job_processing_status, save_application_log, find_job_by_url, get_application_logs, get_all_jobs
 # Import the GeminiService
 from app.services.gemini_service import GeminiService
+# Phase 5.1: Import Semantic Analysis Service
+from app.services.semantic_analysis_service import get_semantic_analysis_service
 # We will also need our JobPosting model for type hinting and potentially for displaying
 from app.models.job_posting_models import JobPosting
 from app.models.application_log_models import ApplicationLog
@@ -1097,46 +1100,269 @@ def linkedin_session_refresh():
 
 @app.command(name="linkedin-session-clear")  
 def linkedin_session_clear():
-    """
-    🗑️ Clear LinkedIn session file completely.
-    Next LinkedIn scraping will require fresh manual login.
-    """
-    import os
-    from rich.panel import Panel
-    
-    console.print(f"\n[bold blue]🗑️ Clearing LinkedIn Session[/bold blue]")
-    
-    session_file = "linkedin_session.json"
-    session_path = os.path.join(os.getcwd(), session_file)
+    """Clear saved LinkedIn session data (forces re-authentication)"""
+    console.print("\n[bold blue]🧹 Clearing LinkedIn Session Data[/bold blue]")
     
     try:
-        if os.path.exists(session_path):
-            # Confirm deletion
-            confirm = typer.confirm("Are you sure you want to clear the LinkedIn session? You'll need to login manually next time.")
-            
-            if confirm:
-                os.remove(session_path)
-                
-                panel = Panel(
-                    "🗑️ **Session Cleared Successfully**\n\n"
-                    "LinkedIn session file has been permanently deleted.\n"
-                    "Next LinkedIn scraping will require fresh manual login.\n\n"
-                    "**Privacy Note:** All stored cookies have been removed.",
-                    title="Session Clear Complete", 
-                    title_align="left",
-                    border_style="green"
-                )
-                console.print(panel)
-            else:
-                console.print("[yellow]Session clear cancelled.[/yellow]")
+        from app.services.linkedin_scraper_service import clear_session_data
+        
+        success = clear_session_data()
+        
+        if success:
+            console.print("[green]✅ LinkedIn session data cleared successfully[/green]")
+            console.print("   Next LinkedIn operation will require fresh login")
+            logger.info("LinkedIn session data cleared")
         else:
-            console.print("[yellow]No LinkedIn session file found to clear.[/yellow]")
+            console.print("[yellow]⚠️ No session data found to clear[/yellow]")
+            logger.info("No LinkedIn session data found to clear")
             
+    except ImportError:
+        console.print("[red]❌ LinkedIn scraper service not available[/red]")
+        raise typer.Exit(1)
     except Exception as e:
+        logger.error(f"Error clearing LinkedIn session: {e}")
         console.print(f"[red]❌ Error clearing session: {e}[/red]")
         raise typer.Exit(1)
 
+@app.command()
+def semantic_analysis(
+    limit: Annotated[int, typer.Option(help="Maximum number of jobs to analyze.")] = 20,
+    min_score: Annotated[float, typer.Option(help="Minimum combined score threshold.")] = 3.0,
+    model: Annotated[str, typer.Option(help="Embedding model to use.")] = "all-MiniLM-L6-v2",
+    target_role: Annotated[str, typer.Option(help="Target role for analysis.")] = "Software Engineer",
+    update_db: Annotated[bool, typer.Option(help="Update database with semantic scores.")] = True
+):
+    """
+    🧠 Phase 5.1: Advanced Semantic Analysis & Intelligent Job Matching
+    
+    Performs semantic analysis on stored jobs using sentence-transformers embeddings
+    to provide intelligent job matching with combined AI + semantic scoring.
+    """
+    console.print(f"\n[bold blue]🧠 Phase 5.1: Semantic Analysis & Intelligent Job Matching[/bold blue]")
+    console.print(f"🎯 Target Role: {target_role}")
+    console.print(f"📊 Model: {model}")
+    console.print(f"🔢 Analyzing up to {limit} jobs with min score {min_score}")
+    logger.info(f"semantic_analysis command: limit={limit}, min_score={min_score}, model={model}")
+
+    async def run_semantic_analysis():
+        try:
+            # Initialize semantic analysis service
+            console.print("🔧 Initializing semantic analysis service...")
+            service = get_semantic_analysis_service(model)
+            
+            # Get jobs from database
+            console.print("📥 Retrieving jobs from database...")
+            all_jobs = get_all_jobs(limit=limit * 2)  # Get more than limit to ensure good results
+            
+            if not all_jobs:
+                console.print("[yellow]⚠️ No jobs found in database.[/yellow]")
+                console.print("💡 Try running 'find-jobs-multi' or 'smart-workflow' first to populate the database.")
+                return
+            
+            console.print(f"📊 Found {len(all_jobs)} jobs in database")
+            
+            # Create custom user profile
+            custom_profile = {
+                "target_role": target_role,
+                "experience_years": 5,  # Could be made configurable
+                "skills": ["Python", "JavaScript", "React", "FastAPI", "PostgreSQL", "AWS"],  # Could load from config
+                "preferred_locations": ["Remote", "San Francisco", "New York"],
+                "resume_text": f"""
+                Experienced {target_role} with strong technical skills and industry experience.
+                Skilled in modern development practices, cloud technologies, and collaborative development.
+                Looking for challenging opportunities that align with career growth and learning objectives.
+                """
+            }
+            
+            # Perform batch semantic analysis
+            console.print("🔍 Performing semantic analysis...")
+            with console.status("[bold green]Generating embeddings and calculating semantic similarities..."):
+                analyzed_jobs = await service.batch_analyze_jobs(all_jobs, custom_profile)
+            
+            console.print(f"✅ Analyzed {len(analyzed_jobs)} jobs")
+            
+            # Get top matches
+            top_matches = service.get_top_matches(analyzed_jobs, limit=limit, min_combined_score=min_score)
+            
+            if not top_matches:
+                console.print(f"[yellow]⚠️ No jobs found with combined score >= {min_score}[/yellow]")
+                console.print("💡 Try lowering the min-score threshold or expanding your search criteria.")
+                return
+            
+            # Display results table
+            table = Table(title=f"🏆 Top {len(top_matches)} Semantic Job Matches")
+            table.add_column("Rank", style="dim", width=4)
+            table.add_column("Job Title", style="cyan", min_width=25)
+            table.add_column("Company", style="magenta", min_width=18)
+            table.add_column("Combined Score", style="green", width=14)
+            table.add_column("Semantic Sim.", style="yellow", width=12)
+            table.add_column("AI Relevance", style="blue", width=12)
+            table.add_column("Location", style="white", min_width=15)
+            table.add_column("Source", style="dim", width=12)
+
+            for i, job in enumerate(top_matches, 1):
+                semantic_score = f"{job.semantic_similarity_score:.3f}" if job.semantic_similarity_score else "N/A"
+                ai_score = f"{job.relevance_score:.1f}" if job.relevance_score else "N/A"
+                combined_score = f"{job.combined_match_score:.2f}" if job.combined_match_score else "N/A"
+                
+                table.add_row(
+                    str(i),
+                    job.title[:24] + "..." if len(job.title) > 24 else job.title,
+                    job.company_name[:17] + "..." if len(job.company_name) > 17 else job.company_name,
+                    combined_score,
+                    semantic_score,
+                    ai_score,
+                    job.location_text[:14] + "..." if job.location_text and len(job.location_text) > 14 else job.location_text or "N/A",
+                    job.source_platform[:11] if job.source_platform else "N/A"
+                )
+            
+            console.print(table)
+            
+            # Display analysis statistics
+            stats = service.get_analysis_stats(analyzed_jobs)
+            console.print(f"\n📊 [bold]Analysis Statistics:[/bold]")
+            console.print(f"   Total jobs analyzed: {stats['total_jobs']}")
+            console.print(f"   Jobs with embeddings: {stats['jobs_with_embeddings']} ({stats['embedding_coverage']:.1%})")
+            console.print(f"   Avg semantic similarity: {stats.get('avg_semantic_similarity', 0):.3f}")
+            console.print(f"   Avg combined score: {stats.get('avg_combined_score', 0):.2f}")
+            console.print(f"   Top matches found: {len(top_matches)}")
+            
+            # Show sample insights for top job
+            if top_matches:
+                top_job = top_matches[0]
+                console.print(f"\n🎯 [bold]Top Match Insights:[/bold]")
+                console.print(f"   Job: {top_job.title} at {top_job.company_name}")
+                console.print(f"   Combined Score: {top_job.combined_match_score:.2f}/5.0")
+                console.print(f"   Semantic Match: {top_job.semantic_similarity_score:.3f} (cosine similarity)")
+                console.print(f"   AI Relevance: {top_job.relevance_score}/5.0")
+                if top_job.equity_min_percent:
+                    console.print(f"   Equity: {top_job.equity_min_percent*100:.1f}% - {top_job.equity_max_percent*100:.1f}%")
+                if top_job.funding_stage:
+                    console.print(f"   Funding Stage: {top_job.funding_stage}")
+            
+            # Update database if requested
+            if update_db and analyzed_jobs:
+                console.print("\n💾 Updating database with semantic scores...")
+                # Note: This would require extending the database schema
+                # For now, we'll just update the processing status
+                updated_count = 0
+                for job in analyzed_jobs:
+                    if job.internal_db_id and job.combined_match_score:
+                        success = update_job_processing_status(
+                            job.internal_db_id, 
+                            "Embeddings_Generated",
+                            relevance_score=job.combined_match_score
+                        )
+                        if success:
+                            updated_count += 1
+                
+                console.print(f"✅ Updated {updated_count} jobs in database")
+            
+            # Summary and next steps
+            console.print(f"\n🎉 [bold green]Semantic Analysis Complete![/bold green]")
+            console.print("💡 Next steps:")
+            console.print("  • Review top matches for application opportunities")
+            console.print("  • Use 'optimize-resume' for specific job requirements")
+            console.print("  • Run 'log-application' to track your applications")
+            console.print("  • Use semantic search with natural language queries")
+            
+            logger.info(f"Semantic analysis completed: {len(top_matches)} top matches found")
+            
+        except Exception as e:
+            logger.error(f"Error in semantic analysis: {e}", exc_info=True)
+            console.print(f"[bold red]❌ Error in semantic analysis: {e}[/bold red]")
+            raise typer.Exit(1)
+    
+    # Run the async analysis
+    asyncio.run(run_semantic_analysis())
+
+@app.command()
+def semantic_search(
+    query: str = typer.Argument(help="Natural language search query"),
+    limit: Annotated[int, typer.Option(help="Maximum number of results to return.")] = 10,
+    model: Annotated[str, typer.Option(help="Embedding model to use.")] = "all-MiniLM-L6-v2"
+):
+    """
+    🔍 Phase 5.1: Semantic Job Search
+    
+    Search jobs using natural language queries with semantic similarity matching.
+    Example: "Python backend development with cloud experience"
+    """
+    console.print(f"\n[bold blue]🔍 Phase 5.1: Semantic Job Search[/bold blue]")
+    console.print(f"🔎 Query: '{query}'")
+    console.print(f"📊 Model: {model}")
+    logger.info(f"semantic_search command: query='{query}', limit={limit}")
+
+    async def run_semantic_search():
+        try:
+            # Initialize semantic analysis service
+            service = get_semantic_analysis_service(model)
+            
+            # Perform semantic search
+            console.print("🔍 Searching jobs with semantic similarity...")
+            results = await service.semantic_job_search(query, limit=limit)
+            
+            if not results:
+                console.print("[yellow]⚠️ No jobs found matching your search query.[/yellow]")
+                console.print("💡 Try different keywords or run 'semantic-analysis' first to ensure jobs have embeddings.")
+                return
+            
+            # Generate query embedding for similarity display
+            query_embedding = service.embedding_service.encode_text(query)
+            
+            # Display results table
+            table = Table(title=f"🔍 Semantic Search Results: '{query}'")
+            table.add_column("Rank", style="dim", width=4)
+            table.add_column("Job Title", style="cyan", min_width=25)
+            table.add_column("Company", style="magenta", min_width=18)
+            table.add_column("Similarity", style="green", width=10)
+            table.add_column("Combined Score", style="yellow", width=14)
+            table.add_column("Location", style="white", min_width=15)
+            table.add_column("Source", style="dim", width=12)
+
+            for i, job in enumerate(results, 1):
+                # Calculate similarity with query
+                similarity = 0.0
+                if job.description_embedding:
+                    job_embedding = service.embedding_service.embedding_from_json(job.description_embedding)
+                    similarity = service.embedding_service.calculate_similarity(query_embedding, job_embedding)
+                
+                combined_score = f"{job.combined_match_score:.2f}" if job.combined_match_score else "N/A"
+                
+                table.add_row(
+                    str(i),
+                    job.title[:24] + "..." if len(job.title) > 24 else job.title,
+                    job.company_name[:17] + "..." if len(job.company_name) > 17 else job.company_name,
+                    f"{similarity:.3f}",
+                    combined_score,
+                    job.location_text[:14] + "..." if job.location_text and len(job.location_text) > 14 else job.location_text or "N/A",
+                    job.source_platform[:11] if job.source_platform else "N/A"
+                )
+            
+            console.print(table)
+            
+            # Show top result details
+            if results:
+                top_result = results[0]
+                console.print(f"\n🎯 [bold]Top Result:[/bold]")
+                console.print(f"   Title: {top_result.title}")
+                console.print(f"   Company: {top_result.company_name}")
+                console.print(f"   Location: {top_result.location_text}")
+                if top_result.salary_min and top_result.salary_max:
+                    console.print(f"   Salary: ${top_result.salary_min:,.0f} - ${top_result.salary_max:,.0f}")
+                if top_result.job_url:
+                    console.print(f"   URL: {top_result.job_url}")
+            
+            console.print(f"\n✅ Found {len(results)} semantically similar jobs")
+            logger.info(f"Semantic search completed: {len(results)} results found")
+            
+        except Exception as e:
+            logger.error(f"Error in semantic search: {e}", exc_info=True)
+            console.print(f"[bold red]❌ Error in semantic search: {e}[/bold red]")
+            raise typer.Exit(1)
+    
+    # Run the async search
+    asyncio.run(run_semantic_search())
+
 if __name__ == "__main__":
-    # Basic logging setup has been moved to the top of the script
-    # so it's configured when the module is imported.
     app() 

@@ -548,3 +548,151 @@ Call log:
 2025-06-01 02:42:18,234 - app.services.database_service - INFO - Retrieved 32 jobs from database (status_filter: None).
 2025-06-01 02:42:18,235 - app.services.database_service - INFO - Retrieved 6 application logs for user 1
 2025-06-01 02:42:18,248 - __main__ - INFO - Smart workflow completed: 2 discovered, 2 analyzed
+2025-06-01 03:05:00,528 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:05:20,605 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:05:52,608 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:05:52,742 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 03:05:52,747 - app.services.scrapers.scraper_manager - INFO - Starting search across 2 sources: ['wellfound', 'stackoverflow']
+2025-06-01 03:05:52,748 - app.services.scrapers.scraper_manager - INFO - Starting search on Wellfound
+2025-06-01 03:05:52,749 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Starting search for 'AI Engineer' at https://wellfound.com/jobs?q=ai+engineer
+2025-06-01 03:05:52,749 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 03:05:54,388 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=AI+Engineer&l=Remote&sort=p
+2025-06-01 03:06:03,149 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Successfully loaded page: https://wellfound.com/jobs?q=ai+engineer
+2025-06-01 03:06:03,150 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page title: wellfound.com
+2025-06-01 03:06:03,194 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Waiting for dynamic content to load...
+2025-06-01 03:06:51,568 - app.services.scrapers.wellfound_scraper - WARNING - [Wellfound] No structured job elements found, analyzing page content...
+2025-06-01 03:06:51,589 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page content length: 2471 chars
+2025-06-01 03:06:51,589 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Page text length: 0 chars
+2025-06-01 03:06:51,590 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Found 0 job-related keywords in page
+2025-06-01 03:06:51,590 - app.services.scrapers.wellfound_scraper - ERROR - [Wellfound] Page doesn't appear to contain job listings
+2025-06-01 03:06:51,590 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] No jobs extracted from page, providing simulated startup jobs
+2025-06-01 03:06:51,591 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Generated 2 realistic startup jobs
+2025-06-01 03:06:51,669 - app.services.scrapers.wellfound_scraper - INFO - [Wellfound] Completed search: 2 jobs in 58.92s
+2025-06-01 03:06:51,670 - app.services.scrapers.scraper_manager - INFO - Wellfound: Found 2 jobs
+2025-06-01 03:06:59,379 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 03:06:59,412 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 03:06:59,413 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 03:06:59,414 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 2 jobs
+2025-06-01 03:06:59,522 - app.services.scrapers.scraper_manager - INFO - Search completed: 4 unique jobs found (0 duplicates removed) in 66.78s
+2025-06-01 03:06:59,547 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 03:06:59,562 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-anthropic-1' already exists in job_postings with ID 23. Skipping insert.
+2025-06-01 03:06:59,563 - app.services.database_service - INFO - Job with URL 'https://wellfound.com/l/simulated-scale-ai-2' already exists in job_postings with ID 24. Skipping insert.
+2025-06-01 03:06:59,564 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-1' already exists in job_postings with ID 6. Skipping insert.
+2025-06-01 03:06:59,565 - app.services.database_service - INFO - Job with URL 'https://stackoverflow.com/jobs/mock-2' already exists in job_postings with ID 7. Skipping insert.
+2025-06-01 03:07:22,591 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:07:22,599 - __main__ - INFO - semantic_analysis command: limit=10, min_score=3.0, model=all-MiniLM-L6-v2
+2025-06-01 03:07:22,601 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:07:22,602 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:07:22,602 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:07:22,605 - app.services.database_service - INFO - Retrieved 20 jobs from database (status_filter: None).
+2025-06-01 03:07:22,619 - app.services.semantic_analysis_service - INFO - Starting batch semantic analysis for 20 jobs
+2025-06-01 03:07:22,621 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:07:22,622 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:07:22,625 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:07:22,625 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:07:22,626 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:07:22,627 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:07:25,252 - app.services.embedding_service - ERROR - Failed to load model all-MiniLM-L6-v2: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:07:25,253 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:07:25,253 - app.services.semantic_analysis_service - ERROR - Error generating embeddings for job wellfound_sim_6: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:07:25,259 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:07:25,260 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:07:25,605 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:07:26,168 - app.services.embedding_service - ERROR - Failed to load model all-MiniLM-L6-v2: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:07:26,170 - app.services.semantic_analysis_service - ERROR - Error generating embeddings for job wellfound_sim_8: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:07:26,636 - app.services.semantic_analysis_service - INFO - Completed batch semantic analysis: 20 jobs processed
+2025-06-01 03:08:21,714 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:08:21,722 - __main__ - INFO - semantic_analysis command: limit=10, min_score=2.0, model=all-MiniLM-L6-v2
+2025-06-01 03:08:21,725 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:08:21,725 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:08:21,726 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:08:21,729 - app.services.database_service - INFO - Retrieved 20 jobs from database (status_filter: None).
+2025-06-01 03:08:21,745 - app.services.semantic_analysis_service - INFO - Starting batch semantic analysis for 20 jobs
+2025-06-01 03:08:21,747 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:08:21,747 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:08:21,751 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:08:21,751 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:08:21,752 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:08:21,752 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:08:24,501 - app.services.embedding_service - ERROR - Failed to load model all-MiniLM-L6-v2: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:08:24,502 - app.services.semantic_analysis_service - ERROR - Error generating embeddings for job wellfound_sim_6: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:08:24,555 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:08:25,283 - app.services.semantic_analysis_service - INFO - Completed batch semantic analysis: 20 jobs processed
+2025-06-01 03:08:54,640 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:08:54,648 - __main__ - INFO - semantic_search command: query='machine learning and AI development', limit=10
+2025-06-01 03:08:54,649 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:08:54,650 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:08:54,650 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:08:54,654 - app.services.database_service - INFO - Retrieved 32 jobs from database (status_filter: None).
+2025-06-01 03:08:54,655 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:08:54,657 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:08:54,657 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:08:57,286 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:08:57,302 - app.services.semantic_analysis_service - INFO - Semantic search for 'machine learning and AI development' returned 10 results
+2025-06-01 03:08:57,334 - __main__ - INFO - Semantic search completed: 10 results found
+2025-06-01 03:09:38,606 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:09:38,614 - __main__ - INFO - semantic_analysis command: limit=10, min_score=0.0, model=all-MiniLM-L6-v2
+2025-06-01 03:09:38,616 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:09:38,617 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:09:38,617 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:09:38,620 - app.services.database_service - INFO - Retrieved 20 jobs from database (status_filter: None).
+2025-06-01 03:09:38,634 - app.services.semantic_analysis_service - INFO - Starting batch semantic analysis for 20 jobs
+2025-06-01 03:09:38,636 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:09:38,637 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:09:38,640 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:09:38,640 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:09:38,641 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:09:38,641 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:09:41,199 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:09:41,554 - app.services.embedding_service - ERROR - Failed to load model all-MiniLM-L6-v2: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:09:41,595 - app.services.semantic_analysis_service - ERROR - Error generating embeddings for job wellfound_sim_6: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:09:42,168 - app.services.semantic_analysis_service - INFO - Completed batch semantic analysis: 20 jobs processed
+2025-06-01 03:09:42,199 - app.services.database_service - INFO - Updated job ID 29: status='Embeddings_Generated', relevance_score=0.97
+2025-06-01 03:09:42,205 - app.services.database_service - INFO - Updated job ID 30: status='Embeddings_Generated', relevance_score=1.17
+2025-06-01 03:09:42,211 - app.services.database_service - INFO - Updated job ID 31: status='Embeddings_Generated', relevance_score=1.29
+2025-06-01 03:09:42,217 - app.services.database_service - INFO - Updated job ID 32: status='Embeddings_Generated', relevance_score=1.17
+2025-06-01 03:09:42,223 - app.services.database_service - INFO - Updated job ID 24: status='Embeddings_Generated', relevance_score=1.15
+2025-06-01 03:09:42,229 - app.services.database_service - INFO - Updated job ID 25: status='Embeddings_Generated', relevance_score=1.01
+2025-06-01 03:09:42,235 - app.services.database_service - INFO - Updated job ID 26: status='Embeddings_Generated', relevance_score=0.79
+2025-06-01 03:09:42,241 - app.services.database_service - INFO - Updated job ID 27: status='Embeddings_Generated', relevance_score=0.91
+2025-06-01 03:09:42,247 - app.services.database_service - INFO - Updated job ID 23: status='Embeddings_Generated', relevance_score=1.15
+2025-06-01 03:09:42,256 - __main__ - INFO - Semantic analysis completed: 9 top matches found
+2025-06-01 03:10:19,557 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:10:19,565 - __main__ - INFO - semantic_analysis command: limit=5, min_score=0.0, model=all-MiniLM-L6-v2
+2025-06-01 03:10:19,567 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:10:19,568 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:10:19,568 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:10:19,572 - app.services.database_service - INFO - Retrieved 10 jobs from database (status_filter: None).
+2025-06-01 03:10:19,586 - app.services.semantic_analysis_service - INFO - Starting batch semantic analysis for 10 jobs
+2025-06-01 03:10:19,588 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:10:19,589 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:10:19,593 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:10:19,593 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:10:19,594 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:10:19,595 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:10:22,195 - app.services.embedding_service - ERROR - Failed to load model all-MiniLM-L6-v2: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:10:22,197 - app.services.semantic_analysis_service - ERROR - Error generating embeddings for job wellfound_sim_7: Cannot copy out of meta tensor; no data! Please use torch.nn.Module.to_empty() instead of torch.nn.Module.to() when moving module from meta to a different device.
+2025-06-01 03:10:22,211 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:10:22,750 - app.services.semantic_analysis_service - INFO - Completed batch semantic analysis: 10 jobs processed
+2025-06-01 03:10:22,775 - app.services.database_service - INFO - Updated job ID 28: status='Embeddings_Generated', relevance_score=1.22
+2025-06-01 03:10:22,783 - app.services.database_service - INFO - Updated job ID 30: status='Embeddings_Generated', relevance_score=1.88
+2025-06-01 03:10:22,789 - app.services.database_service - INFO - Updated job ID 31: status='Embeddings_Generated', relevance_score=2.07
+2025-06-01 03:10:22,795 - app.services.database_service - INFO - Updated job ID 32: status='Embeddings_Generated', relevance_score=1.87
+2025-06-01 03:10:22,801 - app.services.database_service - INFO - Updated job ID 24: status='Embeddings_Generated', relevance_score=1.84
+2025-06-01 03:10:22,807 - app.services.database_service - INFO - Updated job ID 25: status='Embeddings_Generated', relevance_score=1.62
+2025-06-01 03:10:22,813 - app.services.database_service - INFO - Updated job ID 26: status='Embeddings_Generated', relevance_score=1.26
+2025-06-01 03:10:22,818 - app.services.database_service - INFO - Updated job ID 27: status='Embeddings_Generated', relevance_score=1.46
+2025-06-01 03:10:22,824 - app.services.database_service - INFO - Updated job ID 23: status='Embeddings_Generated', relevance_score=1.84
+2025-06-01 03:10:22,833 - __main__ - INFO - Semantic analysis completed: 5 top matches found
+2025-06-01 03:10:49,380 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 03:10:49,387 - __main__ - INFO - semantic_search command: query='machine learning and AI development', limit=5
+2025-06-01 03:10:49,388 - app.services.embedding_service - INFO - EmbeddingService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:10:49,389 - app.services.gemini_service - INFO - Gemini API configured successfully.
+2025-06-01 03:10:49,389 - app.services.semantic_analysis_service - INFO - SemanticAnalysisService initialized with model: all-MiniLM-L6-v2
+2025-06-01 03:10:49,394 - app.services.database_service - INFO - Retrieved 32 jobs from database (status_filter: None).
+2025-06-01 03:10:49,394 - app.services.embedding_service - INFO - Loading sentence-transformers model: all-MiniLM-L6-v2
+2025-06-01 03:10:49,397 - sentence_transformers.SentenceTransformer - INFO - Use pytorch device_name: cpu
+2025-06-01 03:10:49,397 - sentence_transformers.SentenceTransformer - INFO - Load pretrained SentenceTransformer: all-MiniLM-L6-v2
+2025-06-01 03:10:52,393 - app.services.embedding_service - INFO - Model loaded successfully. Embedding dimension: 384
+2025-06-01 03:10:52,411 - app.services.semantic_analysis_service - INFO - Semantic search for 'machine learning and AI development' returned 5 results
+2025-06-01 03:10:52,445 - __main__ - INFO - Semantic search completed: 5 results found

@@ -37,12 +37,22 @@ class JobPosting(BaseModel):
     relevance_score: Optional[float] = Field(None, example=4.5) # Calculated by AI (e.g., 1-5 scale)
     match_score_details: Optional[Dict[str, float]] = Field(None, example={"skill_alignment": 0.8, "culture_fit": 0.6}) # Breakdown of MatchScore components
     
+    # Phase 5.1: Semantic Embeddings Support
+    description_embedding: Optional[str] = Field(None, description="JSON string of description embedding vector for semantic similarity")
+    title_embedding: Optional[str] = Field(None, description="JSON string of title embedding vector for semantic similarity") 
+    embedding_model: Optional[str] = Field(None, example="all-MiniLM-L6-v2", description="Name of the embedding model used")
+    embedding_generated_at: Optional[datetime] = Field(None, description="Timestamp when embeddings were generated")
+    
+    # Enhanced semantic analysis scores
+    semantic_similarity_score: Optional[float] = Field(None, example=0.85, description="Semantic similarity to user profile/resume (0-1)")
+    combined_match_score: Optional[float] = Field(None, example=4.2, description="Combined score from AI relevance + semantic similarity")
+    
     is_remote: Optional[bool] = Field(None, example=True)
     
     scraped_timestamp: datetime = Field(default_factory=datetime.utcnow)
     
     # Internal agent fields
-    processing_status: str = Field("Pending", example="Pending") # e.g., 'Pending', 'Analyzed_Relevant', 'Analyzed_Irrelevant', 'Error'
+    processing_status: str = Field("Pending", example="Pending") # e.g., 'Pending', 'Analyzed_Relevant', 'Analyzed_Irrelevant', 'Error', 'Embeddings_Generated'
     # This 'id' is for the internal database, distinct from 'id_on_platform'
     internal_db_id: Optional[int] = Field(None, description="Internal database ID for this job posting record in job_postings_raw table")
 
@@ -70,14 +80,17 @@ class JobPosting(BaseModel):
                 "company_total_funding": 8500000.00,
                 "skills_extracted": ["Python", "React", "TypeScript", "AWS", "PostgreSQL"],
                 "relevance_score": 4.7,
+                "embedding_model": "all-MiniLM-L6-v2",
+                "semantic_similarity_score": 0.82,
+                "combined_match_score": 4.25,
                 "is_remote": True,
                 "scraped_timestamp": "2025-05-31T17:30:00Z",
-                "processing_status": "Pending"
+                "processing_status": "Embeddings_Generated"
             }
         }
 
 if __name__ == '__main__':
-    # Example of creating a JobPosting instance with startup data
+    # Example of creating a JobPosting instance with startup data and embeddings
     example_job_data = {
         "id_on_platform": "wellfound_789",
         "source_platform": "Wellfound",
@@ -91,9 +104,12 @@ if __name__ == '__main__':
         "funding_stage": "Series A",
         "company_size_range": "25-50",
         "skills_extracted": ["Python", "Machine Learning", "R", "Statistics"],
+        "embedding_model": "all-MiniLM-L6-v2",
+        "semantic_similarity_score": 0.89,
+        "combined_match_score": 4.6,
         "is_remote": True,
-        "processing_status": "Pending"
+        "processing_status": "Embeddings_Generated"
     }
     job_posting = JobPosting(**example_job_data)
-    print("Successfully created JobPosting instance with startup data:")
+    print("Successfully created JobPosting instance with Phase 5.1 embedding support:")
     print(job_posting.model_dump_json(indent=2)) 
