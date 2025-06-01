@@ -42,33 +42,43 @@ def create_scraper_manager(enabled_sources=None, configs=None):
     if configs is None:
         configs = {
             'remote.co': ScraperConfig(),
-            'linkedin': ScraperConfig(min_delay=3, max_delay=7),
-            'indeed': ScraperConfig(min_delay=2, max_delay=5),
-            'stackoverflow': ScraperConfig(min_delay=1, max_delay=3)
+            'linkedin': ScraperConfig(delay_range=(3, 7)),
+            'indeed': ScraperConfig(delay_range=(2, 5)),
+            'stackoverflow': ScraperConfig(delay_range=(1, 3))
         }
     
-    # Create scraper instances
-    scrapers = {}
+    # Create scraper manager
+    manager = ScraperManager()
     
+    # Create and register scraper instances with explicit source names
     for source in enabled_sources:
         try:
             config = configs.get(source, ScraperConfig())
             
             if source == 'remote.co':
-                scrapers[source] = RemoteCoScraper(config)
+                scraper = RemoteCoScraper(config)
+                # Override the registration to use our expected source name
+                manager.scrapers['remote.co'] = scraper
+                manager.enabled_sources.add('remote.co')
             elif source == 'linkedin':
-                scrapers[source] = LinkedInScraper(config)
+                scraper = LinkedInScraper(config)
+                manager.scrapers['linkedin'] = scraper
+                manager.enabled_sources.add('linkedin')
             elif source == 'indeed':
-                scrapers[source] = IndeedScraper(config)
+                scraper = IndeedScraper(config)
+                manager.scrapers['indeed'] = scraper
+                manager.enabled_sources.add('indeed')
             elif source == 'stackoverflow':
-                scrapers[source] = StackOverflowJobsScraper(config)
+                scraper = StackOverflowJobsScraper(config)
+                manager.scrapers['stackoverflow'] = scraper
+                manager.enabled_sources.add('stackoverflow')
             else:
                 print(f"Warning: Unknown scraper source '{source}' skipped")
                 
         except Exception as e:
             print(f"Error creating scraper for {source}: {e}")
     
-    return ScraperManager(scrapers)
+    return manager
 
 def get_available_scrapers():
     """Get information about all available job scrapers"""

@@ -236,28 +236,36 @@ class ScraperManager:
     
     def _generate_job_signatures(self, job: JobPosting) -> List[str]:
         """
-        Generate multiple signatures for a job to detect duplicates.
-        Uses different combinations of job attributes.
+        Generate multiple signatures for deduplication
         """
         signatures = []
         
-        # Signature 1: URL-based (most reliable)
-        if job.job_url:
-            normalized_url = self._normalize_url(job.job_url)
-            signatures.append(f"url:{normalized_url}")
-        
-        # Signature 2: Title + Company combination
-        if job.title and job.company_name:
-            title_company = f"{job.title.lower().strip()}|{job.company_name.lower().strip()}"
-            title_company_hash = hashlib.md5(title_company.encode()).hexdigest()
-            signatures.append(f"title_company:{title_company_hash}")
-        
-        # Signature 3: Content-based (description snippet)
-        if job.full_description_raw and len(job.full_description_raw) > 100:
-            # Use first 200 characters of description
-            desc_snippet = job.full_description_raw[:200].lower().strip()
-            desc_hash = hashlib.md5(desc_snippet.encode()).hexdigest()
-            signatures.append(f"content:{desc_hash}")
+        try:
+            # 1. URL-based signature (primary)
+            if job.job_url:
+                # Convert HttpUrl to string if needed
+                url_str = str(job.job_url) if hasattr(job.job_url, '__str__') else job.job_url
+                normalized_url = self._normalize_url(url_str)
+                signatures.append(f"url:{normalized_url}")
+            
+            # 2. Title + Company signature (secondary)
+            if job.title and job.company_name:
+                title_company = f"{job.title.lower().strip()}|{job.company_name.lower().strip()}"
+                title_company_hash = hashlib.md5(title_company.encode()).hexdigest()[:8]
+                signatures.append(f"title_company:{title_company_hash}")
+            
+            # 3. Content-based signature (tertiary)
+            if job.full_description_raw and len(job.full_description_raw) > 50:
+                # Use first 200 characters of description as signature base
+                content_snippet = job.full_description_raw[:200].lower().strip()
+                content_hash = hashlib.md5(content_snippet.encode()).hexdigest()[:8]
+                signatures.append(f"content:{content_hash}")
+            
+        except Exception as e:
+            logger.warning(f"Error generating signatures for job: {e}")
+            # Fallback signature
+            fallback = f"fallback:{job.title}:{job.company_name}" if job.title and job.company_name else "unknown"
+            signatures.append(fallback)
         
         return signatures
     

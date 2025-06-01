@@ -136,3 +136,47 @@ Call log:
 2025-06-01 00:10:15,009 - __main__ - INFO - AI Job Application Agent CLI Initialized.
 2025-06-01 00:20:34,727 - __main__ - INFO - AI Job Application Agent CLI Initialized.
 2025-06-01 01:05:50,851 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:14:41,958 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:14:44,487 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:14:46,926 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:16:02,879 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:16:40,468 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:16:40,572 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:16:40,575 - app.services.scrapers.scraper_manager - WARNING - No valid sources specified or enabled
+2025-06-01 01:17:10,702 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:17:10,786 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:17:10,786 - app.services.scrapers.scraper_manager - INFO - Registered scraper for Stack Overflow Jobs (enabled: True)
+2025-06-01 01:17:10,789 - app.services.scrapers.scraper_manager - WARNING - No valid sources specified or enabled
+2025-06-01 01:17:10,790 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 01:17:49,586 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:17:49,678 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:17:49,682 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['stackoverflow']
+2025-06-01 01:17:49,682 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 01:17:57,911 - app.services.scrapers.stackoverflow_scraper - ERROR - Error scraping Stack Overflow: 'Page' object has no attribute 'set_user_agent'
+2025-06-01 01:17:57,912 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 3 jobs
+2025-06-01 01:17:57,997 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 01:18:48,018 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:18:48,112 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:18:48,115 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['stackoverflow']
+2025-06-01 01:18:48,115 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 01:18:49,505 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=Python+Developer&l=Remote&sort=p
+2025-06-01 01:19:55,552 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 01:19:55,588 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 01:19:55,589 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 01:19:55,590 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 3 jobs
+2025-06-01 01:19:55,718 - app.services.scrapers.scraper_manager - INFO - Search completed: 3 unique jobs found (0 duplicates removed) in 67.60s
+2025-06-01 01:19:55,733 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 01:20:40,054 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 01:20:40,138 - app.services.scrapers.stackoverflow_scraper - INFO - [Stack Overflow Jobs] Initialized successfully
+2025-06-01 01:20:40,142 - app.services.scrapers.scraper_manager - INFO - Starting search across 1 sources: ['stackoverflow']
+2025-06-01 01:20:40,142 - app.services.scrapers.scraper_manager - INFO - Starting search on Stack Overflow Jobs
+2025-06-01 01:20:41,539 - app.services.scrapers.stackoverflow_scraper - INFO - Searching Stack Overflow Jobs with URL: https://stackoverflow.com/jobs?q=Python+Developer&l=Remote&sort=p
+2025-06-01 01:21:44,541 - app.services.scrapers.stackoverflow_scraper - WARNING - Stack Overflow results not found with expected selectors
+2025-06-01 01:21:44,576 - app.services.scrapers.stackoverflow_scraper - WARNING - No Stack Overflow job elements found
+2025-06-01 01:21:44,576 - app.services.scrapers.stackoverflow_scraper - WARNING - No jobs found on Stack Overflow, using mock data
+2025-06-01 01:21:44,577 - app.services.scrapers.scraper_manager - INFO - Stack Overflow Jobs: Found 3 jobs
+2025-06-01 01:21:44,681 - app.services.scrapers.scraper_manager - INFO - Search completed: 3 unique jobs found (0 duplicates removed) in 64.54s
+2025-06-01 01:21:44,696 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
+2025-06-01 01:21:44,887 - app.services.database_service - INFO - Saved job posting 'Senior Python Developer' from 'Google' with DB ID 6 to job_postings.
+2025-06-01 01:21:44,894 - app.services.database_service - INFO - Saved job posting 'Python Backend Engineer' from 'Microsoft' with DB ID 7 to job_postings.
+2025-06-01 01:21:44,900 - app.services.database_service - INFO - Saved job posting 'Django Developer' from 'Amazon' with DB ID 8 to job_postings.

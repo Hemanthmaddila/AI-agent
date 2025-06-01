@@ -347,6 +347,29 @@ class StackOverflowJobsScraper(JobScraper):
         
         return mock_jobs
 
+    async def _setup_page(self, browser) -> Page:
+        """Setup page with realistic user behavior simulation"""
+        page = await browser.new_page()
+        
+        # Set realistic user agent using async API
+        if self.user_agent:
+            await page.set_extra_http_headers({
+                'User-Agent': self.user_agent.random
+            })
+        
+        # Set viewport to common desktop resolution
+        await page.set_viewport_size({"width": 1366, "height": 768})
+        
+        # Add realistic headers
+        await page.set_extra_http_headers({
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Accept-Encoding': 'gzip, deflate',
+            'Connection': 'keep-alive'
+        })
+        
+        return page
+
 # Example for direct testing
 if __name__ == '__main__':
     import asyncio

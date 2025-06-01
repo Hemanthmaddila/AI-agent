@@ -934,7 +934,9 @@ def find_jobs_multi(
                 title = job.title[:27] + "..." if len(job.title) > 30 else job.title
                 company = job.company_name[:17] + "..." if len(job.company_name) > 20 else job.company_name
                 location = job.location_text[:12] + "..." if len(job.location_text) > 15 else job.location_text
-                url = job.job_url[:22] + "..." if len(job.job_url) > 25 else job.job_url
+                # Convert HttpUrl to string before slicing
+                url_str = str(job.job_url)
+                url = url_str[:22] + "..." if len(url_str) > 25 else url_str
                 
                 jobs_table.add_row(title, company, location, job.source_platform, url)
             
