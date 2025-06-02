@@ -2693,3 +2693,5 @@ Call log:
 2025-06-01 17:59:05,340 - app.services.scrapers.scraper_manager - INFO - All scrapers cleaned up
 2025-06-01 17:59:25,870 - __main__ - INFO - AI Job Application Agent CLI Initialized.
 2025-06-01 17:59:26,577 - app.services.job_application_service - INFO - No user profile found - will need to create one
+2025-06-01 19:32:16,472 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-01 19:32:16,474 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
