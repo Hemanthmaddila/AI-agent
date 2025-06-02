@@ -2253,5 +2253,26 @@ def launch_browser():
         console.print("  • Check if all dependencies are installed")
         console.print("  • Try running 'pip install fastapi uvicorn websockets'")
 
+@app.command()
+def auto_apply():
+    """🎯 MAIN GOAL: Automatically apply for LinkedIn jobs"""
+    console.print("🎯 LinkedIn Auto-Apply - Your Main Goal!")
+    console.print("="*50)
+    console.print("🚀 This will automatically find and apply for jobs")
+    console.print("✅ Uses your existing LinkedIn automation foundation")
+    console.print("⚠️  REAL applications will be submitted!")
+    console.print("="*50)
+    
+    import subprocess
+    import sys
+    
+    try:
+        # Run the auto-apply script
+        subprocess.run([sys.executable, "linkedin_auto_apply.py"], check=True)
+    except subprocess.CalledProcessError as e:
+        console.print(f"❌ Auto-apply failed: {e}")
+    except FileNotFoundError:
+        console.print("❌ Auto-apply script not found. Make sure linkedin_auto_apply.py exists.")
+
 if __name__ == "__main__":
     app() 
