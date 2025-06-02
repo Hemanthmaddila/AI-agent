@@ -2274,5 +2274,31 @@ def auto_apply():
     except FileNotFoundError:
         console.print("❌ Auto-apply script not found. Make sure linkedin_auto_apply.py exists.")
 
+@app.command()
+def auto_apply_fixed():
+    """🎯 MAIN GOAL: Automatically apply for LinkedIn jobs (FIXED VERSION)
+    
+    Uses the proven working job extraction method from linkedin_final_demo.py
+    to successfully find and apply to Easy Apply jobs on LinkedIn.
+    """
+    console.print("🎯 LinkedIn Auto-Apply - FIXED VERSION")
+    console.print("="*50)
+    console.print("🔧 Using PROVEN job extraction method")
+    console.print("🚀 This will automatically find and apply for jobs")
+    console.print("✅ Based on successful linkedin_final_demo.py extraction")
+    console.print("⚠️  REAL applications will be submitted!")
+    console.print("="*50)
+    
+    import subprocess
+    import sys
+    
+    try:
+        # Run the fixed auto-apply script
+        subprocess.run([sys.executable, "linkedin_auto_apply_fixed.py"], check=True)
+    except subprocess.CalledProcessError as e:
+        console.print(f"❌ Auto-apply failed: {e}")
+    except FileNotFoundError:
+        console.print("❌ Auto-apply script not found. Make sure linkedin_auto_apply_fixed.py exists.")
+
 if __name__ == "__main__":
     app() 
