@@ -1,407 +1,388 @@
 #!/usr/bin/env python3
 """
-🔍 Vision Service - Computer Vision Integration with Ollama
-Provides AI-powered visual analysis for robust web automation
+🔍 Vision Service using Ollama with Gemma 3-1B Vision Model
+Provides vision-based UI interaction capabilities for web automation
 """
 
-import httpx
+import asyncio
 import base64
 import json
 import logging
-from typing import Dict, Optional, List, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Union
+import aiohttp
 from pathlib import Path
-import asyncio
+import time
 
 logger = logging.getLogger(__name__)
 
 class VisionService:
-    """AI-powered computer vision service using Ollama multimodal models"""
+    """Vision service using Ollama with smallest Gemma 3 vision model"""
     
-    def __init__(self, 
-                 ollama_api_url: str = "http://localhost:11434",
-                 model_name: str = "llava:latest",
-                 timeout: float = 120.0):
-        self.ollama_api_url = ollama_api_url
-        self.model_name = model_name
-        self.timeout = timeout
-        self.screenshot_dir = Path("data/screenshots/vision_analysis")
-        self.screenshot_dir.mkdir(parents=True, exist_ok=True)
+    def __init__(self, ollama_url: str = "http://localhost:11434"):
+        self.ollama_url = ollama_url
+        self.model_name = "gemma3:1b"  # Latest Gemma 3 1B model - smallest and most efficient
+        self.vision_model = "llava:latest"  # For multimodal tasks
+        self.initialized = False
         
-    async def check_ollama_availability(self) -> bool:
-        """Check if Ollama is running and the model is available"""
+    async def initialize(self):
+        """Initialize and ensure models are available"""
         try:
-            async with httpx.AsyncClient(timeout=10.0) as client:
-                # Check if Ollama is running
-                response = await client.get(f"{self.ollama_api_url}/api/tags")
-                if response.status_code != 200:
-                    return False
-                
-                # Check if our model is available
-                models = response.json().get("models", [])
-                model_names = [model.get("name", "") for model in models]
-                
-                if not any(self.model_name in name for name in model_names):
-                    logger.warning(f"Model {self.model_name} not found. Available models: {model_names}")
-                    # Try to pull the model
-                    logger.info(f"Attempting to pull model {self.model_name}...")
-                    pull_response = await client.post(
-                        f"{self.ollama_api_url}/api/pull",
-                        json={"name": self.model_name}
-                    )
-                    if pull_response.status_code != 200:
-                        return False
-                
-                return True
+            # Check if Ollama is running
+            async with aiohttp.ClientSession() as session:
+                async with session.get(f"{self.ollama_url}/api/tags") as response:
+                    if response.status != 200:
+                        raise Exception("Ollama server not accessible")
+                    
+                    models = await response.json()
+                    available_models = [model['name'] for model in models.get('models', [])]
+                    
+                    # Ensure vision model is available
+                    if self.vision_model not in available_models:
+                        logger.info(f"Pulling {self.vision_model} model...")
+                        await self._pull_model(self.vision_model)
+                    
+                    self.initialized = True
+                    logger.info("🔍 Vision service initialized with Gemma vision models")
+                    
         except Exception as e:
-            logger.error(f"Ollama availability check failed: {e}")
-            return False
+            logger.error(f"Failed to initialize vision service: {e}")
+            raise
     
-    async def analyze_image_with_prompt(self, 
-                                      image_bytes: bytes, 
-                                      prompt: str,
-                                      expect_json: bool = True,
-                                      save_debug_image: bool = True) -> Optional[Dict[str, Any]]:
+    async def _pull_model(self, model_name: str):
+        """Pull a model if not available"""
+        async with aiohttp.ClientSession() as session:
+            data = {"name": model_name}
+            async with session.post(f"{self.ollama_url}/api/pull", json=data) as response:
+                if response.status != 200:
+                    raise Exception(f"Failed to pull model {model_name}")
+                    
+                # Wait for pull to complete
+                async for line in response.content:
+                    if line:
+                        status = json.loads(line.decode())
+                        if status.get('status') == 'success':
+                            break
+    
+    async def analyze_image_for_element(
+        self, 
+        image_bytes: bytes, 
+        element_description: str,
+        page_context: str = ""
+    ) -> Optional[Dict]:
         """
-        Send an image and prompt to Ollama for visual analysis
+        Analyze image to find a specific UI element
         
         Args:
-            image_bytes: Raw image data
-            prompt: Analysis prompt for the model
-            expect_json: Whether to expect JSON response
-            save_debug_image: Save image for debugging
+            image_bytes: Screenshot as bytes
+            element_description: Description of element to find (e.g., "Date posted filter button")
+            page_context: Additional context about the page
             
         Returns:
-            Analysis result or None if failed
+            Dict with coordinates: {"x": int, "y": int, "width": int, "height": int, "confidence": float}
+            or None if not found
         """
+        if not self.initialized:
+            await self.initialize()
+        
+        # Encode image to base64
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        
+        # Create detailed prompt for element location
+        prompt = f"""
+You are analyzing a LinkedIn job search page screenshot. 
+
+Task: Find the "{element_description}" element and provide its precise location.
+
+Context: {page_context}
+
+Instructions:
+1. Look for the exact element described: "{element_description}"
+2. Consider text labels, button styles, and UI patterns typical of LinkedIn
+3. Provide the bounding box coordinates as JSON
+
+Response format (only return this JSON, no other text):
+{{"x": <left_pixel>, "y": <top_pixel>, "width": <width_pixels>, "height": <height_pixels>, "confidence": <0.0-1.0>, "found": <true/false>}}
+
+If element not found, return: {{"found": false}}
+"""
+
         try:
-            # Save debug image if requested
-            if save_debug_image:
-                debug_path = self.screenshot_dir / f"analysis_{len(list(self.screenshot_dir.glob('*.png')))}.png"
-                with open(debug_path, 'wb') as f:
-                    f.write(image_bytes)
-                logger.debug(f"Debug image saved: {debug_path}")
-            
-            # Encode image to base64
-            image_base64 = base64.b64encode(image_bytes).decode('utf-8')
-            
-            # Prepare payload for Ollama
-            payload = {
-                "model": self.model_name,
-                "prompt": prompt,
-                "images": [image_base64],
-                "stream": False
-            }
-            
-            logger.info(f"Sending image to Ollama ({self.model_name}) with prompt: {prompt[:100]}...")
-            
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
-                    f"{self.ollama_api_url}/api/generate",
-                    json=payload
-                )
-                response.raise_for_status()
+            async with aiohttp.ClientSession() as session:
+                data = {
+                    "model": self.vision_model,
+                    "prompt": prompt,
+                    "images": [image_b64],
+                    "stream": False
+                }
                 
-                response_json = response.json()
-                llm_output = response_json.get('response', '')
-                
-                logger.info(f"Ollama response: {llm_output[:200]}...")
-                
-                if expect_json:
+                async with session.post(f"{self.ollama_url}/api/generate", json=data) as response:
+                    if response.status != 200:
+                        logger.error(f"Vision API request failed: {response.status}")
+                        return None
+                    
+                    result = await response.json()
+                    response_text = result.get('response', '').strip()
+                    
+                    # Try to parse JSON response
                     try:
-                        # Try to parse as JSON
-                        parsed_result = json.loads(llm_output)
-                        return {"success": True, "data": parsed_result, "raw_response": llm_output}
-                    except json.JSONDecodeError:
-                        logger.warning(f"Expected JSON but got text: {llm_output}")
-                        return {"success": False, "data": None, "raw_response": llm_output}
-                else:
-                    return {"success": True, "data": llm_output, "raw_response": llm_output}
-                
-        except httpx.RequestError as e:
-            logger.error(f"HTTP request to Ollama failed: {e}")
-            return None
+                        # Extract JSON from response
+                        if '{' in response_text and '}' in response_text:
+                            json_start = response_text.find('{')
+                            json_end = response_text.rfind('}') + 1
+                            json_str = response_text[json_start:json_end]
+                            element_info = json.loads(json_str)
+                            
+                            if element_info.get('found', False):
+                                logger.info(f"🎯 Vision found '{element_description}': {element_info}")
+                                return element_info
+                            else:
+                                logger.warning(f"🔍 Vision could not find '{element_description}'")
+                                return None
+                        else:
+                            logger.warning(f"🔍 Vision response not in expected JSON format: {response_text}")
+                            return None
+                            
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Failed to parse vision response JSON: {e}")
+                        logger.error(f"Raw response: {response_text}")
+                        return None
+                        
         except Exception as e:
-            logger.error(f"Error analyzing image with Ollama: {e}")
+            logger.error(f"Vision analysis failed: {e}")
             return None
     
-    async def find_element_coordinates(self, 
-                                     image_bytes: bytes, 
-                                     element_description: str) -> Optional[Dict[str, int]]:
+    async def find_clickable_elements(
+        self, 
+        image_bytes: bytes, 
+        element_types: List[str] = None
+    ) -> List[Dict]:
         """
-        Find an element's coordinates in an image
+        Find all clickable elements of specified types in the image
         
         Args:
-            image_bytes: Screenshot data
-            element_description: Description of what to find
+            image_bytes: Screenshot as bytes
+            element_types: List of element types to find (e.g., ["button", "link", "dropdown"])
             
         Returns:
-            Coordinates dict with x, y, width, height or None
+            List of elements with coordinates and descriptions
         """
+        if not self.initialized:
+            await self.initialize()
+        
+        if element_types is None:
+            element_types = ["button", "link", "dropdown", "checkbox", "radio button"]
+        
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        
         prompt = f"""
-        Find the {element_description} in this screenshot.
-        
-        Respond ONLY with a JSON object containing the bounding box coordinates:
-        {{"x": center_x, "y": center_y, "width": width, "height": height}}
-        
-        If the element is not found, respond with: {{"found": false}}
-        
-        Be precise with coordinates. Use the center point for clicking.
-        """
-        
-        result = await self.analyze_image_with_prompt(image_bytes, prompt, expect_json=True)
-        
-        if result and result.get("success") and result.get("data"):
-            data = result["data"]
-            if data.get("found") is False:
-                return None
-            if all(key in data for key in ["x", "y"]):
-                return data
-        
-        return None
-    
-    async def detect_form_fields(self, image_bytes: bytes) -> List[Dict[str, Any]]:
-        """
-        Detect all form fields in an image
-        
-        Returns:
-            List of detected form fields with their positions and types
-        """
-        prompt = """
-        Analyze this screenshot and identify ALL form input fields, buttons, and interactive elements.
-        
-        For each element found, provide:
-        - type: "input", "button", "select", "textarea", "checkbox", "radio"
-        - label: the associated label text or placeholder
-        - coordinates: center x,y for clicking
-        - text: any visible text on/in the element
-        
-        Respond with a JSON array:
-        [
-          {
-            "type": "input",
-            "label": "Email Address",
-            "coordinates": {"x": 100, "y": 200},
-            "text": "email@example.com",
-            "confidence": 0.9
-          }
-        ]
-        
-        If no form elements found, respond with: []
-        """
-        
-        result = await self.analyze_image_with_prompt(image_bytes, prompt, expect_json=True)
-        
-        if result and result.get("success") and result.get("data"):
-            return result["data"] if isinstance(result["data"], list) else []
-        
-        return []
-    
-    async def read_text_at_coordinates(self, 
-                                     image_bytes: bytes, 
-                                     x: int, y: int, 
-                                     width: int = 100, 
-                                     height: int = 50) -> Optional[str]:
-        """
-        Read text at specific coordinates in an image
-        
-        Args:
-            image_bytes: Screenshot data
-            x, y: Center coordinates of text area
-            width, height: Approximate size of text area
-            
-        Returns:
-            Extracted text or None
-        """
-        prompt = f"""
-        Look at the region around coordinates ({x}, {y}) in this screenshot.
-        The text area is approximately {width}x{height} pixels.
-        
-        Extract ONLY the text from this specific region.
-        Respond with just the text, no additional formatting or explanation.
-        
-        If no readable text is found, respond with: "NO_TEXT_FOUND"
-        """
-        
-        result = await self.analyze_image_with_prompt(image_bytes, prompt, expect_json=False)
-        
-        if result and result.get("success"):
-            text = result.get("data", "").strip()
-            return text if text != "NO_TEXT_FOUND" else None
-        
-        return None
-    
-    async def detect_modal_or_popup(self, image_bytes: bytes) -> Dict[str, Any]:
-        """
-        Detect if there's a modal, popup, or overlay in the image
-        
-        Returns:
-            Detection result with modal info
-        """
-        prompt = """
-        Analyze this screenshot for modal dialogs, popups, overlays, or blocking elements.
-        
-        Look for:
-        - Dialog boxes with dark overlay background
-        - Popup windows
-        - Alert messages
-        - Forms that appear on top of content
-        - "Easy Apply" modals or job application forms
-        
-        Respond with JSON:
-        {
-          "modal_detected": true/false,
-          "modal_type": "dialog|popup|overlay|form|alert",
-          "title": "modal title text if visible",
-          "close_button": {"x": 100, "y": 50} or null,
-          "primary_action": {"text": "Apply", "x": 200, "y": 300} or null,
-          "confidence": 0.0-1.0
-        }
-        """
-        
-        result = await self.analyze_image_with_prompt(image_bytes, prompt, expect_json=True)
-        
-        if result and result.get("success") and result.get("data"):
-            return result["data"]
-        
-        return {"modal_detected": False, "confidence": 0.0}
-    
-    async def solve_simple_captcha(self, image_bytes: bytes) -> Optional[str]:
-        """
-        Attempt to solve simple text-based CAPTCHAs
-        
-        Args:
-            image_bytes: CAPTCHA image data
-            
-        Returns:
-            CAPTCHA solution text or None
-        """
-        prompt = """
-        This is a CAPTCHA image. Extract the characters/text shown.
-        
-        Rules:
-        - Look for letters, numbers, or simple text
-        - Ignore distorted backgrounds
-        - Focus on the main text content
-        - Be case-sensitive if obvious
-        
-        Respond ONLY with the characters you see, no spaces or formatting.
-        If you cannot read the text clearly, respond with: "UNREADABLE"
-        """
-        
-        result = await self.analyze_image_with_prompt(image_bytes, prompt, expect_json=False)
-        
-        if result and result.get("success"):
-            text = result.get("data", "").strip()
-            return text if text != "UNREADABLE" else None
-        
-        return None
-    
-    async def analyze_page_structure(self, image_bytes: bytes) -> Dict[str, Any]:
-        """
-        Analyze the overall structure and layout of a webpage
-        
-        Returns:
-            Page analysis with main sections and navigation elements
-        """
-        prompt = """
-        Analyze this webpage screenshot and identify its main structure.
-        
-        Identify:
-        - Navigation elements (header, menu, breadcrumbs)
-        - Main content areas
-        - Sidebar elements
-        - Footer
-        - Forms or input areas
-        - Call-to-action buttons
-        - Job listings or cards (if present)
-        
-        Respond with JSON:
-        {
-          "page_type": "job_board|company_careers|application_form|profile|search_results",
-          "main_sections": [
-            {
-              "type": "navigation|content|sidebar|footer|form",
-              "description": "brief description",
-              "coordinates": {"x": 100, "y": 200, "width": 300, "height": 400}
-            }
-          ],
-          "interactive_elements": [
-            {
-              "type": "button|link|input|select",
-              "text": "element text",
-              "coordinates": {"x": 100, "y": 200}
-            }
-          ],
-          "confidence": 0.0-1.0
-        }
-        """
-        
-        result = await self.analyze_image_with_prompt(image_bytes, prompt, expect_json=True)
-        
-        if result and result.get("success") and result.get("data"):
-            return result["data"]
-        
-        return {"page_type": "unknown", "main_sections": [], "interactive_elements": [], "confidence": 0.0}
+Analyze this LinkedIn page screenshot and identify all clickable elements.
 
-# Factory function for easy integration
-def get_vision_service(
-    ollama_url: str = "http://localhost:11434",
-    model: str = "llava:latest"
-) -> VisionService:
-    """Get configured VisionService instance"""
-    return VisionService(ollama_api_url=ollama_url, model_name=model)
+Find these types of elements: {', '.join(element_types)}
 
-# Utility functions for common vision tasks
-async def quick_element_find(page, element_description: str) -> Optional[Tuple[int, int]]:
-    """
-    Quick utility to find an element visually and return click coordinates
-    
-    Args:
-        page: Playwright page object
-        element_description: What to look for
-        
-    Returns:
-        (x, y) coordinates for clicking or None
-    """
-    try:
-        vision_service = get_vision_service()
-        
-        if not await vision_service.check_ollama_availability():
-            logger.warning("Ollama not available for visual analysis")
-            return None
-        
-        screenshot = await page.screenshot()
-        coordinates = await vision_service.find_element_coordinates(screenshot, element_description)
-        
-        if coordinates and "x" in coordinates and "y" in coordinates:
-            return (coordinates["x"], coordinates["y"])
-        
-        return None
-    except Exception as e:
-        logger.error(f"Quick element find failed: {e}")
-        return None
+For each clickable element found, provide:
+1. Element type (button, link, etc.)
+2. Visible text or label
+3. Bounding box coordinates
+4. Purpose/function description
 
-async def visual_form_analysis(page) -> List[Dict[str, Any]]:
-    """
-    Quick utility to analyze form fields visually
-    
-    Args:
-        page: Playwright page object
-        
-    Returns:
-        List of detected form fields
-    """
-    try:
-        vision_service = get_vision_service()
-        
-        if not await vision_service.check_ollama_availability():
-            logger.warning("Ollama not available for visual analysis")
+Return as JSON array:
+[
+  {{"type": "button", "text": "Date posted", "x": 123, "y": 456, "width": 100, "height": 30, "description": "Filter by date posted"}},
+  ...
+]
+
+Only return the JSON array, no other text.
+"""
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                data = {
+                    "model": self.vision_model,
+                    "prompt": prompt,
+                    "images": [image_b64],
+                    "stream": False
+                }
+                
+                async with session.post(f"{self.ollama_url}/api/generate", json=data) as response:
+                    if response.status != 200:
+                        return []
+                    
+                    result = await response.json()
+                    response_text = result.get('response', '').strip()
+                    
+                    try:
+                        # Extract JSON array from response
+                        if '[' in response_text and ']' in response_text:
+                            json_start = response_text.find('[')
+                            json_end = response_text.rfind(']') + 1
+                            json_str = response_text[json_start:json_end]
+                            elements = json.loads(json_str)
+                            
+                            logger.info(f"🔍 Vision found {len(elements)} clickable elements")
+                            return elements
+                        else:
+                            logger.warning("No JSON array found in vision response")
+                            return []
+                            
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Failed to parse clickable elements JSON: {e}")
+                        return []
+                        
+        except Exception as e:
+            logger.error(f"Failed to find clickable elements: {e}")
             return []
+    
+    async def analyze_form_fields(self, image_bytes: bytes) -> List[Dict]:
+        """
+        Analyze image to identify form fields and their types
         
-        screenshot = await page.screenshot()
-        fields = await vision_service.detect_form_fields(screenshot)
+        Returns:
+            List of form fields with metadata
+        """
+        if not self.initialized:
+            await self.initialize()
         
-        return fields
-    except Exception as e:
-        logger.error(f"Visual form analysis failed: {e}")
-        return [] 
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        
+        prompt = """
+Analyze this form/application screenshot and identify all form fields.
+
+For each form field, determine:
+1. Field type (text input, textarea, select dropdown, checkbox, radio, file upload)
+2. Label or placeholder text
+3. Whether it appears required (marked with * or "required")
+4. Bounding box coordinates
+5. Current value if visible
+
+Return as JSON array:
+[
+  {
+    "type": "text_input",
+    "label": "First Name",
+    "required": true,
+    "x": 100, "y": 200, "width": 250, "height": 40,
+    "placeholder": "Enter your first name",
+    "current_value": ""
+  },
+  ...
+]
+
+Only return the JSON array.
+"""
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                data = {
+                    "model": self.vision_model,
+                    "prompt": prompt,
+                    "images": [image_b64],
+                    "stream": False
+                }
+                
+                async with session.post(f"{self.ollama_url}/api/generate", json=data) as response:
+                    if response.status != 200:
+                        return []
+                    
+                    result = await response.json()
+                    response_text = result.get('response', '').strip()
+                    
+                    try:
+                        if '[' in response_text and ']' in response_text:
+                            json_start = response_text.find('[')
+                            json_end = response_text.rfind(']') + 1
+                            json_str = response_text[json_start:json_end]
+                            fields = json.loads(json_str)
+                            
+                            logger.info(f"📝 Vision identified {len(fields)} form fields")
+                            return fields
+                        else:
+                            return []
+                            
+                    except json.JSONDecodeError as e:
+                        logger.error(f"Failed to parse form fields JSON: {e}")
+                        return []
+                        
+        except Exception as e:
+            logger.error(f"Failed to analyze form fields: {e}")
+            return []
+    
+    async def get_element_center(self, element_info: Dict) -> Tuple[int, int]:
+        """Get center coordinates of an element"""
+        if not element_info or not element_info.get('found', True):
+            return None, None
+        
+        x = element_info.get('x', 0)
+        y = element_info.get('y', 0)
+        width = element_info.get('width', 0)
+        height = element_info.get('height', 0)
+        
+        center_x = x + width // 2
+        center_y = y + height // 2
+        
+        return center_x, center_y
+    
+    async def verify_page_state(self, image_bytes: bytes, expected_state: str) -> bool:
+        """
+        Verify if the page is in an expected state
+        
+        Args:
+            image_bytes: Screenshot as bytes
+            expected_state: Description of expected page state
+            
+        Returns:
+            True if page matches expected state
+        """
+        if not self.initialized:
+            await self.initialize()
+        
+        image_b64 = base64.b64encode(image_bytes).decode('utf-8')
+        
+        prompt = f"""
+Analyze this screenshot and determine if the page state matches this description:
+"{expected_state}"
+
+Consider:
+- Visible elements and their states
+- Page content and layout
+- Any loading indicators or overlays
+- Error messages or success indicators
+
+Respond with only: {{"matches": true}} or {{"matches": false}}
+"""
+
+        try:
+            async with aiohttp.ClientSession() as session:
+                data = {
+                    "model": self.vision_model,
+                    "prompt": prompt,
+                    "images": [image_b64],
+                    "stream": False
+                }
+                
+                async with session.post(f"{self.ollama_url}/api/generate", json=data) as response:
+                    if response.status != 200:
+                        return False
+                    
+                    result = await response.json()
+                    response_text = result.get('response', '').strip()
+                    
+                    try:
+                        if '{' in response_text and '}' in response_text:
+                            json_start = response_text.find('{')
+                            json_end = response_text.rfind('}') + 1
+                            json_str = response_text[json_start:json_end]
+                            state_info = json.loads(json_str)
+                            
+                            return state_info.get('matches', False)
+                        else:
+                            return False
+                            
+                    except json.JSONDecodeError:
+                        return False
+                        
+        except Exception as e:
+            logger.error(f"Failed to verify page state: {e}")
+            return False
+
+# Global vision service instance
+vision_service = VisionService() 

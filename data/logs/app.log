@@ -2695,3 +2695,42 @@ Call log:
 2025-06-01 17:59:26,577 - app.services.job_application_service - INFO - No user profile found - will need to create one
 2025-06-01 19:32:16,472 - __main__ - INFO - AI Job Application Agent CLI Initialized.
 2025-06-01 19:32:16,474 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:47:01,161 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:47:01,161 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:47:31,704 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:47:31,705 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:54:32,369 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:54:32,369 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:54:52,870 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:54:52,872 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:57:09,235 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:57:09,236 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:57:09,248 - app.hitl.hitl_service - INFO - HITLService initialized
+2025-06-02 00:57:34,168 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:57:34,168 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:57:34,190 - __main__ - INFO - Created user profile: test_user
+2025-06-02 00:57:54,834 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:57:54,834 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:58:15,817 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:58:15,818 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:58:28,274 - app.hitl.hitl_service - INFO - HITLService initialized
+2025-06-02 00:58:48,265 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:58:48,266 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:59:31,436 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 00:59:31,436 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 00:59:31,442 - app.application_automation.form_filler - INFO - FormFillerService initialized
+2025-06-02 00:59:32,701 - app.application_automation.form_filler - INFO - Browser started successfully
+2025-06-02 00:59:32,702 - app.application_automation.form_filler - INFO - Navigating to: https://example.com
+2025-06-02 00:59:39,226 - app.application_automation.form_filler - WARNING - No application form found on page
+2025-06-02 00:59:39,318 - app.application_automation.form_filler - INFO - Browser closed successfully
+2025-06-02 01:00:25,484 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 01:00:25,485 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 01:01:34,036 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 01:01:34,037 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 01:01:34,054 - app.hitl.hitl_service - INFO - HITLService initialized
+2025-06-02 01:01:45,503 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 01:01:45,504 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 01:16:29,435 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 01:16:29,436 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.
+2025-06-02 01:37:45,315 - __main__ - INFO - AI Job Application Agent CLI Initialized.
+2025-06-02 01:37:45,315 - __main__ - WARNING - GEMINI_API_KEY is not configured in .env file.

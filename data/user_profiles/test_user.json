@@ -1,10 +1,10 @@
 {
   "profile_name": "test_user",
-  "full_name": "John Doe",
+  "full_name": "John Developer",
   "email": "john@example.com",
-  "phone": "123-456-7890",
-  "linkedin_url": null,
-  "github_url": null,
+  "phone": "555-0123",
+  "linkedin_url": "https://linkedin.com/in/john-dev",
+  "github_url": "https://github.com/john-dev",
   "portfolio_url": null,
   "base_resume_path": null,
   "summary_statement": null,
@@ -21,6 +21,6 @@
   "job_type_preferences": [],
   "company_culture_preferences": [],
   "custom_questions_answers": {},
-  "created_at": "2025-06-01T09:00:58.495480",
-  "last_updated_at": "2025-06-01T09:00:58.495480"
+  "created_at": "2025-06-02T05:57:34.180956",
+  "last_updated_at": "2025-06-02T05:57:34.180956"
 }

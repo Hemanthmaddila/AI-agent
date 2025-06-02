@@ -6,9 +6,9 @@ import json
 import logging
 import random
 import time
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Tuple
 from urllib.parse import urljoin, quote_plus
-from playwright.async_api import Page, Browser, BrowserContext
+from playwright.async_api import Page, Browser, BrowserContext, TimeoutError as PlaywrightTimeoutError
 from pathlib import Path
 
 from .base_scraper import JobScraper, ScraperResult, ScraperConfig
@@ -42,6 +42,9 @@ class LinkedInScraper(JobScraper):
         self.current_task_id = None
         self.session_file = "linkedin_session.json"
         self.is_authenticated = False
+        
+        # Load enhanced selectors
+        self.selectors = self._load_enhanced_selectors()
         
         # LinkedIn-specific selectors
         self.job_selectors = [
@@ -93,6 +96,142 @@ class LinkedInScraper(JobScraper):
             'button:has-text("Easy Apply")'
         ]
     
+    def _load_enhanced_selectors(self) -> Dict[str, Any]:
+        """Load enhanced selectors from JSON file"""
+        try:
+            selectors_file = Path("data/linkedin_selectors_2025.json")
+            if selectors_file.exists():
+                with open(selectors_file, 'r') as f:
+                    return json.load(f)
+        except Exception as e:
+            logger.warning(f"Could not load enhanced selectors: {e}")
+        
+        # Return basic selectors as fallback
+        return {
+            "easy_apply_button_selectors": [
+                "button[aria-label*='Easy Apply']",
+                "button:has-text('Easy Apply')",
+                ".jobs-apply-button--easyapply"
+            ],
+            "external_apply_button_selectors": [
+                "button:has-text('Apply on company website')",
+                "button:has-text('Apply now'):not(:has-text('Easy Apply'))",
+                "button.jobs-apply-button:not(.jobs-apply-button--easyapply)"
+            ]
+        }
+
+    async def initiate_application_on_job_page(self, job_url: str) -> Tuple[Optional[str], Optional[Page], Optional[str]]:
+        """
+        Navigates to a job details page and attempts to initiate an application.
+        It tries to find an "Easy Apply" button first. If not found or not preferred,
+        it looks for a standard "Apply" button that leads to an external site.
+
+        Returns:
+            A tuple: (application_type, page_object, message)
+            application_type: "easy_apply", "external_redirect", "external_same_page_nav", or None
+            page_object: The Playwright Page object (current page for Easy Apply, new page for external)
+            message: URL of the new page if external, or status message.
+        """
+        logger.info(f"🎯 Attempting to initiate application for job: {job_url}")
+        
+        # Navigate to the job page
+        try:
+            if BROWSER_SERVICE_AVAILABLE and browser_service and browser_service.page:
+                page = browser_service.page
+                await page.goto(job_url, wait_until='domcontentloaded', timeout=30000)
+            else:
+                logger.error("No page available for navigation")
+                return None, None, "No page available"
+            
+            # Wait for dynamic content to load
+            await page.wait_for_timeout(random.uniform(2000, 4000))
+            
+        except PlaywrightTimeoutError:
+            logger.warning(f"Timeout loading job page {job_url}, proceeding cautiously.")
+        except Exception as e:
+            logger.error(f"Error navigating to job page: {e}")
+            return None, None, f"Navigation error: {str(e)}"
+
+        # First, check for Easy Apply buttons
+        easy_apply_selectors = self.selectors.get('easy_apply_button_selectors', [])
+        if not isinstance(easy_apply_selectors, list):
+            easy_apply_selectors = [easy_apply_selectors]
+
+        for selector in easy_apply_selectors:
+            if not selector:
+                continue
+            try:
+                easy_apply_button = await page.query_selector(selector)
+                if easy_apply_button and await easy_apply_button.is_visible(timeout=5000) and await easy_apply_button.is_enabled(timeout=5000):
+                    logger.info(f"✅ Found 'Easy Apply' button for {job_url}")
+                    # For this implementation, we'll prioritize external applications
+                    # but you can modify this logic to handle Easy Apply if preferred
+                    break
+            except PlaywrightTimeoutError:
+                continue
+            except Exception as e:
+                logger.debug(f"Error checking Easy Apply selector '{selector}': {e}")
+
+        # Look for external "Apply" buttons
+        external_apply_selectors = self.selectors.get('external_apply_button_selectors', [])
+        if not isinstance(external_apply_selectors, list):
+            external_apply_selectors = [external_apply_selectors]
+
+        external_apply_button = None
+        clicked_selector_text = "N/A"
+
+        for selector in external_apply_selectors:
+            if not selector:
+                continue
+            try:
+                button_element = await page.query_selector(selector)
+                if button_element and await button_element.is_visible(timeout=3000) and await button_element.is_enabled(timeout=3000):
+                    # Additional check: ensure it's not an Easy Apply button if selectors are ambiguous
+                    button_text = await button_element.text_content() or ""
+                    if "easy apply" in button_text.lower() and "apply on company website" not in button_text.lower():
+                        logger.info(f"Selector '{selector}' pointed to an Easy Apply button ('{button_text}'), skipping for external.")
+                        continue
+                    
+                    external_apply_button = button_element
+                    clicked_selector_text = button_text.strip()
+                    logger.info(f"✅ Found potential external apply button: '{clicked_selector_text}' using selector: {selector}")
+                    break
+            except PlaywrightTimeoutError:
+                logger.debug(f"External apply button selector timed out: {selector}")
+            except Exception as e:
+                logger.error(f"Error while querying selector '{selector}': {e}")
+        
+        if external_apply_button:
+            logger.info(f"🚀 Attempting to click external apply button: '{clicked_selector_text}'")
+            try:
+                # Prepare to capture a new page that might open
+                async with page.context.expect_page(timeout=30000) as new_page_info:
+                    await external_apply_button.click() 
+                    await page.wait_for_timeout(1000)
+
+                external_page = await new_page_info.value
+                await external_page.wait_for_load_state('domcontentloaded', timeout=30000)
+                await external_page.bring_to_front()
+                logger.info(f"✅ Successfully opened external application page: {external_page.url}")
+                return "external_redirect", external_page, external_page.url
+            
+            except PlaywrightTimeoutError:
+                logger.warning(f"Timed out waiting for new page after clicking external apply button for {job_url}. "
+                               "Checking if navigation happened in the same tab.")
+                await page.wait_for_timeout(3000)
+                current_url_after_click = page.url
+                if not current_url_after_click.startswith("https://www.linkedin.com/") and current_url_after_click != job_url:
+                    logger.info(f"✅ Current page navigated to external site: {current_url_after_click}")
+                    return "external_same_page_nav", page, current_url_after_click
+                logger.error(f"No new page detected and current URL did not change after clicking apply for {job_url}.")
+                return None, None, "Failed to detect external navigation."
+            except Exception as e:
+                logger.error(f"Error clicking external apply button for {job_url}: {e}")
+                return None, None, f"Exception during external apply: {str(e)}"
+        else:
+            logger.warning(f"⚠️ No external apply button found for {job_url} after checking all selectors.")
+            return None, None, "No external apply button found."
+
     def _build_search_url(self, keywords: str, location: Optional[str] = None) -> str:
         """Build search URL for LinkedIn Jobs"""
         params = {
@@ -663,4 +802,687 @@ class LinkedInScraper(JobScraper):
                 error_message=error_msg,
                 jobs_found=0,
                 execution_time=execution_time
-            ) 
+            )
+
+    async def search_jobs_with_filters(
+        self,
+        keywords: str,
+        location: Optional[str] = None,
+        num_results: int = 10,
+        date_posted: Optional[str] = None,
+        experience_levels: Optional[List[str]] = None,
+        work_modalities: Optional[List[str]] = None,
+        enable_easy_apply_filter: bool = False
+    ) -> List[Dict[str, Any]]:
+        """
+        Enhanced job search with intelligent filtering
+        
+        Args:
+            keywords: Job search keywords
+            location: Job location
+            num_results: Number of results to return
+            date_posted: "Past 24 hours", "Past week", "Past month", "Any time"
+            experience_levels: List of levels like ["Entry level", "Mid-Senior level"]
+            work_modalities: List of types like ["Remote", "Hybrid"]
+            enable_easy_apply_filter: Whether to filter for Easy Apply jobs
+            
+        Returns:
+            List of filtered job data
+        """
+        try:
+            await self._update_progress("Starting intelligent LinkedIn job search", 0)
+            
+            # Setup browser and navigate to search
+            search_url = self._build_search_url(keywords, location)
+            logger.info(f"🔍 Starting filtered search: {search_url}")
+            
+            if BROWSER_SERVICE_AVAILABLE and browser_service:
+                if not browser_service.browser:
+                    await browser_service.start_browser()
+                page = browser_service.page
+                await page.goto(search_url, wait_until='domcontentloaded', timeout=30000)
+            else:
+                raise Exception("Browser service not available")
+            
+            await self._update_progress("Applying intelligent search filters", 20)
+            
+            # Apply the sophisticated filters
+            filter_success = await self._apply_search_filters(
+                page=page,
+                date_posted=date_posted,
+                experience_levels=experience_levels,
+                work_modalities=work_modalities,
+                enable_easy_apply_filter=enable_easy_apply_filter
+            )
+            
+            if not filter_success:
+                logger.warning("⚠️ Filter application failed, proceeding with basic search")
+            
+            await self._update_progress("Extracting filtered job results", 60)
+            
+            # Extract jobs from filtered results
+            jobs_data = await self._extract_job_data(page)
+            
+            await self._update_progress(f"Successfully found {len(jobs_data)} filtered jobs", 100)
+            
+            return jobs_data[:num_results]
+            
+        except Exception as e:
+            logger.error(f"❌ Enhanced job search failed: {e}")
+            return []
+
+    async def _apply_search_filters(
+        self,
+        page: Page,
+        date_posted: Optional[str] = None,
+        experience_levels: Optional[List[str]] = None,
+        work_modalities: Optional[List[str]] = None,
+        enable_easy_apply_filter: bool = False
+    ) -> bool:
+        """
+        Apply sophisticated search filters to LinkedIn job search
+        
+        Returns:
+            True if filters were successfully applied, False otherwise
+        """
+        try:
+            logger.info("🎯 Applying intelligent search filters...")
+            
+            # Wait for page to load completely
+            await page.wait_for_timeout(random.uniform(2000, 4000))
+            
+            # Try to find and click "All filters" button
+            all_filters_selectors = self.selectors.get('search_filters', {}).get('all_filters_button', [])
+            all_filters_button = None
+            
+            for selector in all_filters_selectors:
+                try:
+                    all_filters_button = await page.wait_for_selector(selector, state="visible", timeout=5000)
+                    if all_filters_button:
+                        logger.info(f"✅ Found 'All filters' button with selector: {selector}")
+                        break
+                except:
+                    continue
+            
+            if not all_filters_button:
+                logger.warning("⚠️ Could not find 'All filters' button, trying individual filters")
+                return await self._apply_individual_filters(page, date_posted, experience_levels, work_modalities)
+            
+            # Click "All filters" to open modal
+            await all_filters_button.click()
+            logger.info("📋 Opening filters modal...")
+            await page.wait_for_timeout(random.uniform(1500, 2500))
+            
+            # Apply Date Posted filter
+            if date_posted:
+                await self._apply_date_posted_filter(page, date_posted)
+            
+            # Apply Experience Level filters
+            if experience_levels:
+                await self._apply_experience_level_filters(page, experience_levels)
+            
+            # Apply Work Modality filters
+            if work_modalities:
+                await self._apply_work_modality_filters(page, work_modalities)
+            
+            # Apply Easy Apply filter
+            if enable_easy_apply_filter:
+                await self._apply_easy_apply_filter(page)
+            
+            # Click "Show results" to apply all filters
+            await self._apply_filters_and_show_results(page)
+            
+            logger.info("✅ All filters applied successfully!")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ Error applying search filters: {e}")
+            return False
+
+    async def _apply_date_posted_filter(self, page: Page, date_posted: str) -> bool:
+        """Apply date posted filter"""
+        try:
+            date_options = self.selectors.get('search_filters', {}).get('date_posted_filter', {}).get('options', {})
+            option_key = date_posted.lower().replace(' ', '_').replace('-', '_')
+            
+            if option_key not in date_options:
+                logger.warning(f"⚠️ Unknown date posted option: {date_posted}")
+                return False
+            
+            option_selectors = date_options[option_key]
+            for selector in option_selectors:
+                try:
+                    option_element = await page.query_selector(selector)
+                    if option_element and await option_element.is_visible():
+                        await option_element.click()
+                        logger.info(f"✅ Applied date filter: {date_posted}")
+                        await page.wait_for_timeout(random.uniform(500, 1000))
+                        return True
+                except:
+                    continue
+            
+            logger.warning(f"⚠️ Could not apply date filter: {date_posted}")
+            return False
+            
+        except Exception as e:
+            logger.error(f"❌ Error applying date posted filter: {e}")
+            return False
+
+    async def _apply_experience_level_filters(self, page: Page, experience_levels: List[str]) -> bool:
+        """Apply experience level filters"""
+        try:
+            exp_options = self.selectors.get('search_filters', {}).get('experience_level_filter', {}).get('options', {})
+            success_count = 0
+            
+            for level in experience_levels:
+                option_key = level.lower().replace(' ', '_').replace('-', '_')
+                
+                if option_key not in exp_options:
+                    logger.warning(f"⚠️ Unknown experience level: {level}")
+                    continue
+                
+                option_selectors = exp_options[option_key]
+                for selector in option_selectors:
+                    try:
+                        option_element = await page.query_selector(selector)
+                        if option_element and await option_element.is_visible():
+                            await option_element.click()
+                            logger.info(f"✅ Applied experience level filter: {level}")
+                            await page.wait_for_timeout(random.uniform(300, 700))
+                            success_count += 1
+                            break
+                    except:
+                        continue
+            
+            return success_count > 0
+            
+        except Exception as e:
+            logger.error(f"❌ Error applying experience level filters: {e}")
+            return False
+
+    async def _apply_work_modality_filters(self, page: Page, work_modalities: List[str]) -> bool:
+        """Apply work modality filters (Remote, Hybrid, On-site)"""
+        try:
+            work_options = self.selectors.get('search_filters', {}).get('work_type_filter', {}).get('options', {})
+            success_count = 0
+            
+            for modality in work_modalities:
+                option_key = modality.lower().replace(' ', '_').replace('-', '_')
+                
+                if option_key not in work_options:
+                    logger.warning(f"⚠️ Unknown work modality: {modality}")
+                    continue
+                
+                option_selectors = work_options[option_key]
+                for selector in option_selectors:
+                    try:
+                        option_element = await page.query_selector(selector)
+                        if option_element and await option_element.is_visible():
+                            await option_element.click()
+                            logger.info(f"✅ Applied work modality filter: {modality}")
+                            await page.wait_for_timeout(random.uniform(300, 700))
+                            success_count += 1
+                            break
+                    except:
+                        continue
+            
+            return success_count > 0
+            
+        except Exception as e:
+            logger.error(f"❌ Error applying work modality filters: {e}")
+            return False
+
+    async def _apply_easy_apply_filter(self, page: Page) -> bool:
+        """Apply Easy Apply filter"""
+        try:
+            easy_apply_selectors = self.selectors.get('search_filters', {}).get('easy_apply_filter', {}).get('toggle', [])
+            
+            for selector in easy_apply_selectors:
+                try:
+                    toggle_element = await page.query_selector(selector)
+                    if toggle_element and await toggle_element.is_visible():
+                        await toggle_element.click()
+                        logger.info("✅ Applied Easy Apply filter")
+                        await page.wait_for_timeout(random.uniform(500, 1000))
+                        return True
+                except:
+                    continue
+            
+            logger.warning("⚠️ Could not apply Easy Apply filter")
+            return False
+            
+        except Exception as e:
+            logger.error(f"❌ Error applying Easy Apply filter: {e}")
+            return False
+
+    async def _apply_filters_and_show_results(self, page: Page) -> bool:
+        """Click 'Show results' button to apply all filters"""
+        try:
+            show_results_selectors = self.selectors.get('search_filters', {}).get('apply_filters_button', [])
+            
+            for selector in show_results_selectors:
+                try:
+                    show_results_button = await page.wait_for_selector(selector, state="visible", timeout=5000)
+                    if show_results_button:
+                        await show_results_button.click()
+                        logger.info("🎯 Clicked 'Show results' - applying all filters...")
+                        
+                        # Wait for results to update
+                        await page.wait_for_timeout(random.uniform(3000, 5000))
+                        
+                        # Wait for loading to complete
+                        try:
+                            loading_selectors = self.selectors.get('search_filters', {}).get('filter_loading_indicator', [])
+                            for loading_selector in loading_selectors:
+                                try:
+                                    await page.wait_for_selector(loading_selector, state="detached", timeout=10000)
+                                    break
+                                except:
+                                    continue
+                        except:
+                            pass
+                        
+                        logger.info("✅ Filters applied and results updated!")
+                        return True
+                except:
+                    continue
+            
+            logger.warning("⚠️ Could not find 'Show results' button")
+            return False
+            
+        except Exception as e:
+            logger.error(f"❌ Error clicking 'Show results': {e}")
+            return False
+
+    async def _apply_individual_filters(self, page: Page, date_posted: Optional[str], 
+                                      experience_levels: Optional[List[str]], 
+                                      work_modalities: Optional[List[str]]) -> bool:
+        """Fallback method to apply individual filters if modal approach fails"""
+        try:
+            logger.info("🔄 Attempting individual filter application...")
+            
+            # This would be implemented if the "All filters" modal approach doesn't work
+            # and we need to click individual filter buttons on the main search page
+            
+            # For now, return False to indicate filters couldn't be applied
+            logger.warning("⚠️ Individual filter application not yet implemented")
+            return False
+            
+        except Exception as e:
+            logger.error(f"❌ Error applying individual filters: {e}")
+            return False
+
+    async def _apply_filter_category_with_vision(
+        self,
+        main_filter_button_key: str,
+        option_values_to_select: List[str],
+        option_map: dict,
+        filter_category_name: str,
+        dropdown_apply_button_key: Optional[str] = None
+    ):
+        """
+        Apply filters for a single category with vision fallbacks
+        
+        1. Try CSS selectors first (fast and precise)
+        2. Fall back to vision-based interaction if selectors fail
+        """
+        if not option_values_to_select:
+            self.logger.info(f"No options specified for {filter_category_name} filter.")
+            return
+
+        # First, try CSS selector approach
+        try:
+            await self._apply_filter_category_css(
+                main_filter_button_key, option_values_to_select, 
+                option_map, filter_category_name, dropdown_apply_button_key
+            )
+            return
+        except Exception as e:
+            self.logger.warning(f"CSS selector approach failed for {filter_category_name}: {e}")
+            self.logger.info(f"Falling back to vision-based interaction for {filter_category_name}")
+        
+        # Fall back to vision-based approach
+        await self._apply_filter_category_vision(
+            filter_category_name, option_values_to_select
+        )
+
+    async def _apply_filter_category_css(
+        self,
+        main_filter_button_key: str,
+        option_values_to_select: List[str],
+        option_map: dict,
+        filter_category_name: str,
+        dropdown_apply_button_key: Optional[str] = None
+    ):
+        """Traditional CSS selector-based filtering"""
+        
+        # Get selectors from nested structure
+        main_filter_selectors = self.selectors.get('search_filters', {}).get('top_level_filter_buttons', {}).get(main_filter_button_key, [])
+        
+        if not main_filter_selectors:
+            raise Exception(f"No selectors found for {main_filter_button_key}")
+
+        # Try each selector until one works
+        main_filter_button = None
+        for selector in main_filter_selectors:
+            try:
+                main_filter_button = await self.page.query_selector(selector)
+                if main_filter_button and await main_filter_button.is_visible():
+                    self.logger.info(f"Found {filter_category_name} button with selector: {selector}")
+                    break
+            except:
+                continue
+        
+        if not main_filter_button:
+            raise Exception(f"Main filter button for {filter_category_name} not found")
+        
+        # Click main filter button
+        await main_filter_button.scroll_into_view_if_needed()
+        await self.page.wait_for_timeout(500)
+        await main_filter_button.click()
+        await self.page.wait_for_timeout(random.uniform(1500, 2500))
+        
+        # Select options
+        for value_to_select in option_values_to_select:
+            option_selector_key = option_map.get(value_to_select)
+            if not option_selector_key:
+                self.logger.warning(f"No selector key found for option '{value_to_select}' in {filter_category_name}")
+                continue
+            
+            # Get option selectors from nested structure  
+            option_selectors = self.selectors.get('search_filters', {}).get(f'{filter_category_name.lower().replace(" ", "_").replace("-", "_")}_options', {}).get(option_selector_key, [])
+            
+            option_element = None
+            for selector in option_selectors:
+                try:
+                    option_element = await self.page.query_selector(selector)
+                    if option_element and await option_element.is_visible():
+                        break
+                except:
+                    continue
+            
+            if option_element:
+                self.logger.info(f"Selecting {filter_category_name} option: {value_to_select}")
+                await option_element.click()
+                await self.page.wait_for_timeout(random.uniform(500, 1000))
+            else:
+                self.logger.warning(f"Option '{value_to_select}' not found in {filter_category_name} dropdown")
+
+        # Click apply/done button if specified
+        if dropdown_apply_button_key:
+            apply_selectors = self.selectors.get('search_filters', {}).get('dropdown_apply_buttons', {}).get(dropdown_apply_button_key, [])
+            
+            apply_button = None
+            for selector in apply_selectors:
+                try:
+                    apply_button = await self.page.query_selector(selector)
+                    if apply_button and await apply_button.is_visible():
+                        break
+                except:
+                    continue
+            
+            if apply_button:
+                self.logger.info(f"Clicking apply button for {filter_category_name}")
+                await apply_button.click()
+                await self.page.wait_for_timeout(1000)
+
+        # Wait for results to update
+        await self._wait_for_results_update()
+
+    async def _apply_filter_category_vision(
+        self,
+        filter_category_name: str,
+        option_values_to_select: List[str]
+    ):
+        """Vision-based filtering when CSS selectors fail"""
+        
+        # Import vision service
+        from app.services.vision_service import vision_service
+        
+        try:
+            # Initialize vision service
+            if not vision_service.initialized:
+                await vision_service.initialize()
+            
+            # Step 1: Take screenshot and find main filter button
+            screenshot = await self.page.screenshot()
+            
+            element_info = await vision_service.analyze_image_for_element(
+                screenshot,
+                f"{filter_category_name} filter button",
+                f"LinkedIn job search page with filter buttons at the top. Looking for a clickable button labeled '{filter_category_name}'"
+            )
+            
+            if not element_info:
+                raise Exception(f"Vision could not find {filter_category_name} button")
+            
+            # Click main filter button using vision coordinates
+            center_x, center_y = await vision_service.get_element_center(element_info)
+            if center_x and center_y:
+                self.logger.info(f"🎯 Vision clicking {filter_category_name} button at ({center_x}, {center_y})")
+                await self.page.mouse.click(center_x, center_y)
+                await self.page.wait_for_timeout(2000)
+            else:
+                raise Exception(f"Could not get center coordinates for {filter_category_name} button")
+            
+            # Step 2: Take screenshot of dropdown and select options
+            await self.page.wait_for_timeout(1000)  # Wait for dropdown to open
+            dropdown_screenshot = await self.page.screenshot()
+            
+            for value_to_select in option_values_to_select:
+                option_info = await vision_service.analyze_image_for_element(
+                    dropdown_screenshot,
+                    f"{value_to_select} option",
+                    f"Dropdown menu for {filter_category_name} filter. Looking for option labeled '{value_to_select}'"
+                )
+                
+                if option_info:
+                    opt_center_x, opt_center_y = await vision_service.get_element_center(option_info)
+                    if opt_center_x and opt_center_y:
+                        self.logger.info(f"🎯 Vision selecting option '{value_to_select}' at ({opt_center_x}, {opt_center_y})")
+                        await self.page.mouse.click(opt_center_x, opt_center_y)
+                        await self.page.wait_for_timeout(500)
+                else:
+                    self.logger.warning(f"🔍 Vision could not find option '{value_to_select}' in {filter_category_name} dropdown")
+            
+            # Step 3: Look for and click apply/done button in dropdown
+            apply_info = await vision_service.analyze_image_for_element(
+                dropdown_screenshot,
+                "Done button or Apply button",
+                f"Within the {filter_category_name} dropdown, looking for a button to apply the selected filters"
+            )
+            
+            if apply_info:
+                apply_center_x, apply_center_y = await vision_service.get_element_center(apply_info)
+                if apply_center_x and apply_center_y:
+                    self.logger.info(f"🎯 Vision clicking apply button at ({apply_center_x}, {apply_center_y})")
+                    await self.page.mouse.click(apply_center_x, apply_center_y)
+                    await self.page.wait_for_timeout(1000)
+            else:
+                self.logger.info(f"No apply button found in {filter_category_name} dropdown - assuming auto-apply")
+            
+            # Wait for results to update
+            await self._wait_for_results_update()
+            
+        except Exception as e:
+            self.logger.error(f"Vision-based filtering failed for {filter_category_name}: {e}")
+            raise
+
+    async def _wait_for_results_update(self):
+        """Wait for job search results to update after applying filters"""
+        
+        # First try CSS selectors for loading indicators
+        loading_selectors = self.selectors.get('search_filters', {}).get('results_update_indicators', [])
+        
+        for selector in loading_selectors:
+            try:
+                # Wait for loading indicator to appear
+                await self.page.wait_for_selector(selector, state='visible', timeout=3000)
+                # Then wait for it to disappear
+                await self.page.wait_for_selector(selector, state='hidden', timeout=10000)
+                self.logger.info("✅ Results updated (loading indicator method)")
+                return
+            except:
+                continue
+        
+        # Fallback: wait for page state change using vision
+        try:
+            from app.services.vision_service import vision_service
+            
+            if vision_service.initialized:
+                # Wait a moment for any loading to start
+                await self.page.wait_for_timeout(1000)
+                
+                # Take screenshot and verify results have updated
+                screenshot = await self.page.screenshot()
+                results_updated = await vision_service.verify_page_state(
+                    screenshot,
+                    "Job search results are displayed and not loading"
+                )
+                
+                if results_updated:
+                    self.logger.info("✅ Results updated (vision verification)")
+                else:
+                    self.logger.warning("⚠️ Could not verify results update via vision")
+            
+        except Exception as e:
+            self.logger.warning(f"Vision verification of results update failed: {e}")
+        
+        # Final fallback: simple timeout
+        await self.page.wait_for_timeout(random.uniform(3000, 5000))
+        self.logger.info("✅ Results update timeout completed")
+
+    async def _apply_search_filters_sequential(
+        self,
+        date_posted: Optional[str] = None,
+        experience_levels: Optional[List[str]] = None,
+        work_modalities: Optional[List[str]] = None,
+    ):
+        """Apply search filters sequentially with vision fallbacks"""
+        
+        self.logger.info("🔍 Applying search filters sequentially (with vision fallbacks)...")
+        
+        # Wait for filter bar to be ready
+        filter_bar_indicators = self.selectors.get('search_filters', {}).get('search_results_filter_bar_loaded_indicator', [])
+        
+        for indicator in filter_bar_indicators:
+            try:
+                await self.page.wait_for_selector(indicator, state="visible", timeout=10000)
+                self.logger.info("Filter bar loaded and ready")
+                break
+            except:
+                continue
+
+        # Apply Date Posted filter
+        if date_posted:
+            option_map = {
+                "Past 24 hours": "past_24_hours",
+                "Past week": "past_week", 
+                "Past month": "past_month",
+                "Any time": "any_time",
+            }
+            await self._apply_filter_category_with_vision(
+                main_filter_button_key="date_posted_button",
+                option_values_to_select=[date_posted],
+                option_map=option_map,
+                filter_category_name="Date Posted",
+                dropdown_apply_button_key="date_posted_apply"
+            )
+
+        # Apply Experience Level filter
+        if experience_levels:
+            option_map = {
+                "Internship": "internship",
+                "Entry level": "entry_level",
+                "Associate": "associate", 
+                "Mid-Senior level": "mid_senior_level",
+                "Director": "director",
+                "Executive": "executive",
+            }
+            await self._apply_filter_category_with_vision(
+                main_filter_button_key="experience_level_button",
+                option_values_to_select=experience_levels,
+                option_map=option_map,
+                filter_category_name="Experience Level",
+                dropdown_apply_button_key="experience_level_apply"
+            )
+
+        # Apply Work Modality filter
+        if work_modalities:
+            option_map = {
+                "On-site": "on_site",
+                "Remote": "remote",
+                "Hybrid": "hybrid",
+            }
+            await self._apply_filter_category_with_vision(
+                main_filter_button_key="on_site_remote_button",
+                option_values_to_select=work_modalities,
+                option_map=option_map,
+                filter_category_name="On-site/Remote",
+                dropdown_apply_button_key="on_site_remote_apply"
+            )
+
+        self.logger.info("✅ All sequential filters applied successfully")
+
+    async def find_jobs(
+        self,
+        keywords: str,
+        location: str,
+        results_limit: int = 10,
+        date_posted: Optional[str] = None,
+        experience_levels: Optional[List[str]] = None,
+        work_modalities: Optional[List[str]] = None,
+        enable_easy_apply_filter: bool = False,
+        use_sequential_filtering: bool = True
+    ) -> List[dict]:
+        """
+        Enhanced job search with sequential filtering and vision fallbacks
+        
+        Args:
+            use_sequential_filtering: If True, uses methodical sequential approach
+        """
+        self.logger.info(f"🔍 Starting LinkedIn job search: Keywords='{keywords}', Location='{location}'")
+        self.logger.info(f"📊 Filters: date_posted={date_posted}, experience_levels={experience_levels}, work_modalities={work_modalities}")
+        
+        # Perform initial search
+        try:
+            await self._perform_search(keywords, location)
+        except Exception as e:
+            self.logger.error(f"❌ Search failed: {e}")
+            return []
+
+        # Apply filters based on method preference
+        if use_sequential_filtering:
+            try:
+                await self._apply_search_filters_sequential(
+                    date_posted=date_posted,
+                    experience_levels=experience_levels,
+                    work_modalities=work_modalities
+                )
+            except Exception as e:
+                self.logger.error(f"❌ Sequential filtering failed: {e}")
+                self.logger.info("🔄 Falling back to traditional filtering...")
+                try:
+                    await self._apply_search_filters(
+                        date_posted=date_posted,
+                        experience_levels=experience_levels,
+                        work_modalities=work_modalities,
+                        enable_easy_apply_filter=enable_easy_apply_filter
+                    )
+                except Exception as e2:
+                    self.logger.warning(f"⚠️ All filtering methods failed: {e2}")
+        else:
+            # Use traditional filtering method
+            try:
+                await self._apply_search_filters(
+                    date_posted=date_posted,
+                    experience_levels=experience_levels,
+                    work_modalities=work_modalities,
+                    enable_easy_apply_filter=enable_easy_apply_filter
+                )
+            except Exception as e:
+                self.logger.warning(f"⚠️ Traditional filtering failed: {e}")
+
+        # Process job listings
+        self.logger.info("📋 Processing job listings...")
+        return await self._process_job_listings_page(results_limit, job_url_pattern=r"linkedin\.com/jobs/view/(\d+)") 

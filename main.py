@@ -2336,5 +2336,281 @@ def vision_enhanced_apply():
     except FileNotFoundError:
         console.print("❌ Vision-enhanced script not found. Make sure linkedin_vision_enhanced.py exists.")
 
+@app.command()
+def vision_enhanced_apply():
+    """🔍 Run vision-enhanced LinkedIn automation with AI computer vision fallbacks"""
+    import subprocess
+    import sys
+    try:
+        subprocess.run([sys.executable, "linkedin_vision_enhanced.py"], check=True)
+    except subprocess.CalledProcessError as e:
+        typer.echo(f"Error running vision-enhanced automation: {e}")
+    except FileNotFoundError:
+        typer.echo("Error: linkedin_vision_enhanced.py not found")
+
+@app.command()
+def external_apply(
+    job_url: Annotated[str, typer.Option(help="LinkedIn job URL to apply to externally")],
+    profile_name: Annotated[str, typer.Option(help="User profile name to use")] = "default",
+    demo_mode: Annotated[bool, typer.Option("--demo", help="Run in demo mode (no real applications)")] = True
+):
+    """🌐 Apply to external job sites (ATS, company portals) starting from LinkedIn"""
+    import asyncio
+    from app.agent_orchestrator import AgentOrchestrator
+    from app.services.user_profile_service import UserProfileService
+
+    async def run_external_application():
+        typer.echo("🌐 External Application Workflow Starting...")
+        typer.echo(f"Job URL: {job_url}")
+        typer.echo(f"Profile: {profile_name}")
+        typer.echo(f"Demo Mode: {'✅ Enabled' if demo_mode else '❌ Disabled'}")
+        
+        if not demo_mode:
+            if not typer.confirm("⚠️ This will submit real applications. Continue?"):
+                typer.echo("Application cancelled.")
+                return
+        
+        try:
+            # Initialize orchestrator
+            orchestrator = AgentOrchestrator()
+            
+            # Load user profile
+            profile_service = UserProfileService()
+            try:
+                user_profile = profile_service.load_profile(profile_name)
+                typer.echo(f"✅ Loaded user profile: {profile_name}")
+            except Exception as e:
+                typer.echo(f"⚠️ Could not load user profile '{profile_name}': {e}")
+                typer.echo("🔧 Using demo profile data")
+                user_profile = None  # ExternalApplicationHandler will use demo data
+            
+            # Run the workflow
+            result = await orchestrator.run_external_application_workflow(
+                job_url=job_url,
+                user_profile=user_profile
+            )
+            
+            # Display results
+            if result.get("success"):
+                typer.echo("\n✅ External application workflow completed successfully!")
+                typer.echo(f"   Application type: {result.get('application_type')}")
+                typer.echo(f"   External URL: {result.get('external_url')}")
+                typer.echo(f"   Fields filled: {result.get('fields_filled')}")
+                typer.echo(f"   Steps completed: {', '.join(result.get('steps_completed', []))}")
+            else:
+                typer.echo("\n❌ External application workflow failed.")
+                for error in result.get("errors", []):
+                    typer.echo(f"   Error: {error}")
+            
+        except Exception as e:
+            typer.echo(f"❌ Unexpected error: {e}")
+            import traceback
+            traceback.print_exc()
+
+    # Run the async function
+    asyncio.run(run_external_application())
+
+@app.command()
+def batch_external_apply(
+    profile_name: Annotated[str, typer.Option(help="User profile name to use")] = "default",
+    max_applications: Annotated[int, typer.Option(help="Maximum number of applications to process")] = 3,
+    demo_mode: Annotated[bool, typer.Option("--demo", help="Run in demo mode")] = True
+):
+    """
+    🔥 Batch process external applications from recent LinkedIn job searches
+    """
+    async def run_batch_applications():
+        try:
+            from app.agent_orchestrator import AgentOrchestrator
+            from app.services.user_profile_service import UserProfileService
+            from app.services.database_service import get_all_jobs
+            
+            orchestrator = AgentOrchestrator()
+            profile_service = UserProfileService()
+            
+            # Load user profile
+            user_profile = profile_service.load_profile(profile_name)
+            if not user_profile:
+                console.print(f"[red]❌ Profile '{profile_name}' not found. Use 'create-profile' first.[/red]")
+                return
+            
+            # Get recent LinkedIn jobs from database
+            recent_jobs = get_all_jobs(limit=max_applications * 2)  # Get extra for selection
+            linkedin_jobs = [job for job in recent_jobs if 'linkedin.com' in job.job_url]
+            
+            if not linkedin_jobs:
+                console.print("[yellow]⚠️ No LinkedIn jobs found in database. Run 'find-jobs' first.[/yellow]")
+                return
+            
+            console.print(f"📋 Found {len(linkedin_jobs)} LinkedIn jobs in database")
+            
+            # Extract job URLs for batch processing
+            job_urls = [job.job_url for job in linkedin_jobs[:max_applications]]
+            
+            # Run batch external applications
+            results = await orchestrator.batch_external_applications(
+                job_urls=job_urls,
+                user_profile=user_profile,
+                max_applications=max_applications
+            )
+            
+            console.print(f"\n🎯 Batch processing complete!")
+            console.print(f"✅ Successful: {results['successful']}")
+            console.print(f"❌ Failed: {results['failed']}")
+            
+        except Exception as e:
+            console.print(f"[red]❌ Batch application failed: {e}[/red]")
+            import traceback
+            traceback.print_exc()
+    
+    if not demo_mode:
+        console.print("[red]⚠️ Demo mode disabled - will make real applications![/red]")
+        if not typer.confirm("Are you sure you want to proceed?"):
+            console.print("Operation cancelled.")
+            return
+    
+    console.print(f"🔥 Starting batch external applications (Demo: {demo_mode})")
+    asyncio.run(run_batch_applications())
+
+@app.command()
+def intelligent_discovery(
+    keywords: Annotated[str, typer.Option(help="Job search keywords (e.g., 'Python Developer')")],
+    location: Annotated[str, typer.Option(help="Job location preference")] = "Remote",
+    experience_level: Annotated[str, typer.Option(help="Experience level: 'Entry level', 'Mid-Senior level', etc.")] = "Entry level",
+    work_modality: Annotated[str, typer.Option(help="Work type: 'Remote', 'Hybrid', 'On-site'")] = "Remote",
+    max_job_age_days: Annotated[int, typer.Option(help="Maximum job age in days (1, 7, 30)")] = 7,
+    max_results: Annotated[int, typer.Option(help="Maximum number of results")] = 10
+):
+    """
+    🧠 Intelligent job discovery with sophisticated filtering to reduce 400+ jobs to highly relevant matches
+    """
+    async def run_intelligent_discovery():
+        try:
+            from app.agent_orchestrator import AgentOrchestrator
+            
+            orchestrator = AgentOrchestrator()
+            
+            console.print(f"🧠 Starting intelligent job discovery...")
+            console.print(f"Target: {keywords} | Experience: {experience_level} | Work: {work_modality}")
+            
+            results = await orchestrator.intelligent_job_discovery_workflow(
+                keywords=keywords,
+                location=location,
+                target_experience_level=experience_level,
+                preferred_work_modality=work_modality,
+                max_job_age_days=max_job_age_days,
+                max_results=max_results
+            )
+            
+            if results.get("success"):
+                console.print(f"🎯 Discovery successful! Found {results['filtered_jobs_count']} highly relevant jobs")
+                console.print(f"📊 Filter efficiency: {results['filter_efficiency']:.1f}% noise reduction")
+            else:
+                console.print("[yellow]⚠️ Discovery completed with issues - check results above[/yellow]")
+            
+        except Exception as e:
+            console.print(f"[red]❌ Intelligent discovery failed: {e}[/red]")
+            import traceback
+            traceback.print_exc()
+    
+    console.print(f"🔍 Launching intelligent job discovery...")
+    asyncio.run(run_intelligent_discovery())
+
+@app.command()
+def smart_pipeline(
+    keywords: Annotated[str, typer.Option(help="Job search keywords (e.g., 'Frontend Developer')")],
+    experience_level: Annotated[str, typer.Option(help="Experience level filter")] = "Entry level",
+    work_modality: Annotated[str, typer.Option(help="Work type preference")] = "Remote",
+    max_applications: Annotated[int, typer.Option(help="Maximum applications to submit")] = 3,
+    profile_name: Annotated[str, typer.Option(help="User profile to use")] = "default",
+    demo_mode: Annotated[bool, typer.Option("--demo", help="Run in demo mode")] = True
+):
+    """
+    🚀 Complete smart pipeline: Intelligent Discovery → External Applications
+    
+    This is the ultimate automation combining intelligent job filtering with 
+    external application automation. It mimics the approach from the DEV.to 
+    article that reduced 401 jobs to 8 relevant matches.
+    """
+    async def run_smart_pipeline():
+        try:
+            from app.agent_orchestrator import AgentOrchestrator
+            
+            orchestrator = AgentOrchestrator()
+            
+            console.print(f"🚀 Starting complete smart automation pipeline...")
+            console.print(f"This will filter 400+ jobs down to {max_applications} targeted applications")
+            
+            results = await orchestrator.smart_external_application_pipeline(
+                keywords=keywords,
+                target_experience_level=experience_level,
+                preferred_work_modality=work_modality,
+                max_applications=max_applications,
+                user_profile_name=profile_name
+            )
+            
+            if results.get("pipeline_success"):
+                console.print(f"🎉 Pipeline completed successfully!")
+                console.print(f"✅ {results['applications_successful']}/{results['applications_attempted']} applications submitted")
+            else:
+                console.print("[yellow]⚠️ Pipeline completed with mixed results[/yellow]")
+                
+        except Exception as e:
+            console.print(f"[red]❌ Smart pipeline failed: {e}[/red]")
+            import traceback
+            traceback.print_exc()
+    
+    if not demo_mode:
+        console.print("[red]⚠️ Demo mode disabled - will make real applications![/red]")
+        if not typer.confirm("Are you sure you want to proceed with real applications?"):
+            console.print("Operation cancelled.")
+            return
+    
+    console.print(f"🎯 Launching smart external application pipeline (Demo: {demo_mode})")
+    asyncio.run(run_smart_pipeline())
+
+@app.command()
+def complete_visible_workflow(
+    keywords: Annotated[str, typer.Option(help="Job search keywords")] = "Python Developer",
+    location: Annotated[str, typer.Option(help="Job location")] = "Remote",
+    max_jobs: Annotated[int, typer.Option(help="Maximum jobs to process")] = 3,
+    profile_name: Annotated[str, typer.Option(help="User profile name")] = "default",
+    demo_mode: Annotated[bool, typer.Option("--demo", help="Run in demo mode")] = True
+):
+    """
+    🚀 Complete VISIBLE LinkedIn workflow: Login → Search → Apply → External Sites
+    
+    This shows the FULL automation you built: visible browser, login, job search,
+    Easy Apply detection, external application detection, and form filling.
+    """
+    async def run_complete_workflow():
+        try:
+            import sys
+            import os
+            sys.path.append(os.path.join(os.path.dirname(__file__)))
+            
+            # Import the complete workflow
+            from complete_linkedin_workflow import CompleteLinkedInWorkflow
+            
+            console.print(f"🚀 Starting Complete Visible LinkedIn Automation")
+            console.print(f"   Keywords: {keywords}")
+            console.print(f"   Location: {location}")
+            console.print(f"   Max Jobs: {max_jobs}")
+            console.print(f"   Demo Mode: {demo_mode}")
+            
+            # Initialize and run workflow
+            workflow = CompleteLinkedInWorkflow()
+            await workflow.run_complete_workflow(keywords, location, max_jobs)
+            
+            console.print("✅ Complete workflow finished!")
+            
+        except Exception as e:
+            console.print(f"[red]❌ Workflow failed: {e}[/red]")
+            import traceback
+            traceback.print_exc()
+    
+    console.print(f"🎯 Launching complete visible LinkedIn automation...")
+    asyncio.run(run_complete_workflow())
+
 if __name__ == "__main__":
     app() 

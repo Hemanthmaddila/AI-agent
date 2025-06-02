@@ -20,5 +20,234 @@
     ".job-details-jobs-unified-top-card__company-name",
     ".jobs-premium-company-insights artdeco-card premium-accent-bar\n        "
   ],
-  "analysis_date": "2025-01-27"
+  "easy_apply_button_selectors": [
+    "button[aria-label*='Easy Apply']",
+    "button:has-text('Easy Apply')",
+    ".jobs-apply-button--easyapply",
+    "[data-control-name*='jobdetails_topcard_inapply']",
+    ".jobs-easy-apply-button"
+  ],
+  "external_apply_button_selectors": [
+    "button:has-text('Apply on company website')",
+    "a:has-text('Apply on company website')",
+    "button:has-text('Apply now'):not(:has-text('Easy Apply'))",
+    "a:has-text('Apply now'):not(:has-text('Easy Apply'))",
+    "button.jobs-apply-button:not(.jobs-apply-button--easyapply)",
+    "a[href*='apply']:has-text('Apply')",
+    "button:has-text('Apply'):not(.jobs-apply-button--easyapply)",
+    ".jobs-apply-button:not(.jobs-apply-button--easyapply)",
+    "[data-control-name*='jobdetails_topcard_apply']:not([data-control-name*='inapply'])",
+    "button[aria-label*='Apply']:not([aria-label*='Easy Apply'])",
+    ".artdeco-button--primary:has-text('Apply')",
+    ".jobs-apply-external-button"
+  ],
+  "job_detail_selectors": {
+    "title": [
+      ".job-details-jobs-unified-top-card__job-title",
+      ".jobs-unified-top-card__job-title",
+      "h1.job-title",
+      "[data-testid='job-title']"
+    ],
+    "company": [
+      ".job-details-jobs-unified-top-card__company-name",
+      ".jobs-unified-top-card__company-name",
+      "[data-testid='job-company']"
+    ],
+    "location": [
+      ".job-details-jobs-unified-top-card__bullet",
+      ".jobs-unified-top-card__bullet",
+      "[data-testid='job-location']"
+    ]
+  },
+  "job_id_selectors": [
+    "[data-occludable-job-id]",
+    "[data-job-id]",
+    "[data-entity-urn*='job']"
+  ],
+  "analysis_date": "2025-01-27",
+  "external_application_indicators": [
+    "Apply on company website",
+    "Apply now",
+    "Visit company page",
+    "Apply directly",
+    "External application"
+  ],
+  "search_filters": {
+    "search_results_filter_bar_loaded_indicator": [
+      ".jobs-search-results-list__title",
+      ".jobs-search-results__subtitle",
+      ".search-results-container"
+    ],
+    
+    "top_level_filter_buttons": {
+      "date_posted_button": [
+        "button[data-control-name='filter_pill_date_posted']",
+        "button:has-text('Date posted')",
+        "button[aria-label*='Date posted']",
+        ".search-filter-dropdown-trigger:has-text('Date posted')"
+      ],
+      "experience_level_button": [
+        "button[data-control-name='filter_pill_experience']", 
+        "button:has-text('Experience level')",
+        "button[aria-label*='Experience level']",
+        ".search-filter-dropdown-trigger:has-text('Experience')"
+      ],
+      "on_site_remote_button": [
+        "button[data-control-name='filter_pill_LST']",
+        "button:has-text('On-site/remote')",
+        "button:has-text('Remote')",
+        "button[aria-label*='Remote']",
+        ".search-filter-dropdown-trigger:has-text('Remote')"
+      ],
+      "company_button": [
+        "button[data-control-name='filter_pill_company']",
+        "button:has-text('Company')",
+        "button[aria-label*='Company']"
+      ],
+      "job_type_button": [
+        "button[data-control-name='filter_pill_job_type']",
+        "button:has-text('Job type')",
+        "button[aria-label*='Job type']"
+      ]
+    },
+
+    "dropdown_containers": {
+      "date_posted_dropdown": [
+        "div[aria-labelledby*='date-posted']",
+        "div[data-test-id='date-posted-filter']",
+        ".filter-dropdown[data-filter='date-posted']"
+      ],
+      "experience_level_dropdown": [
+        "div[aria-labelledby*='experience']", 
+        "div[data-test-id='experience-filter']",
+        ".filter-dropdown[data-filter='experience']"
+      ],
+      "on_site_remote_dropdown": [
+        "div[aria-labelledby*='workplace']",
+        "div[data-test-id='workplace-filter']", 
+        ".filter-dropdown[data-filter='workplace']"
+      ]
+    },
+
+    "dropdown_apply_buttons": {
+      "date_posted_apply": [
+        "div[aria-labelledby*='date-posted'] button:has-text('Done')",
+        "div[aria-labelledby*='date-posted'] button:has-text('Apply')",
+        "div[data-test-id='date-posted-filter'] button[type='submit']"
+      ],
+      "experience_level_apply": [
+        "div[aria-labelledby*='experience'] button:has-text('Done')",
+        "div[aria-labelledby*='experience'] button:has-text('Apply')",
+        "div[data-test-id='experience-filter'] button[type='submit']"
+      ],
+      "on_site_remote_apply": [
+        "div[aria-labelledby*='workplace'] button:has-text('Done')",
+        "div[aria-labelledby*='workplace'] button:has-text('Apply')",
+        "div[data-test-id='workplace-filter'] button[type='submit']"
+      ]
+    },
+
+    "date_posted_options": {
+      "past_24_hours": [
+        "label:has-text('Past 24 hours')",
+        "input[value='r86400'] + label",
+        "[data-value='r86400']"
+      ],
+      "past_week": [
+        "label:has-text('Past week')",
+        "input[value='r604800'] + label", 
+        "[data-value='r604800']"
+      ],
+      "past_month": [
+        "label:has-text('Past month')",
+        "input[value='r2592000'] + label",
+        "[data-value='r2592000']"
+      ],
+      "any_time": [
+        "label:has-text('Any time')",
+        "input[value=''] + label",
+        "[data-value='']"
+      ]
+    },
+
+    "experience_level_options": {
+      "internship": [
+        "label:has-text('Internship')",
+        "input[value='1'] + label",
+        "[data-value='1']"
+      ],
+      "entry_level": [
+        "label:has-text('Entry level')",
+        "input[value='2'] + label", 
+        "[data-value='2']"
+      ],
+      "associate": [
+        "label:has-text('Associate')",
+        "input[value='3'] + label",
+        "[data-value='3']"
+      ],
+      "mid_senior_level": [
+        "label:has-text('Mid-Senior level')",
+        "input[value='4'] + label",
+        "[data-value='4']"
+      ],
+      "director": [
+        "label:has-text('Director')",
+        "input[value='5'] + label",
+        "[data-value='5']"
+      ],
+      "executive": [
+        "label:has-text('Executive')",
+        "input[value='6'] + label",
+        "[data-value='6']"
+      ]
+    },
+
+    "work_type_options": {
+      "on_site": [
+        "label:has-text('On-site')",
+        "input[value='1'] + label",
+        "[data-value='1']"
+      ],
+      "remote": [
+        "label:has-text('Remote')",
+        "input[value='2'] + label",
+        "[data-value='2']"
+      ],
+      "hybrid": [
+        "label:has-text('Hybrid')",
+        "input[value='3'] + label", 
+        "[data-value='3']"
+      ]
+    },
+
+    "results_update_indicators": [
+      ".jobs-search-results-list__loading-placeholder",
+      ".search-filters-loading",
+      "[data-testid='search-loading']"
+    ],
+
+    "show_results_button": [
+      "button:has-text('Show results')",
+      "button[data-control-name='filter_show_results']",
+      ".search-filters-bar__filter-apply-button"
+    ]
+  },
+  "job_results_selectors": {
+    "job_cards_container": [
+      "ul.jobs-search-results__list",
+      ".jobs-search-results-list",
+      ".scaffold-layout__list"
+    ],
+    "job_card": [
+      "li.jobs-search-results__list-item",
+      ".job-card-container",
+      "[data-occludable-job-id]"
+    ],
+    "no_results_indicator": [
+      ".jobs-search-no-results",
+      ".empty-search-results",
+      ":has-text('No matching jobs')"
+    ]
+  }
 }
