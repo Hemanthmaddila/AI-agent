@@ -433,7 +433,7 @@ def log_application(
             
             # Display summary table
             table = Table(title="Application Log Summary")
-            table.add_column("Field", style="cyan", width=20)
+            table.add_column("Field", style="cyan")
             table.add_column("Value", style="white")
             
             table.add_row("Database ID", str(application_id))
@@ -2299,6 +2299,42 @@ def auto_apply_fixed():
         console.print(f"❌ Auto-apply failed: {e}")
     except FileNotFoundError:
         console.print("❌ Auto-apply script not found. Make sure linkedin_auto_apply_fixed.py exists.")
+
+@app.command()
+def vision_enhanced_apply():
+    """🔍 BREAKTHROUGH: Vision-Enhanced LinkedIn Auto-Apply
+    
+    Uses AI computer vision (Ollama + LLaVA) combined with proven automation
+    for the most robust LinkedIn job application system possible.
+    
+    Features:
+    • Standard DOM selectors as primary method
+    • AI vision fallback for complex elements
+    • Enhanced modal and form detection
+    • Visual CAPTCHA solving capability
+    • Dynamic UI adaptation
+    """
+    console.print("🔍 LinkedIn Vision-Enhanced Auto-Apply")
+    console.print("="*60)
+    console.print("🤖 AI Computer Vision + Proven LinkedIn Automation")
+    console.print("🚀 Most robust automation system available")
+    console.print("✅ Handles dynamic UIs and complex forms")
+    console.print("="*60)
+    
+    import subprocess
+    import sys
+    
+    try:
+        # Run the vision-enhanced auto-apply script
+        subprocess.run([sys.executable, "linkedin_vision_enhanced.py"], check=True)
+    except subprocess.CalledProcessError as e:
+        console.print(f"❌ Vision-enhanced auto-apply failed: {e}")
+        console.print("💡 Make sure:")
+        console.print("   1. Ollama is installed and running")
+        console.print("   2. LLaVA model is available: ollama pull llava:latest")
+        console.print("   3. Vision service dependencies are installed")
+    except FileNotFoundError:
+        console.print("❌ Vision-enhanced script not found. Make sure linkedin_vision_enhanced.py exists.")
 
 if __name__ == "__main__":
     app() 

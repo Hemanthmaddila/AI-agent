@@ -65,6 +65,16 @@ CAPSOLVER_API_KEY = os.getenv("CAPSOLVER_API_KEY")
 # --- Application Specific Settings ---
 DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 
+# Ollama Vision Service Configuration
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llava:latest")
+OLLAMA_TIMEOUT = float(os.getenv("OLLAMA_TIMEOUT", "120.0"))
+
+# Vision Service Settings
+VISION_ENABLED = os.getenv("VISION_ENABLED", "true").lower() == "true"
+VISION_DEBUG_SCREENSHOTS = os.getenv("VISION_DEBUG_SCREENSHOTS", "true").lower() == "true"
+VISION_CONFIDENCE_THRESHOLD = float(os.getenv("VISION_CONFIDENCE_THRESHOLD", "0.7"))
+
 # Example of how to quickly test if settings are loaded (optional, remove after testing)
 if __name__ == "__main__":
     print(f"Project Root: {PROJECT_ROOT}")
