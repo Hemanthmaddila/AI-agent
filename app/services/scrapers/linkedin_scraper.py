@@ -14,6 +14,7 @@ from pathlib import Path
 from .base_scraper import JobScraper, ScraperResult, ScraperConfig
 from app.models.job_posting_models import JobPosting
 from config.enhanced_settings import enhanced_settings
+from app.services.vision_service import vision_service
 
 # Import the browser automation service
 try:
@@ -229,8 +230,51 @@ class LinkedInScraper(JobScraper):
                 logger.error(f"Error clicking external apply button for {job_url}: {e}")
                 return None, None, f"Exception during external apply: {str(e)}"
         else:
-            logger.warning(f"⚠️ No external apply button found for {job_url} after checking all selectors.")
-            return None, None, "No external apply button found."
+            logger.warning(f"⚠️ No external apply button found for {job_url} after checking all CSS selectors. Trying vision-based click...")
+            try:
+                vision_clicked_successfully = await self.click_apply_button_with_vision(page) # page is browser_service.page
+                if vision_clicked_successfully:
+                    logger.info(f"✅ Vision-based apply button click reported success for {job_url}.")
+                    # After a vision click, attempt to determine the outcome.
+                    # This is a simplified outcome detection.
+                    await page.wait_for_timeout(random.uniform(2000, 4000)) # Give page time to react
+
+                    current_url_after_click = page.url
+
+                    # Check if a new tab might have opened and is active (this is hard to check reliably without more context)
+                    # For now, focus on same-page navigation or if it's still on LinkedIn (might be a modal).
+
+                    if not current_url_after_click.startswith("https://www.linkedin.com/") and current_url_after_click != job_url:
+                        logger.info(f"✅ Vision click likely led to external site (current page nav): {current_url_after_click}")
+                        return "external_same_page_nav", page, current_url_after_click
+                    elif page.url == job_url: # Still on the same page, maybe a modal appeared
+                         # Check for common Easy Apply modal selectors
+                        easy_apply_modal_selectors = [
+                            "div[role='dialog'][aria-labelledby*='easy-apply-modal-header']",
+                            ".jobs-easy-apply-modal",
+                            "div.artdeco-modal[aria-modal='true']" # A generic modal selector
+                        ]
+                        modal_found = False
+                        for selector in easy_apply_modal_selectors:
+                            if await page.query_selector(selector):
+                                logger.info(f"✅ Vision click likely opened an Easy Apply modal (selector '{selector}' found).")
+                                modal_found = True
+                                break
+                        if modal_found:
+                             return "easy_apply_modal_opened", page, "Easy Apply modal likely opened by vision click"
+                        else:
+                            logger.info("Vision click performed, but current URL is unchanged and no obvious Easy Apply modal detected. Outcome unclear.")
+                            return "vision_apply_unknown_outcome", page, "Vision click performed, outcome unclear"
+                    else: # URL changed but still on LinkedIn
+                        logger.info(f"Vision click led to a new LinkedIn page: {current_url_after_click}. Outcome unclear.")
+                        return "vision_apply_linkedin_nav", page, f"Vision click led to LinkedIn page: {current_url_after_click}"
+
+                else:
+                    logger.error(f"❌ All attempts to click an apply button (CSS and vision) failed for {job_url}.")
+                    return None, None, "No apply button found (CSS or vision)."
+            except Exception as e:
+                logger.error(f"Error during vision-based apply attempt or outcome determination: {e}")
+                return None, None, f"Exception during vision apply: {str(e)}"
 
     def _build_search_url(self, keywords: str, location: Optional[str] = None) -> str:
         """Build search URL for LinkedIn Jobs"""
@@ -1236,9 +1280,6 @@ class LinkedInScraper(JobScraper):
     ):
         """Vision-based filtering when CSS selectors fail"""
         
-        # Import vision service
-        from app.services.vision_service import vision_service
-        
         try:
             # Initialize vision service
             if not vision_service.initialized:
@@ -1307,6 +1348,41 @@ class LinkedInScraper(JobScraper):
         except Exception as e:
             self.logger.error(f"Vision-based filtering failed for {filter_category_name}: {e}")
             raise
+
+    async def click_apply_button_with_vision(self, page: Page) -> bool:
+        logger.info("Attempting to click Apply button using vision...")
+        try:
+            if not vision_service.initialized:
+                await vision_service.initialize()
+
+            screenshot = await page.screenshot()
+            element_description = "Apply button for a job posting, could be 'Apply', 'Easy Apply', or 'Apply now'"
+            page_context = "LinkedIn job details page. Looking for the main call to action button to start an application."
+
+            apply_button_info = await vision_service.analyze_image_for_element(
+                screenshot,
+                element_description,
+                page_context
+            )
+
+            if apply_button_info and apply_button_info.get("found", False) and apply_button_info.get("confidence", 0) > 0.7:
+                center_x, center_y = await vision_service.get_element_center(apply_button_info)
+                if center_x and center_y:
+                    logger.info(f"Vision found Apply button at ({center_x}, {center_y}) with confidence {apply_button_info['confidence']}. Clicking...")
+                    await page.mouse.click(center_x, center_y)
+                    await page.wait_for_timeout(random.uniform(1500, 2500)) # Wait for action to complete
+                    return True
+                else:
+                    logger.warning("Vision found Apply button but could not get center coordinates.")
+                    return False
+            else:
+                confidence = apply_button_info.get('confidence', 0) if apply_button_info else 0
+                logger.warning(f"Vision did not find a suitable Apply button or confidence was too low ({confidence}).")
+                return False
+
+        except Exception as e:
+            logger.error(f"Error clicking Apply button with vision: {e}")
+            return False
 
     async def _wait_for_results_update(self):
         """Wait for job search results to update after applying filters"""
